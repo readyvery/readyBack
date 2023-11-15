@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.readyvery.readyverydemo.src.user.dto.UserAuthRes;
+import com.readyvery.readyverydemo.src.user.dto.UserInfoRes;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1")
 public class UserController {
 
-	private final UserServiceImpl userServiceImpl;
+	private final UserService userServiceImpl;
 
 	@GetMapping("/jwt-test")
 	public String jwtTest() {
@@ -29,9 +30,17 @@ public class UserController {
 	 * @return
 	 */
 	@GetMapping("/auth")
-	public UserAuthRes userInfo(@AuthenticationPrincipal UserDetails userDetails) {
+	public UserAuthRes userAuth(@AuthenticationPrincipal UserDetails userDetails) {
 		// 서비스 계층을 호출하여 사용자 정보를 조회합니다.
 		return userServiceImpl.getUserAuthByEmail(userDetails.getUsername());
+	}
+
+	/**
+	 *
+	 */
+	@GetMapping("/user/info")
+	public UserInfoRes userInfo(@AuthenticationPrincipal UserDetails userDetails) {
+		return userServiceImpl.getUserInfoByEmail(userDetails.getUsername());
 	}
 
 	/**
