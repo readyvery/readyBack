@@ -69,9 +69,13 @@ public class Store extends BaseTimeEntity {
 	@JoinColumn(name = "ceo_idx")
 	private CeoInfo ceoInfo;
 
-	//가게 메뉴 연관관계 매핑
+	//가게 메뉴 카테고리 연관관계 매핑
 	@OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
-	private List<Foodie> foodies = new ArrayList<>();
+	private List<FoodieCategory> foodieCategories = new ArrayList<>();
+
+	//가게 메뉴 연관관계 매핑
+	// @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+	// private List<Foodie> foodies = new ArrayList<>();
 
 	//가게 장바구니 연관관계 매핑
 	@OneToMany(mappedBy = "store", cascade = CascadeType.ALL)

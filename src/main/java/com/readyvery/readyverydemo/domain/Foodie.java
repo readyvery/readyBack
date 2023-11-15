@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "FOODIES")
+@Table(name = "FOODIE")
 @AllArgsConstructor
 @Slf4j
 public class Foodie extends BaseTimeEntity {
@@ -43,7 +43,7 @@ public class Foodie extends BaseTimeEntity {
 	private Long price;
 
 	//식품 이미지
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String imgUrl;
 
 	//식품 매진
@@ -51,13 +51,22 @@ public class Foodie extends BaseTimeEntity {
 	private boolean soldOut;
 
 	//식품 카테고리
-	@Column(nullable = false)
-	private String category;
+	// @Column(nullable = false)
+	// private String category;
+
+	//히트 메뉴
+	@Column(nullable = false, columnDefinition = "BOOLEAN default false")
+	private boolean hit;
 
 	//메뉴 - 가게 연관관계 매핑
+	// @ManyToOne(fetch = FetchType.LAZY)
+	// @JoinColumn(name = "store_idx")
+	// private Store store;
+
+	//메뉴 - 메뉴 카테고리 연관관계 매핑
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "store_idx")
-	private Store store;
+	@JoinColumn(name = "foodie_category_idx")
+	private FoodieCategory foodieCategory;
 
 	//메뉴 - 식품 카테고리 연관관계 매핑
 	@OneToMany(mappedBy = "foodie", cascade = CascadeType.ALL)
