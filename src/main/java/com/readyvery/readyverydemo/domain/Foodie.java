@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Table(name = "FOODIES")
 @AllArgsConstructor
 @Slf4j
-public class Foodie {
+public class Foodie extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

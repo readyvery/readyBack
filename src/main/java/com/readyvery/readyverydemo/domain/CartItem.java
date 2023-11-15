@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Table(name = "CART_ITEMS")
 @AllArgsConstructor
 @Slf4j
-public class CartItem {
+public class CartItem extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
