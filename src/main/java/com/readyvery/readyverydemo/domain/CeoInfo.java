@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Builder
-@Table(name = "CEOS")
+@Table(name = "CEO")
 @AllArgsConstructor
 @Slf4j
 public class CeoInfo extends BaseTimeEntity {

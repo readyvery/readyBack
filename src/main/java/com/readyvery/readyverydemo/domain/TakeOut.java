@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "TAKE_OUTS")
+@Table(name = "TAKE_OUT")
 @AllArgsConstructor
 @Slf4j
 public class TakeOut {
