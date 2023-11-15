@@ -1,7 +1,5 @@
 package com.readyvery.readyverydemo.security.config;
 
-import static org.springframework.security.config.Customizer.*;
-
 import java.util.Arrays;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -57,7 +55,8 @@ public class SpringSecurityConfig {
 				.requestMatchers(
 					"/jwt-test",
 					"/oauth2/**",
-					"/login"
+					"/login",
+					"/api/v1/store/**"
 				).permitAll() // 해당 요청은 인증이 필요함
 				.anyRequest().authenticated() // 위를 제외한 나머지는 모두 허용
 			)
