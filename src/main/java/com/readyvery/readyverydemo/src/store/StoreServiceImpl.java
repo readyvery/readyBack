@@ -8,6 +8,7 @@ import com.readyvery.readyverydemo.global.exception.BusinessLogicException;
 import com.readyvery.readyverydemo.global.exception.ExceptionCode;
 import com.readyvery.readyverydemo.src.store.dto.StoreDetailRes;
 import com.readyvery.readyverydemo.src.store.dto.StoreMapper;
+import com.readyvery.readyverydemo.src.store.dto.StoreMenuRes;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,8 +20,19 @@ public class StoreServiceImpl implements StoreService {
 
 	@Override
 	public StoreDetailRes getStoreDetail(Long storeId) {
-		Store store = storeRepository.findById(storeId)
-			.orElseThrow(() -> new BusinessLogicException(ExceptionCode.STORE_NOT_FOUND));
+		Store store = getStore(storeId);
 		return storeMapper.storeToStoreDetailRes(store);
 	}
+
+	private Store getStore(Long storeId) {
+		return storeRepository.findById(storeId)
+			.orElseThrow(() -> new BusinessLogicException(ExceptionCode.STORE_NOT_FOUND));
+	}
+
+	@Override
+	public StoreMenuRes getStoreMenu(Long storeId) {
+		Store store = getStore(storeId);
+		return storeMapper.storeToStoreMenuRes(store);
+	}
+
 }
