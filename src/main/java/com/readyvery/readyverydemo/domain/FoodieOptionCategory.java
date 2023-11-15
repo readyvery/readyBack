@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "FOODIE_OPTION_CATEGORIES")
+@Table(name = "FOODIE_OPTION_CATEGORIE")
 @AllArgsConstructor
 @Slf4j
 public class FoodieOptionCategory extends BaseTimeEntity {

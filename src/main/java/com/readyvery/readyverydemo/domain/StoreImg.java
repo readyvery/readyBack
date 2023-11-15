@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "STORES_IMG")
+@Table(name = "STORE_IMG")
 @AllArgsConstructor
 @Slf4j
 public class StoreImg {

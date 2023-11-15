@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "CARTS")
+@Table(name = "CART")
 @AllArgsConstructor
 @Slf4j
 public class Cart extends BaseTimeEntity {
