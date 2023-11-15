@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum ExceptionCode {
-	STORE_NOT_FOUND(404, "Store does not exists.");
+	STORE_NOT_FOUND(404, "Store does not exists."),
+	USER_NOT_FOUND(404, "User does not exists.");
 
 	private int status;
 	private String message;
