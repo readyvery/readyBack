@@ -44,8 +44,15 @@ public class UserController {
 		return userServiceImpl.getUserInfoById(userDetails.getId());
 	}
 
+	/**
+	 * 사용자 정보 조회
+	 * CustomUserDetails의 내부 구현체인 UserDetails를 사용하여도 사용자 정보를 조회가능
+	 * 인증체크 후 사용자 정보를 반환
+	 * @param userDetails
+	 * @return
+	 */
 	@GetMapping("/user/detail/info")
-	public UserDetails userDetail(@AuthenticationPrincipal UserDetails userDetails) {
+	public CustomUserDetails userDetail(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		return userDetails;
 	}
 
