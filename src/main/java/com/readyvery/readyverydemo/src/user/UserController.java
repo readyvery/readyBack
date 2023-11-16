@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.user.dto.UserAuthRes;
 import com.readyvery.readyverydemo.src.user.dto.UserInfoRes;
 
@@ -30,17 +31,27 @@ public class UserController {
 	 * @return
 	 */
 	@GetMapping("/auth")
-	public UserAuthRes userAuth(@AuthenticationPrincipal UserDetails userDetails) {
+	public UserAuthRes userAuth(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		// 서비스 계층을 호출하여 사용자 정보를 조회합니다.
-		return userServiceImpl.getUserAuthByEmail(userDetails.getUsername());
+		return userServiceImpl.getUserAuthById(userDetails.getId());
 	}
 
 	/**
 	 *
 	 */
 	@GetMapping("/user/info")
-	public UserInfoRes userInfo(@AuthenticationPrincipal UserDetails userDetails) {
-		return userServiceImpl.getUserInfoByEmail(userDetails.getUsername());
+	public UserInfoRes userInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return userServiceImpl.getUserInfoById(userDetails.getId());
+	}
+
+	@GetMapping("/user/detail/info")
+	public UserDetails userDetail(@AuthenticationPrincipal UserDetails userDetails) {
+		return userDetails;
+	}
+
+	@GetMapping("/user/detail1/info")
+	public UserDetails userDetail1(@AuthenticationPrincipal UserDetails userDetails) {
+		return userDetails;
 	}
 
 	/**
