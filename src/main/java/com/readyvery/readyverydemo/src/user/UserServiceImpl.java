@@ -22,20 +22,20 @@ public class UserServiceImpl implements UserService {
 	private final UserMapper userMapper;
 
 	@Override
-	public UserAuthRes getUserAuthByEmail(String email) {
-		UserInfo userInfo = getUserInfo(email);
+	public UserAuthRes getUserAuthById(Long id) {
+		UserInfo userInfo = getUserInfo(id);
 		return userMapper.userInfoToUserAuthRes(userInfo);
 
 	}
 
 	@Override
-	public UserInfoRes getUserInfoByEmail(String email) {
-		UserInfo userInfo = getUserInfo(email);
+	public UserInfoRes getUserInfoById(Long id) {
+		UserInfo userInfo = getUserInfo(id);
 		return userMapper.userInfoToUserInfoRes(userInfo);
 	}
 
-	private UserInfo getUserInfo(String email) {
-		return userRepository.findByEmail(email).orElseThrow(
+	private UserInfo getUserInfo(Long id) {
+		return userRepository.findById(id).orElseThrow(
 			() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND)
 		);
 	}

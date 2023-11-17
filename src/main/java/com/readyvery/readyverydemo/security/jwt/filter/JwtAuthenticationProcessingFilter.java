@@ -1,17 +1,19 @@
 package com.readyvery.readyverydemo.security.jwt.filter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
+import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.security.jwt.service.JwtService;
 
 import jakarta.servlet.FilterChain;
@@ -130,10 +132,11 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	 */
 	public void saveAuthentication(UserInfo myUser) {
 
-		UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
-			.username(myUser.getEmail())
+		CustomUserDetails userDetailsUser = CustomUserDetails.builder()
+			.id(myUser.getId())
+			.email(myUser.getEmail())
 			.password("readyvery")
-			.roles(myUser.getRole().name())
+			.authorities(Collections.singletonList(new SimpleGrantedAuthority(myUser.getRole().toString())))
 			.build();
 
 		Authentication authentication =

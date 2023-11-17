@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.user.dto.UserAuthRes;
 import com.readyvery.readyverydemo.src.user.dto.UserInfoRes;
 
@@ -30,17 +31,34 @@ public class UserController {
 	 * @return
 	 */
 	@GetMapping("/auth")
-	public UserAuthRes userAuth(@AuthenticationPrincipal UserDetails userDetails) {
+	public UserAuthRes userAuth(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		// 서비스 계층을 호출하여 사용자 정보를 조회합니다.
-		return userServiceImpl.getUserAuthByEmail(userDetails.getUsername());
+		return userServiceImpl.getUserAuthById(userDetails.getId());
 	}
 
 	/**
 	 *
 	 */
 	@GetMapping("/user/info")
-	public UserInfoRes userInfo(@AuthenticationPrincipal UserDetails userDetails) {
-		return userServiceImpl.getUserInfoByEmail(userDetails.getUsername());
+	public UserInfoRes userInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return userServiceImpl.getUserInfoById(userDetails.getId());
+	}
+
+	/**
+	 * 사용자 정보 조회
+	 * CustomUserDetails의 내부 구현체인 UserDetails를 사용하여도 사용자 정보를 조회가능
+	 * 인증체크 후 사용자 정보를 반환
+	 * @param userDetails
+	 * @return
+	 */
+	@GetMapping("/user/detail/info")
+	public CustomUserDetails userDetail(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return userDetails;
+	}
+
+	@GetMapping("/user/detail1/info")
+	public UserDetails userDetail1(@AuthenticationPrincipal UserDetails userDetails) {
+		return userDetails;
 	}
 
 	/**
