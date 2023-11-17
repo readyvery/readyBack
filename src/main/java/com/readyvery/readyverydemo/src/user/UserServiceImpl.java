@@ -7,6 +7,7 @@ import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
 import com.readyvery.readyverydemo.global.exception.BusinessLogicException;
 import com.readyvery.readyverydemo.global.exception.ExceptionCode;
+import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.user.dto.UserAuthRes;
 import com.readyvery.readyverydemo.src.user.dto.UserInfoRes;
 import com.readyvery.readyverydemo.src.user.dto.UserMapper;
@@ -22,9 +23,9 @@ public class UserServiceImpl implements UserService {
 	private final UserMapper userMapper;
 
 	@Override
-	public UserAuthRes getUserAuthById(Long id) {
-		UserInfo userInfo = getUserInfo(id);
-		return userMapper.userInfoToUserAuthRes(userInfo);
+	public UserAuthRes getUserAuthById(CustomUserDetails userDetails) {
+
+		return userMapper.userInfoToUserAuthRes(userDetails);
 
 	}
 
