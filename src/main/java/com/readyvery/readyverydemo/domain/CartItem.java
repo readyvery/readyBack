@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
@@ -28,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 @Builder
+@Setter
 public class CartItem extends BaseTimeEntity {
 
 	@Id
@@ -39,7 +41,7 @@ public class CartItem extends BaseTimeEntity {
 	@Column(nullable = false)
 	private Long count;
 
-	// 장바구니 메뉴 연관관계 매핑
+	// 장바구니 메뉴 연관관계 매핑"
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "foodie_idx")
 	private Foodie foodie;

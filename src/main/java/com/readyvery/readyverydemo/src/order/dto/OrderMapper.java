@@ -63,4 +63,11 @@ public class OrderMapper {
 			.cartItemId(cartItem.getId())
 			.build();
 	}
+
+	public CartEidtRes cartToCartEditRes(CartItem cartItem) {
+		return CartEidtRes.builder()
+			.idx(cartItem.getId())
+			.count(cartItem.getCount())
+			.build();
+	}
 }
