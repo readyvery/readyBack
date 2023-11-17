@@ -15,18 +15,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "FOODIE")
-@AllArgsConstructor
 @Slf4j
 public class Foodie extends BaseTimeEntity {
 
@@ -81,7 +75,6 @@ public class Foodie extends BaseTimeEntity {
 	@OneToMany(mappedBy = "foodie", cascade = CascadeType.ALL)
 	private List<CartItem> cartItems = new ArrayList<CartItem>();
 
-	@Builder.Default
 	@OneToMany(mappedBy = "foodie", cascade = CascadeType.ALL)
 	private List<CouponMenu> couponMenus = new ArrayList<CouponMenu>();
 
