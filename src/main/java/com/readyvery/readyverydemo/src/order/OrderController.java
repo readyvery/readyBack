@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
+import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
+import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 
 import lombok.RequiredArgsConstructor;
@@ -38,5 +41,12 @@ public class OrderController {
 		@RequestBody CartAddReq cartAddReq) {
 		CartAddRes cartAddRes = orderService.addCart(userDetails, cartAddReq);
 		return new ResponseEntity<>(cartAddRes, HttpStatus.OK);
+	}
+
+	@PutMapping("/cart")
+	public ResponseEntity<CartEidtRes> updateCart(@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody CartEditReq cartEditReq) {
+		CartEidtRes cartEditRes = orderService.editCart(userDetails, cartEditReq);
+		return new ResponseEntity<>(cartEditRes, HttpStatus.OK);
 	}
 }

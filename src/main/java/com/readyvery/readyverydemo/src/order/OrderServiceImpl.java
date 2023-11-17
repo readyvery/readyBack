@@ -26,6 +26,8 @@ import com.readyvery.readyverydemo.global.exception.ExceptionCode;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
+import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
+import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
 
@@ -71,6 +73,34 @@ public class OrderServiceImpl implements OrderService {
 		cartOptionRepository.saveAll(cartOptions);
 
 		return orderMapper.cartToCartAddRes(cartItem);
+	}
+
+	@Override
+	public CartEidtRes editCart(CustomUserDetails userDetails, CartEditReq cartEditReq) {
+		CartItem cartItem = getCartItem(cartEditReq.getIdx());
+
+		verifyCartItem(cartItem, userDetails);
+
+		editCartItem(cartItem, cartEditReq);
+		cartItemRepository.save(cartItem);
+		return orderMapper.cartToCartEditRes(cartItem);
+	}
+
+	private void editCartItem(CartItem cartItem, CartEditReq cartEditReq) {
+		cartItem.setCount(cartEditReq.getCount());
+	}
+
+	private void verifyCartItem(CartItem cartItem, CustomUserDetails userDetails) {
+		boolean isCartItemOfUser = cartItem.getCart().getUserInfo().getId().equals(userDetails.getId());
+		if (!isCartItemOfUser) {
+			throw new BusinessLogicException(ExceptionCode.CART_ITEM_NOT_FOUND);
+		}
+	}
+
+	private CartItem getCartItem(Long idx) {
+		return cartItemRepository.findById(idx).orElseThrow(
+			() -> new BusinessLogicException(ExceptionCode.CART_ITEM_NOT_FOUND)
+		);
 	}
 
 	private CartOption makeCartOption(CartItem cartItem, Long option) {
