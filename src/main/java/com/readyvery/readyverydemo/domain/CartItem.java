@@ -16,6 +16,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Table(name = "CART_ITEM")
 @AllArgsConstructor
 @Slf4j
+@Builder
 public class CartItem extends BaseTimeEntity {
 
 	@Id
@@ -48,6 +50,7 @@ public class CartItem extends BaseTimeEntity {
 	private Cart cart;
 
 	// 장바구니 아이템 - 장바구니 옵션 연관관계 매핑
+	@Builder.Default
 	@OneToMany(mappedBy = "cartItem", cascade = CascadeType.ALL)
 	private List<CartOption> cartOptions = new ArrayList<CartOption>();
 
