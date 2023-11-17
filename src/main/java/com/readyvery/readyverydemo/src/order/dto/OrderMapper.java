@@ -70,4 +70,10 @@ public class OrderMapper {
 			.count(cartItem.getCount())
 			.build();
 	}
+
+	public CartItemDeleteRes cartToCartItemDeleteRes(CartItem cartItem) {
+		return CartItemDeleteRes.builder()
+			.idx(cartItem.getId())
+			.build();
+	}
 }
