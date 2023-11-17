@@ -1,7 +1,6 @@
 package com.readyvery.readyverydemo.src.user;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,19 +24,20 @@ public class UserController {
 	}
 
 	/**
-	 * 사용자 정보 조회
+	 * 사용자 인증 체크
 	 * 인증체크 후 사용자 정보를 반환합니다.
+	 * DB의 조회 없이 반환
 	 * @param userDetails
 	 * @return
 	 */
 	@GetMapping("/auth")
 	public UserAuthRes userAuth(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		// 서비스 계층을 호출하여 사용자 정보를 조회합니다.
-		return userServiceImpl.getUserAuthById(userDetails.getId());
+		return userServiceImpl.getUserAuthById(userDetails);
 	}
 
 	/**
-	 *
+	 * 사용자 정보 조회
 	 */
 	@GetMapping("/user/info")
 	public UserInfoRes userInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -53,11 +53,6 @@ public class UserController {
 	 */
 	@GetMapping("/user/detail/info")
 	public CustomUserDetails userDetail(@AuthenticationPrincipal CustomUserDetails userDetails) {
-		return userDetails;
-	}
-
-	@GetMapping("/user/detail1/info")
-	public UserDetails userDetail1(@AuthenticationPrincipal UserDetails userDetails) {
 		return userDetails;
 	}
 

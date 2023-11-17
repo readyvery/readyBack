@@ -8,7 +8,5 @@ import lombok.Getter;
 public class UserAuthRes {
 	private Long id;
 	private String email;
-	private String name;
-
 }
 
