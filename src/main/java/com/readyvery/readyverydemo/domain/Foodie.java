@@ -17,6 +17,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -79,5 +80,9 @@ public class Foodie extends BaseTimeEntity {
 	//메뉴 - 장바구니 아이템 연관관계 매핑
 	@OneToMany(mappedBy = "foodie", cascade = CascadeType.ALL)
 	private List<CartItem> cartItems = new ArrayList<CartItem>();
+
+	@Builder.Default
+	@OneToMany(mappedBy = "foodie", cascade = CascadeType.ALL)
+	private List<CouponMenu> couponMenus = new ArrayList<CouponMenu>();
 
 }
