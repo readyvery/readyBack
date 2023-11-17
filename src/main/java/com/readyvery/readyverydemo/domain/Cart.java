@@ -43,6 +43,12 @@ public class Cart extends BaseTimeEntity {
 	@JoinColumn(name = "store_idx")
 	private Store store;
 
+	@Column(nullable = false, columnDefinition = "BOOLEAN default false")
+	private Boolean isOrdered;
+
+	@Column(nullable = false, columnDefinition = "BOOLEAN default false")
+	private Boolean isDeleted;
+
 	// 장바구니 장바구니 아이템 연관관계 매핑
 	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
 	private List<CartItem> cartItems = new ArrayList<CartItem>();
