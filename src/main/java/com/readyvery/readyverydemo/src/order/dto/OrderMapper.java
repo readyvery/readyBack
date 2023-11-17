@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import com.readyvery.readyverydemo.domain.CartItem;
 import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
@@ -54,6 +55,19 @@ public class OrderMapper {
 			.idx(option.getId())
 			.name(option.getName())
 			.price(option.getPrice())
+			.build();
+	}
+
+	public CartAddRes cartToCartAddRes(CartItem cartItem) {
+		return CartAddRes.builder()
+			.cartItemId(cartItem.getId())
+			.build();
+	}
+
+	public CartEidtRes cartToCartEditRes(CartItem cartItem) {
+		return CartEidtRes.builder()
+			.idx(cartItem.getId())
+			.count(cartItem.getCount())
 			.build();
 	}
 }
