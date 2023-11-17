@@ -3,6 +3,7 @@ package com.readyvery.readyverydemo.src.order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,8 @@ import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
 import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
+import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
+import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 
 import lombok.RequiredArgsConstructor;
@@ -48,5 +51,12 @@ public class OrderController {
 		@RequestBody CartEditReq cartEditReq) {
 		CartEidtRes cartEditRes = orderService.editCart(userDetails, cartEditReq);
 		return new ResponseEntity<>(cartEditRes, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/cart")
+	public ResponseEntity<CartItemDeleteRes> deleteCartItem(@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody CartItemDeleteReq cartItemDeleteReq) {
+		CartItemDeleteRes cartItemDeleteRes = orderService.deleteCart(userDetails, cartItemDeleteReq);
+		return new ResponseEntity<>(cartItemDeleteRes, HttpStatus.OK);
 	}
 }
