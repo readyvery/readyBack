@@ -9,6 +9,7 @@ import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.user.dto.UserAuthRes;
 import com.readyvery.readyverydemo.src.user.dto.UserInfoRes;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -54,6 +55,16 @@ public class UserController {
 	@GetMapping("/user/detail/info")
 	public CustomUserDetails userDetail(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		return userDetails;
+	}
+
+	/**
+	 * 사용자 로그아웃
+	 */
+	@GetMapping("/user/logout")
+	public boolean logout(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) {
+
+		userServiceImpl.removeRefreshTokenInDB(userDetails.getId(), response);
+		return true;
 	}
 
 	/**
