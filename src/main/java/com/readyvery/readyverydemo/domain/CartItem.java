@@ -51,6 +51,11 @@ public class CartItem extends BaseTimeEntity {
 	@JoinColumn(name = "cart_idx")
 	private Cart cart;
 
+	// 장바구니 아이템 삭제 여부
+	@Column(columnDefinition = "BOOLEAN default true")
+	@Builder.Default
+	private Boolean isDeleted = false;
+
 	// 장바구니 아이템 - 장바구니 옵션 연관관계 매핑
 	@Builder.Default
 	@OneToMany(mappedBy = "cartItem", cascade = CascadeType.ALL)
