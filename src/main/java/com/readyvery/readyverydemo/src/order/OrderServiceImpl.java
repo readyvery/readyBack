@@ -2,6 +2,7 @@ package com.readyvery.readyverydemo.src.order;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import com.readyvery.readyverydemo.domain.CartOption;
 import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
+import com.readyvery.readyverydemo.domain.Order;
+import com.readyvery.readyverydemo.domain.Progress;
 import com.readyvery.readyverydemo.domain.Store;
 import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.CartItemRepository;
@@ -19,6 +22,7 @@ import com.readyvery.readyverydemo.domain.repository.CartOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.CartRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieRepository;
+import com.readyvery.readyverydemo.domain.repository.OrderRepository;
 import com.readyvery.readyverydemo.domain.repository.StoreRepository;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
 import com.readyvery.readyverydemo.global.exception.BusinessLogicException;
@@ -33,7 +37,10 @@ import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
+import com.readyvery.readyverydemo.src.order.dto.FoodyDto;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
+import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
+import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
 import lombok.RequiredArgsConstructor;
 
@@ -47,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
 	private final FoodieOptionRepository foodieOptionRepository;
 	private final UserRepository userRepository;
 	private final StoreRepository storeRepository;
+	private final OrderRepository orderRepository;
 	private final OrderMapper orderMapper;
 
 	@Override
@@ -125,6 +133,60 @@ public class OrderServiceImpl implements OrderService {
 		Cart cart = getCart(user);
 
 		return orderMapper.cartToCartGetRes(cart, inout);
+	}
+
+	@Override
+	public TosspaymentMakeRes requestTossPayment(CustomUserDetails userDetails, PaymentReq paymentReq) {
+		UserInfo user = getUserInfo(userDetails);
+		Store store = getStore(paymentReq.getStoreId());
+		Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
+		//TODO: 쿠폰 추가
+		Order order = makeOrder(user, store, amount, paymentReq.getCarts());
+		orderRepository.save(order);
+		return orderMapper.orderToTosspaymentMakeRes(order);
+	}
+
+	private Order makeOrder(UserInfo user, Store store, Long amount, List<FoodyDto> carts) {
+		if (carts.isEmpty()) {
+			throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
+		}
+		String orderName = foodieRepository.findById(carts.get(0).getIdx()).orElseThrow(
+			() -> new BusinessLogicException(ExceptionCode.FOODY_NOT_FOUND)
+		).getName();
+		if (carts.size() > 1) {
+			orderName += " 외 " + (carts.size() - 1) + "개";
+		}
+		return Order.builder()
+			.userInfo(user)
+			.store(store)
+			.amount(amount)
+			.orderId(UUID.randomUUID().toString())
+			.paymentKey(null)
+			.orderName(orderName)
+			.totalAmount(amount)
+			.orderNumber(null)
+			.progress(Progress.REQUEST)
+			.build();
+	}
+
+	private Long calculateAmount(Store store, List<FoodyDto> carts, Long inout) {
+		return carts.stream()
+			.map(FoodyDto -> {
+				Foodie foodie = getFoody(FoodyDto.getIdx());
+				verifyFoodieInStore(store, foodie);
+				verifyOption(foodie, FoodyDto.getOptions());
+				verifyEssentialOption(foodie, FoodyDto.getOptions());
+
+				Long price = orderMapper.determinePrice(foodie, inout);
+				Long totalPrice = FoodyDto.getOptions().stream()
+					.map(this::getFoodieOption)
+					.map(FoodieOption::getPrice)
+					.reduce(price, Long::sum);
+
+				return totalPrice * FoodyDto.getCount();
+			})
+			.reduce(0L, Long::sum);
+
 	}
 
 	private void resetCartItem(Cart cart) {

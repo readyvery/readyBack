@@ -1,4 +1,4 @@
-package com.readyvery.readyverydemo.src.payment.config;
+package com.readyvery.readyverydemo.src.order.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

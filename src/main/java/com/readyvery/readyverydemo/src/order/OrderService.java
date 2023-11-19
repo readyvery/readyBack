@@ -10,6 +10,8 @@ import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
+import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
+import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
 public interface OrderService {
 	FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout);
@@ -23,4 +25,6 @@ public interface OrderService {
 	CartResetRes resetCart(CustomUserDetails userDetails);
 
 	CartGetRes getCart(CustomUserDetails userDetails, Long inout);
+
+	TosspaymentMakeRes requestTossPayment(CustomUserDetails userDetails, PaymentReq paymentReq);
 }

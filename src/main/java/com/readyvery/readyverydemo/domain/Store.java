@@ -71,7 +71,7 @@ public class Store extends BaseTimeEntity {
 
 	//가게 메뉴 카테고리 연관관계 매핑
 	@OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
-	private List<FoodieCategory> foodieCategories = new ArrayList<>();
+	private List<FoodieCategory> foodieCategories = new ArrayList<FoodieCategory>();
 
 	//가게 메뉴 연관관계 매핑
 	// @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
@@ -79,8 +79,11 @@ public class Store extends BaseTimeEntity {
 
 	//가게 장바구니 연관관계 매핑
 	@OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
-	private List<Cart> carts = new ArrayList<>();
+	private List<Cart> carts = new ArrayList<Cart>();
 
 	@OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
-	private List<StoreImg> imgs = new ArrayList<>();
+	private List<StoreImg> imgs = new ArrayList<StoreImg>();
+
+	@OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+	private List<Order> orders = new ArrayList<Order>();
 }
