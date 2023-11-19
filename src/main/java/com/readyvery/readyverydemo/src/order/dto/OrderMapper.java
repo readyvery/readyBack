@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import com.readyvery.readyverydemo.domain.Cart;
 import com.readyvery.readyverydemo.domain.CartItem;
 import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
@@ -74,6 +75,12 @@ public class OrderMapper {
 	public CartItemDeleteRes cartToCartItemDeleteRes(CartItem cartItem) {
 		return CartItemDeleteRes.builder()
 			.idx(cartItem.getId())
+			.build();
+	}
+
+	public CartResetRes cartToCartResetRes(Cart cart) {
+		return CartResetRes.builder()
+			.idx(cart.getId())
 			.build();
 	}
 }
