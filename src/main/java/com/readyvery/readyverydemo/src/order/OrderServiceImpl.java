@@ -30,6 +30,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
+import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
 
@@ -97,6 +98,27 @@ public class OrderServiceImpl implements OrderService {
 		deleteCartItem(cartItem);
 		cartItemRepository.save(cartItem);
 		return orderMapper.cartToCartItemDeleteRes(cartItem);
+	}
+
+	@Override
+	public CartResetRes resetCart(CustomUserDetails userDetails) {
+		UserInfo user = getUserInfo(userDetails);
+		Cart cart = getCart(user);
+
+		resetCartItem(cart);
+
+		cartRepository.save(cart);
+		return orderMapper.cartToCartResetRes(cart);
+	}
+
+	private void resetCartItem(Cart cart) {
+		cart.setIsDeleted(true);
+	}
+
+	private Cart getCart(UserInfo user) {
+		return cartRepository.findByUserInfoAndIsDeletedFalse(user).orElseThrow(
+			() -> new BusinessLogicException(ExceptionCode.CART_NOT_FOUND)
+		);
 	}
 
 	private void deleteCartItem(CartItem cartItem) {
