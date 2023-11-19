@@ -20,6 +20,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
+import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 
 import lombok.RequiredArgsConstructor;
@@ -58,5 +59,11 @@ public class OrderController {
 		@RequestBody CartItemDeleteReq cartItemDeleteReq) {
 		CartItemDeleteRes cartItemDeleteRes = orderService.deleteCart(userDetails, cartItemDeleteReq);
 		return new ResponseEntity<>(cartItemDeleteRes, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/cart/reset")
+	public ResponseEntity<CartResetRes> resetCart(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		CartResetRes cartResetRes = orderService.resetCart(userDetails);
+		return new ResponseEntity<>(cartResetRes, HttpStatus.OK);
 	}
 }
