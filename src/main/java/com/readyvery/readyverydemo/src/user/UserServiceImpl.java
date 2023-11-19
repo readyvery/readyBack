@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
 	private String refreshCookie;
 
 	@Override
-	public UserAuthRes getUserAuthById(CustomUserDetails userDetails) {
+	public UserAuthRes getUserAuthByCustomUserDetails(CustomUserDetails userDetails) {
 
 		return userMapper.userInfoToUserAuthRes(userDetails);
 
