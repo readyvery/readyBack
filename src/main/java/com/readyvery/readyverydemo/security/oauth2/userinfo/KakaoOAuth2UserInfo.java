@@ -67,7 +67,7 @@ public class KakaoOAuth2UserInfo extends OAuth2UserInfo {
 			return null;
 		}
 
-		return (String)account.get("birthyear");
+		return (String)account.get("birthday");
 	}
 
 	@Override
