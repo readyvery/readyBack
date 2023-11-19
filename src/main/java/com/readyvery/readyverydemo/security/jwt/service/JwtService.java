@@ -161,7 +161,7 @@ public class JwtService {
 		// accessTokenCookie.setSameSite("Strict");
 
 		// 도메인 설정
-		accessTokenCookie.setDomain("localhost");
+		//accessTokenCookie.setDomain("localhost");
 
 		// 쿠키 만료 시간 설정 (예: 액세스 토큰 만료 시간과 같게 설정)
 		accessTokenCookie.setMaxAge(accessTokenExpirationPeriod.intValue()); // 초 단위로 설정
