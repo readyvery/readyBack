@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.readyvery.readyverydemo.domain.Cart;
 import com.readyvery.readyverydemo.domain.CartItem;
+import com.readyvery.readyverydemo.domain.CartOption;
 import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
@@ -35,8 +36,8 @@ public class OrderMapper {
 		} else if (Objects.equals(inout, TAKE_OUT)) {
 			return foodie.getTakeOut() != null ? foodie.getTakeOut().getPrice() : foodie.getPrice();
 		}
-		// inout이 EAT_IN도 TAKE_OUT도 아닌 경우, null을 반환
-		return null;
+		// inout이 EAT_IN도 TAKE_OUT도 아닌 경우, 기본 값 반환
+		return foodie.getPrice();
 	}
 
 	private OptionCategoryDto foodieOptionCategoryToOptionCategoryDto(FoodieOptionCategory category) {
@@ -83,4 +84,54 @@ public class OrderMapper {
 			.idx(cart.getId())
 			.build();
 	}
+
+	public CartGetRes cartToCartGetRes(Cart cart, Long inout) {
+		return CartGetRes.builder()
+			.name(cart.getStore().getName())
+			.imgUrl(cart.getStore().getImgs().get(0).getImgUrl())
+			.carts(
+				cart.getCartItems()
+					.stream()
+					.map(cartItem -> cartItemToCartDto(cartItem, inout))
+					.toList())
+			.totalPrice(
+				cart.getCartItems()
+					.stream()
+					.mapToLong(cartItem -> cartItemTotalPrice(cartItem, inout))
+					.sum())
+			.build();
+	}
+
+	private CartDto cartItemToCartDto(CartItem cartItem, Long inout) {
+		return CartDto.builder()
+			.idx(cartItem.getId())
+			.name(cartItem.getFoodie().getName())
+			.count(cartItem.getCount())
+			.totalPrice(cartItemTotalPrice(cartItem, inout))
+			.options(
+				cartItem.getCartOptions()
+					.stream()
+					.map(this::cartOptionToOptionDto)
+					.toList())
+			.build();
+	}
+
+	private OptionDto cartOptionToOptionDto(CartOption cartOption) {
+		return OptionDto.builder()
+			.idx(cartOption.getId())
+			.name(cartOption.getFoodieOption().getName())
+			.price(cartOption.getFoodieOption().getPrice())
+			.build();
+	}
+
+	private Long cartItemTotalPrice(CartItem cartItem, Long inout) {
+		Long optionsPriceSum = cartItem.getCartOptions()
+			.stream()
+			.mapToLong(cartOption -> cartOption.getFoodieOption().getPrice())
+			.sum();
+
+		Long totalPrice = optionsPriceSum + determinePrice(cartItem.getFoodie(), inout);
+		return totalPrice * cartItem.getCount();
+	}
+
 }
