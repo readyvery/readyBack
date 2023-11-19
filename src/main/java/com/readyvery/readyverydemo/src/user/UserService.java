@@ -7,7 +7,7 @@ import com.readyvery.readyverydemo.src.user.dto.UserInfoRes;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface UserService {
-	UserAuthRes getUserAuthById(CustomUserDetails userDetails);
+	UserAuthRes getUserAuthByCustomUserDetails(CustomUserDetails userDetails);
 
 	UserInfoRes getUserInfoById(Long id);
 

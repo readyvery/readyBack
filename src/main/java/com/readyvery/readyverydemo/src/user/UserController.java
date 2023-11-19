@@ -34,7 +34,7 @@ public class UserController {
 	@GetMapping("/auth")
 	public UserAuthRes userAuth(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		// 서비스 계층을 호출하여 사용자 정보를 조회합니다.
-		return userServiceImpl.getUserAuthById(userDetails);
+		return userServiceImpl.getUserAuthByCustomUserDetails(userDetails);
 	}
 
 	/**
