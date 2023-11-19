@@ -98,6 +98,11 @@ public class SpringSecurityConfig {
 		configuration.setAllowedOrigins(Arrays.asList("*"));
 		configuration.setAllowedMethods(Arrays.asList("POST", "PATCH", "GET", "DELETE"));
 
+		// TODO: 이 부분은 나중에 삭제해야 됨
+		//configuration.setAllowedMethods(Arrays.asList("*")); // 모든 HTTP 메서드 허용
+		configuration.setAllowedHeaders(Arrays.asList("*")); // 모든 헤더 허용
+		configuration.setAllowCredentials(true); // 크레덴셜(쿠키, HTTP 인증 등) 허용
+
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
