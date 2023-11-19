@@ -28,6 +28,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
 import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
+import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
@@ -116,6 +117,14 @@ public class OrderServiceImpl implements OrderService {
 
 		cartRepository.save(cart);
 		return orderMapper.cartToCartResetRes(cart);
+	}
+
+	@Override
+	public CartGetRes getCart(CustomUserDetails userDetails, Long inout) {
+		UserInfo user = getUserInfo(userDetails);
+		Cart cart = getCart(user);
+
+		return orderMapper.cartToCartGetRes(cart, inout);
 	}
 
 	private void resetCartItem(Cart cart) {

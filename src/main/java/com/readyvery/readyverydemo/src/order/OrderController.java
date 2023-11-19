@@ -18,6 +18,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
 import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
+import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
@@ -38,6 +39,13 @@ public class OrderController {
 		@RequestParam("inout") Long inout) {
 		FoodyDetailRes foodyDetailRes = orderService.getFoody(storeId, foodyId, inout);
 		return new ResponseEntity<>(foodyDetailRes, HttpStatus.OK);
+	}
+
+	@GetMapping("/cart")
+	public ResponseEntity<CartGetRes> getCart(@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestParam("inout") Long inout) {
+		CartGetRes cartGetRes = orderService.getCart(userDetails, inout);
+		return new ResponseEntity<>(cartGetRes, HttpStatus.OK);
 	}
 
 	@PostMapping("/cart")

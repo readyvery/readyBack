@@ -5,6 +5,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
 import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
+import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
@@ -20,4 +21,6 @@ public interface OrderService {
 	CartItemDeleteRes deleteCart(CustomUserDetails userDetails, CartItemDeleteReq cartItemDeleteReq);
 
 	CartResetRes resetCart(CustomUserDetails userDetails);
+
+	CartGetRes getCart(CustomUserDetails userDetails, Long inout);
 }
