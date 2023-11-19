@@ -66,6 +66,7 @@ public class OrderServiceImpl implements OrderService {
 		verifyCartAddReq(foodie, cartAddReq);
 
 		Cart cart = cartRepository.findByUserInfoAndIsDeletedFalse(user).orElseGet(() -> makeCart(user, store));
+		verifyItemsInCart(cart, store);
 		CartItem cartItem = makeCartItem(cart, foodie, cartAddReq.getCount());
 		List<CartOption> cartOptions = cartAddReq.getOptions().stream()
 			.map(option -> makeCartOption(cartItem, option))
@@ -76,6 +77,12 @@ public class OrderServiceImpl implements OrderService {
 		cartOptionRepository.saveAll(cartOptions);
 
 		return orderMapper.cartToCartAddRes(cartItem);
+	}
+
+	private void verifyItemsInCart(Cart cart, Store store) {
+		if (!cart.getStore().equals(store)) {
+			throw new BusinessLogicException(ExceptionCode.ITEM_NOT_SAME_STORE);
+		}
 	}
 
 	@Override

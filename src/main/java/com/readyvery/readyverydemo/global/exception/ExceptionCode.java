@@ -12,7 +12,8 @@ public enum ExceptionCode {
 	INVALID_OPTION(400, "Invalid option."),
 	OPTION_NOT_FOUND(404, "Option does not exists."),
 	CART_ITEM_NOT_FOUND(404, "Cart item does not exists."),
-	CART_NOT_FOUND(404, "Cart does not exists.");
+	CART_NOT_FOUND(404, "Cart does not exists."),
+	ITEM_NOT_SAME_STORE(400, "Item is not same store.");
 
 	private int status;
 	private String message;
