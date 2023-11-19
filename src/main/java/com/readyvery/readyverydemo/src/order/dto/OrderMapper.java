@@ -12,9 +12,16 @@ import com.readyvery.readyverydemo.domain.CartOption;
 import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
+import com.readyvery.readyverydemo.domain.Order;
+import com.readyvery.readyverydemo.src.order.config.TossPaymentConfig;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class OrderMapper {
+	private final TossPaymentConfig tossPaymentConfig;
+
 	public FoodyDetailRes foodieToFoodyDetailRes(Foodie foodie, Long inout) {
 		Long price = determinePrice(foodie, inout);
 
@@ -30,7 +37,7 @@ public class OrderMapper {
 			.build();
 	}
 
-	private Long determinePrice(Foodie foodie, Long inout) {
+	public Long determinePrice(Foodie foodie, Long inout) {
 		if (Objects.equals(inout, EAT_IN)) {
 			return foodie.getPrice();
 		} else if (Objects.equals(inout, TAKE_OUT)) {
@@ -134,4 +141,15 @@ public class OrderMapper {
 		return totalPrice * cartItem.getCount();
 	}
 
+	public TosspaymentMakeRes orderToTosspaymentMakeRes(Order order) {
+		return TosspaymentMakeRes.builder()
+			.orderId(order.getOrderId())
+			.orderName(order.getOrderName())
+			.successUrl(tossPaymentConfig.getTossSuccessUrl())
+			.failUrl(tossPaymentConfig.getTossFailUrl())
+			.customerEmail("test@naver.com")
+			.customerName("test")
+			.amount(order.getAmount())
+			.build();
+	}
 }

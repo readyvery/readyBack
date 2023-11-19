@@ -8,7 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,34 +18,25 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Entity
 @Builder
-@Table(name = "COUPON")
+@Table(name = "ORDER_ITEM_OPTION")
 @AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
-public class Coupon extends BaseTimeEntity {
-
+public class OrderItemOption {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "coupon_idx")
+	@Column(name = "order_item_option_idx")
 	private Long id;
 
-	// 사용 여부
-	@Column(name = "used")
-	private boolean isUsed;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "order_item_idx")
+	private OrderItem orderItem;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "coupon_detail_idx")
-	private CouponDetail couponDetail;
+	@JoinColumn(name = "foodie_option_idx")
+	private FoodieOption foodieOption;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_idx")
-	private UserInfo userInfo;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "store_idx")
-	private Store store;
-
-	@OneToOne(mappedBy = "coupon", fetch = FetchType.LAZY)
-	private Order order;
-
+	@JoinColumn(name = "foodie_option_category_idx")
+	private FoodieOptionCategory foodieOptionCategory;
 }

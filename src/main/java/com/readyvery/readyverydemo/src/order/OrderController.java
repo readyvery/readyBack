@@ -23,6 +23,8 @@ import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
+import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
+import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
 import lombok.RequiredArgsConstructor;
 
@@ -53,6 +55,13 @@ public class OrderController {
 		@RequestBody CartAddReq cartAddReq) {
 		CartAddRes cartAddRes = orderService.addCart(userDetails, cartAddReq);
 		return new ResponseEntity<>(cartAddRes, HttpStatus.OK);
+	}
+
+	@PostMapping("/toss")
+	public ResponseEntity<TosspaymentMakeRes> requestTossPayment(@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody PaymentReq paymentReq) {
+		TosspaymentMakeRes tosspaymentMakeRes = orderService.requestTossPayment(userDetails, paymentReq);
+		return new ResponseEntity<>(tosspaymentMakeRes, HttpStatus.OK);
 	}
 
 	@PutMapping("/cart")

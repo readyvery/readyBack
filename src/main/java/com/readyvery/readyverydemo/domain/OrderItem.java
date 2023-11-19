@@ -3,7 +3,6 @@ package com.readyvery.readyverydemo.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,43 +13,37 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "FOODIE_OPTION")
+@Builder
+@Table(name = "ORDER_ITEM")
 @AllArgsConstructor
+@NoArgsConstructor
 @Slf4j
-public class FoodieOption extends BaseTimeEntity {
-
+public class OrderItem {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "foodie_option_idx")
+	@Column(name = "order_item_idx")
 	private Long id;
 
-	//식품 옵션 이름
-	@Column(nullable = false)
-	private String name;
+	@Column
+	private Long count;
 
-	//식품 옵션 가격
-	@Column(nullable = false)
-	private Long price;
-
-	//식품 옵션 연관관계 매핑
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "foodie_option_category_idx")
-	private FoodieOptionCategory foodieOptionCategory;
+	@JoinColumn(name = "order_idx")
+	private Order order;
 
-	// 식품 옵션 - 장바구니 옵션 연관관계 매핑
-	@OneToMany(mappedBy = "foodieOption", cascade = CascadeType.ALL)
-	private List<CartOption> cartOptions = new ArrayList<CartOption>();
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "foodie_idx")
+	private Foodie foodie;
 
-	// order item option 연관 관계 매핑
-	@OneToMany(mappedBy = "foodieOption", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "orderItem")
 	private List<OrderItemOption> orderItemOptions = new ArrayList<OrderItemOption>();
+
 }
