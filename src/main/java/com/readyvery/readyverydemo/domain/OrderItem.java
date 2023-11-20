@@ -35,9 +35,9 @@ public class OrderItem {
 	@Column
 	private Long count;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "order_idx")
-	private Order order;
+	// @ManyToOne(fetch = FetchType.LAZY)
+	// @JoinColumn(name = "order_idx")
+	// private Order order;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "foodie_idx")
