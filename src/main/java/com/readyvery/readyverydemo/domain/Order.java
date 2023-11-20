@@ -1,8 +1,5 @@
 package com.readyvery.readyverydemo.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -72,9 +68,9 @@ public class Order {
 	private Progress progress;
 
 	// 가게 아이템 연관 관계
-	@OneToMany(mappedBy = "order")
-	@Builder.Default
-	private List<OrderItem> orderItems = new ArrayList<OrderItem>();
+	// @OneToMany(mappedBy = "order")
+	// @Builder.Default
+	// private List<OrderItem> orderItems = new ArrayList<OrderItem>();
 
 	// 가게 연관 관계
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -85,6 +81,10 @@ public class Order {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_idx")
 	private UserInfo userInfo;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "cart_idx")
+	private Cart cart;
 
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "coupon_idx")

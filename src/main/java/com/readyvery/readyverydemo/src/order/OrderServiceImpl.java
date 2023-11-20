@@ -50,7 +50,6 @@ import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
-import com.readyvery.readyverydemo.src.order.dto.FoodyDto;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentDto;
@@ -156,11 +155,19 @@ public class OrderServiceImpl implements OrderService {
 	public TosspaymentMakeRes requestTossPayment(CustomUserDetails userDetails, PaymentReq paymentReq) {
 		UserInfo user = getUserInfo(userDetails);
 		Store store = getStore(paymentReq.getStoreId());
-		Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
+		Cart cart = getCart(user);
+		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
+		Long amount = calculateAmount2(cart, paymentReq.getInout());
 		//TODO: 쿠폰 추가
-		Order order = makeOrder(user, store, amount, paymentReq.getCarts());
+		Order order = makeOrder(user, store, amount, cart);
+		cartOrder(cart);
 		orderRepository.save(order);
+		cartRepository.save(cart);
 		return orderMapper.orderToTosspaymentMakeRes(order);
+	}
+
+	private void cartOrder(Cart cart) {
+		cart.setIsOrdered(true);
 	}
 
 	@Override
@@ -224,15 +231,13 @@ public class OrderServiceImpl implements OrderService {
 		return headers;
 	}
 
-	private Order makeOrder(UserInfo user, Store store, Long amount, List<FoodyDto> carts) {
-		if (carts.isEmpty()) {
+	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart) {
+		if (cart.getCartItems().isEmpty()) {
 			throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
 		}
-		String orderName = foodieRepository.findById(carts.get(0).getIdx()).orElseThrow(
-			() -> new BusinessLogicException(ExceptionCode.FOODY_NOT_FOUND)
-		).getName();
-		if (carts.size() > 1) {
-			orderName += " 외 " + (carts.size() - 1) + "개";
+		String orderName = cart.getCartItems().get(0).getFoodie().getName();
+		if (cart.getCartItems().size() > 1) {
+			orderName += " 외 " + (cart.getCartItems().size() - 1) + "개";
 		}
 		return Order.builder()
 			.userInfo(user)
@@ -247,24 +252,36 @@ public class OrderServiceImpl implements OrderService {
 			.build();
 	}
 
-	private Long calculateAmount(Store store, List<FoodyDto> carts, Long inout) {
-		return carts.stream()
-			.map(FoodyDto -> {
-				Foodie foodie = getFoody(FoodyDto.getIdx());
-				verifyFoodieInStore(store, foodie);
-				verifyOption(foodie, FoodyDto.getOptions());
-				verifyEssentialOption(foodie, FoodyDto.getOptions());
+	// private Long calculateAmount(Store store, List<FoodyDto> carts, Long inout) {
+	// 	return carts.stream()
+	// 		.map(FoodyDto -> {
+	// 			Foodie foodie = getFoody(FoodyDto.getIdx());
+	// 			verifyFoodieInStore(store, foodie);
+	// 			verifyOption(foodie, FoodyDto.getOptions());
+	// 			verifyEssentialOption(foodie, FoodyDto.getOptions());
+	//
+	// 			Long price = orderMapper.determinePrice(foodie, inout);
+	// 			Long totalPrice = FoodyDto.getOptions().stream()
+	// 				.map(this::getFoodieOption)
+	// 				.map(FoodieOption::getPrice)
+	// 				.reduce(price, Long::sum);
+	//
+	// 			return totalPrice * FoodyDto.getCount();
+	// 		})
+	// 		.reduce(0L, Long::sum);
+	// }
 
-				Long price = orderMapper.determinePrice(foodie, inout);
-				Long totalPrice = FoodyDto.getOptions().stream()
-					.map(this::getFoodieOption)
+	private Long calculateAmount2(Cart cart, Long inout) {
+		return cart.getCartItems().stream()
+			.map(cartItem -> {
+				Long price = orderMapper.determinePrice(cartItem.getFoodie(), inout);
+				Long totalPrice = cartItem.getCartOptions().stream()
+					.map(CartOption::getFoodieOption)
 					.map(FoodieOption::getPrice)
 					.reduce(price, Long::sum);
 
-				return totalPrice * FoodyDto.getCount();
-			})
-			.reduce(0L, Long::sum);
-
+				return totalPrice * cartItem.getCount();
+			}).reduce(0L, Long::sum);
 	}
 
 	private void resetCartItem(Cart cart) {
