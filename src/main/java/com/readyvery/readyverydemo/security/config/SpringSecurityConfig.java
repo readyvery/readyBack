@@ -101,7 +101,7 @@ public class SpringSecurityConfig {
 		//configuration.setAllowedMethods(Arrays.asList("*")); // 모든 HTTP 메서드 허용
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOriginPatterns(Arrays.asList("*")); // 변경된 설정
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS"));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
 		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.setAllowCredentials(true);
 
