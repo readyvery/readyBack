@@ -11,6 +11,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -20,14 +21,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Entity
 @Builder
-@Table(name = "ORDERS")
+@Table(name = "ORDERS", indexes = {@Index(name = "idx_order_id", columnList = "orderId", unique = true)})
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
 @Slf4j
 public class Order {
 	@Id
@@ -70,6 +73,7 @@ public class Order {
 
 	// 가게 아이템 연관 관계
 	@OneToMany(mappedBy = "order")
+	@Builder.Default
 	private List<OrderItem> orderItems = new ArrayList<OrderItem>();
 
 	// 가게 연관 관계

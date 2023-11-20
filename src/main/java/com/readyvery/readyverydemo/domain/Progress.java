@@ -10,7 +10,7 @@ public enum Progress {
 	REQUEST("REQUEST", "토스 결제 요청"),
 	ORDER("ORDER", "주문 접수"),
 	MAKE("MAKE", "음식 제조 중"),
-	COMPLETE("COMPLETE", "배달 완료"),
+	COMPLETE("COMPLETE", "제조 완료"),
 	PICKUP("PICKUP", "픽업 완료");
 
 	private final String key;

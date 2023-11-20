@@ -96,10 +96,12 @@ public class UserInfo extends BaseTimeEntity {
 
 	// 유저 주문 연관관계 매핑
 	@OneToMany(mappedBy = "userInfo", cascade = CascadeType.ALL)
+	@Builder.Default
 	private List<Order> orders = new ArrayList<Order>();
 
 	// 유저 쿠폰 연관관계 매핑
 	@OneToMany(mappedBy = "userInfo", cascade = CascadeType.ALL)
+	@Builder.Default
 	private List<Coupon> coupons = new ArrayList<Coupon>();
 
 	// 리프레시토큰 업데이트
