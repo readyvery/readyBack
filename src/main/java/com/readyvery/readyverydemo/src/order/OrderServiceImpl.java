@@ -154,8 +154,9 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public TosspaymentMakeRes requestTossPayment(CustomUserDetails userDetails, PaymentReq paymentReq) {
 		UserInfo user = getUserInfo(userDetails);
-		Store store = getStore(paymentReq.getStoreId());
 		Cart cart = getCart(user);
+		Store store = cart.getStore();
+
 		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
 		Long amount = calculateAmount2(cart, paymentReq.getInout());
 		//TODO: 쿠폰 추가
