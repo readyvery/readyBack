@@ -27,4 +27,6 @@ public interface OrderService {
 	CartGetRes getCart(CustomUserDetails userDetails, Long inout);
 
 	TosspaymentMakeRes requestTossPayment(CustomUserDetails userDetails, PaymentReq paymentReq);
+
+	String tossPaymentSuccess(String paymentKey, String orderId, Long amount);
 }

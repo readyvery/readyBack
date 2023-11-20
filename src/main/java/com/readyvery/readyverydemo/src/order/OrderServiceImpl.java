@@ -1,11 +1,20 @@
 package com.readyvery.readyverydemo.src.order;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import net.minidev.json.JSONObject;
 
 import com.readyvery.readyverydemo.domain.Cart;
 import com.readyvery.readyverydemo.domain.CartItem;
@@ -15,6 +24,7 @@ import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
 import com.readyvery.readyverydemo.domain.Order;
 import com.readyvery.readyverydemo.domain.Progress;
+import com.readyvery.readyverydemo.domain.Receipt;
 import com.readyvery.readyverydemo.domain.Store;
 import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.CartItemRepository;
@@ -23,11 +33,14 @@ import com.readyvery.readyverydemo.domain.repository.CartRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieRepository;
 import com.readyvery.readyverydemo.domain.repository.OrderRepository;
+import com.readyvery.readyverydemo.domain.repository.OrdersRepository;
+import com.readyvery.readyverydemo.domain.repository.ReceiptRepository;
 import com.readyvery.readyverydemo.domain.repository.StoreRepository;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
 import com.readyvery.readyverydemo.global.exception.BusinessLogicException;
 import com.readyvery.readyverydemo.global.exception.ExceptionCode;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
+import com.readyvery.readyverydemo.src.order.config.TossPaymentConfig;
 import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
 import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
@@ -40,6 +53,7 @@ import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDto;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
+import com.readyvery.readyverydemo.src.order.dto.TosspaymentDto;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
 import lombok.RequiredArgsConstructor;
@@ -56,6 +70,9 @@ public class OrderServiceImpl implements OrderService {
 	private final StoreRepository storeRepository;
 	private final OrderRepository orderRepository;
 	private final OrderMapper orderMapper;
+	private final TossPaymentConfig tosspaymentConfig;
+	private final OrdersRepository ordersRepository;
+	private final ReceiptRepository receiptRepository;
 
 	@Override
 	public FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout) {
@@ -144,6 +161,67 @@ public class OrderServiceImpl implements OrderService {
 		Order order = makeOrder(user, store, amount, paymentReq.getCarts());
 		orderRepository.save(order);
 		return orderMapper.orderToTosspaymentMakeRes(order);
+	}
+
+	@Override
+	public String tossPaymentSuccess(String paymentKey, String orderId, Long amount) {
+		Order order = getOrder(orderId);
+		verifyOrder(order, amount);
+		TosspaymentDto tosspaymentDto = requestTossPaymentAccept(paymentKey, orderId, amount);
+		applyTosspaymentDto(order, tosspaymentDto);
+		orderRepository.save(order);
+		//TODO: 영수증 처리
+		Receipt receipt = orderMapper.tosspaymentDtoToReceipt(tosspaymentDto, order);
+		receiptRepository.save(receipt);
+		return "hi";
+	}
+
+	private void applyTosspaymentDto(Order order, TosspaymentDto tosspaymentDto) {
+		//TODO: orderNumber 적용
+		order.setPaymentKey(tosspaymentDto.getPaymentKey());
+		order.setMethod(tosspaymentDto.getMethod());
+		order.setProgress(Progress.ORDER);
+	}
+
+	private void verifyOrder(Order order, Long amount) {
+		if (!order.getTotalAmount().equals(amount)) {
+			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_AMOUNT_NOT_MATCH);
+		}
+	}
+
+	private Order getOrder(String orderId) {
+		return ordersRepository.findByOrderId(orderId).orElseThrow(
+			() -> new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND)
+		);
+	}
+
+	private TosspaymentDto requestTossPaymentAccept(String paymentKey, String orderId, Long amount) {
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = makeTossHeader();
+		JSONObject params = new JSONObject();
+
+		params.put("amount", amount);
+		params.put("orderId", orderId);
+		params.put("paymentKey", paymentKey);
+
+		try {
+			return restTemplate.postForObject(TossPaymentConfig.CONFIRM_URL,
+				new HttpEntity<>(params, headers),
+				TosspaymentDto.class);
+		} catch (Exception e) {
+			System.out.println("e.getMessage() = " + e.getMessage());
+			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_SUCCESS_FAIL);
+		}
+	}
+
+	private HttpHeaders makeTossHeader() {
+		HttpHeaders headers = new HttpHeaders();
+		String encodedAuthKey = new String(
+			Base64.getEncoder().encode((tosspaymentConfig.getTossSecretKey() + ":").getBytes(StandardCharsets.UTF_8)));
+		headers.setBasicAuth(encodedAuthKey);
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		return headers;
 	}
 
 	private Order makeOrder(UserInfo user, Store store, Long amount, List<FoodyDto> carts) {

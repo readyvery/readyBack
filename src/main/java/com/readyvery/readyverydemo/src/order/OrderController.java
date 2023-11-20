@@ -50,6 +50,15 @@ public class OrderController {
 		return new ResponseEntity<>(cartGetRes, HttpStatus.OK);
 	}
 
+	@GetMapping("/toss/success")
+	public ResponseEntity<String> tossPaymentSuccess(
+		@RequestParam("paymentKey") String paymentKey,
+		@RequestParam("orderId") String orderId,
+		@RequestParam("amount") Long amount) {
+		String result = orderService.tossPaymentSuccess(paymentKey, orderId, amount);
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+
 	@PostMapping("/cart")
 	public ResponseEntity<CartAddRes> addCart(@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody CartAddReq cartAddReq) {
