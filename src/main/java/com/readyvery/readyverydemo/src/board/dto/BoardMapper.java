@@ -36,7 +36,7 @@ public class BoardMapper {
 			.idx(store.getId())
 			.name(store.getName())
 			.address(store.getAddress())
-			.imgUrl(store.getImgs() == null ? null : store.getImgs().get(0).getImgUrl())
+			.imgUrl(store.getImgs().isEmpty() ? null : store.getImgs().get(0).getImgUrl())
 
 			.build();
 	}
