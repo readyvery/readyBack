@@ -44,6 +44,7 @@ public class OrderItem {
 	private Foodie foodie;
 
 	@OneToMany(mappedBy = "orderItem")
+	@Builder.Default
 	private List<OrderItemOption> orderItemOptions = new ArrayList<OrderItemOption>();
 
 }

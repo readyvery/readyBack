@@ -13,6 +13,7 @@ import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
 import com.readyvery.readyverydemo.domain.Order;
+import com.readyvery.readyverydemo.domain.Receipt;
 import com.readyvery.readyverydemo.src.order.config.TossPaymentConfig;
 
 import lombok.RequiredArgsConstructor;
@@ -150,6 +151,37 @@ public class OrderMapper {
 			.customerEmail("test@naver.com")
 			.customerName("test")
 			.amount(order.getAmount())
+			.build();
+	}
+
+	public Receipt tosspaymentDtoToReceipt(TosspaymentDto tosspaymentDto, Order order) {
+		return Receipt.builder()
+			.order(order)
+			.type(tosspaymentDto.getType())
+			.mid(tosspaymentDto.getMid())
+			.currency(tosspaymentDto.getCurrency())
+			.balanceAmount(tosspaymentDto.getBalanceAmount())
+			.suppliedAmount(tosspaymentDto.getSuppliedAmount())
+			.status(tosspaymentDto.getStatus())
+			.requestedAt(tosspaymentDto.getRequestedAt())
+			.approvedAt(tosspaymentDto.getApprovedAt())
+			.lastTransactionKey(tosspaymentDto.getLastTransactionKey())
+			.vat(tosspaymentDto.getVat())
+			.taxFreeAmount(tosspaymentDto.getTaxFreeAmount())
+			.taxExemptionAmount(tosspaymentDto.getTaxExemptionAmount())
+			.cancels(tosspaymentDto.getCancels() != null ? tosspaymentDto.getCancels().toString() : null)
+			.card(tosspaymentDto.getCard() != null ? tosspaymentDto.getCard().toString() : null)
+			.receipt(tosspaymentDto.getReceipt() != null ? tosspaymentDto.getReceipt().toString() : null)
+			.checkout(tosspaymentDto.getCheckout() != null ? tosspaymentDto.getCheckout().toString() : null)
+			.easyPay(tosspaymentDto.getEasyPay() != null ? tosspaymentDto.getEasyPay().toString() : null)
+			.country(tosspaymentDto.getCountry())
+			.failure(tosspaymentDto.getFailure() != null ? tosspaymentDto.getFailure().toString() : null)
+			.discount(tosspaymentDto.getDiscount() != null ? tosspaymentDto.getDiscount().toString() : null)
+			.virtualAccount(
+				tosspaymentDto.getVirtualAccount() != null ? tosspaymentDto.getVirtualAccount().toString() : null)
+			.transfer(tosspaymentDto.getTransfer() != null ? tosspaymentDto.getTransfer().toString() : null)
+			.cashReceipt(tosspaymentDto.getCashReceipt() != null ? tosspaymentDto.getCashReceipt().toString() : null)
+			.cashReceipts(tosspaymentDto.getCashReceipts() != null ? tosspaymentDto.getCashReceipts().toString() : null)
 			.build();
 	}
 }
