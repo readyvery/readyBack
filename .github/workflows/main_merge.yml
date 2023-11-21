@@ -8,6 +8,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: test #임시
+      - name: Checkout source code.   # Repo checkout
+        uses: actions/checkout@v3
+
+      - name: Set application.properties from secrets
         run: |
-          echo "test"
+          echo "${{ secrets.MAIN_APPLICATION_PROPERTIES }}" > src/main/resources/application.properties
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: remove plain.jar
+        run: rm -rf build/libs/*plain.jar
+
+      - name: file copy
+        uses: actions/upload-artifact@v3
+        with:
+          name: libs
+          path: build/libs
