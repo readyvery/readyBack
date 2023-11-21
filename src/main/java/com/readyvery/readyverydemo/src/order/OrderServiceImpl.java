@@ -51,6 +51,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
+import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentDto;
@@ -191,6 +192,18 @@ public class OrderServiceImpl implements OrderService {
 		applyOrderFail(order);
 		orderRepository.save(order);
 		return orderMapper.makeFailDto(code, message);
+	}
+
+	@Override
+	public HistoryRes getHistories(CustomUserDetails userDetails) {
+		UserInfo user = getUserInfo(userDetails);
+		List<Order> orders = getOrders(user);
+		return orderMapper.ordersToHistoryRes(orders);
+	}
+
+	private List<Order> getOrders(UserInfo user) {
+		return ordersRepository.findAllByUserInfo(user).orElseThrow(
+			() -> new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND));
 	}
 
 	private void applyOrderFail(Order order) {
