@@ -49,6 +49,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
+import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
@@ -181,7 +182,20 @@ public class OrderServiceImpl implements OrderService {
 		//TODO: 영수증 처리
 		Receipt receipt = orderMapper.tosspaymentDtoToReceipt(tosspaymentDto, order);
 		receiptRepository.save(receipt);
-		return "hi";
+		return "결제 성공";
+	}
+
+	@Override
+	public FailDto tossPaymentFail(String code, String orderId, String message) {
+		Order order = getOrder(orderId);
+		applyOrderFail(order);
+		orderRepository.save(order);
+		return orderMapper.makeFailDto(code, message);
+	}
+
+	private void applyOrderFail(Order order) {
+		order.setPayStatus(false);
+		order.setProgress(Progress.FAIL);
 	}
 
 	private void applyTosspaymentDto(Order order, TosspaymentDto tosspaymentDto) {
@@ -189,6 +203,7 @@ public class OrderServiceImpl implements OrderService {
 		order.setPaymentKey(tosspaymentDto.getPaymentKey());
 		order.setMethod(tosspaymentDto.getMethod());
 		order.setProgress(Progress.ORDER);
+		order.setPayStatus(true);
 	}
 
 	private void verifyOrder(Order order, Long amount) {
