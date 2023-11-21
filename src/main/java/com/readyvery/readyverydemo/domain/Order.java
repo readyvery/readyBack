@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Setter
 @Slf4j
-public class Order {
+public class Order extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "order_idx")

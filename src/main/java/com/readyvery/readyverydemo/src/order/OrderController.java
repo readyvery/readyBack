@@ -24,6 +24,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
+import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
@@ -67,6 +68,12 @@ public class OrderController {
 		@RequestParam("message") String message) {
 		FailDto result = orderService.tossPaymentFail(code, orderId, message);
 		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+
+	@GetMapping("/history")
+	public ResponseEntity<HistoryRes> getHistories(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		HistoryRes historyRes = orderService.getHistories(userDetails);
+		return new ResponseEntity<>(historyRes, HttpStatus.OK);
 	}
 
 	@PostMapping("/cart")
