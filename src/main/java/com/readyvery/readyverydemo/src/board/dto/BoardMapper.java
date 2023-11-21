@@ -42,7 +42,7 @@ public class BoardMapper {
 			.imgUrl(store.getImgs().stream()
 				.filter(storeImg -> storeImg.getImgSize().equals(ImgSize.VERY_PICK_CAFE_BANNER))
 				.findFirst()
-				.map(storeImg -> IMG_URL + store.getEngName() + storeImg.getImgUrl())
+				.map(storeImg -> IMG_URL + store.getEngName() + "/" + storeImg.getImgUrl())
 				.orElse(null))
 			.build();
 	}

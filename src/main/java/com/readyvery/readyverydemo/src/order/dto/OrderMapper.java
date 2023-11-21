@@ -32,7 +32,7 @@ public class OrderMapper {
 
 		return FoodyDetailRes.builder()
 			.name(foodie.getName())
-			.imgUrl(IMG_URL + foodie.getFoodieCategory().getStore().getEngName() + foodie.getImgUrl())
+			.imgUrl(IMG_URL + foodie.getFoodieCategory().getStore().getEngName() + "/" + foodie.getImgUrl())
 			.price(price)
 			.category(
 				foodie.getFoodieOptionCategory()
@@ -104,7 +104,7 @@ public class OrderMapper {
 				.getImgs()
 				.stream()
 				.filter(storeImg -> storeImg.getImgSize() == ImgSize.CAFE_LOGO)
-				.map(storeImg -> IMG_URL + storeImg.getStore().getEngName() + storeImg.getImgUrl())
+				.map(storeImg -> IMG_URL + storeImg.getStore().getEngName() + "/" + storeImg.getImgUrl())
 				.findFirst()
 				.orElse(null))
 			.carts(
@@ -220,7 +220,7 @@ public class OrderMapper {
 				.getImgs()
 				.stream()
 				.filter(storeImg -> storeImg.getImgSize() == ImgSize.CAFE_LOGO)
-				.map(storeImg -> IMG_URL + storeImg.getStore().getEngName() + storeImg.getImgUrl())
+				.map(storeImg -> IMG_URL + storeImg.getStore().getEngName() + "/" + storeImg.getImgUrl())
 				.findFirst()
 				.orElse(null))
 			.orderName(order.getOrderName())
