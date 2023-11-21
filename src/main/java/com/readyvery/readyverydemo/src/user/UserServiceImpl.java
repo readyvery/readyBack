@@ -29,9 +29,15 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserAuthRes getUserAuthByCustomUserDetails(CustomUserDetails userDetails) {
-
+		verifyUserDetails(userDetails);
 		return userMapper.userInfoToUserAuthRes(userDetails);
 
+	}
+
+	private void verifyUserDetails(CustomUserDetails userDetails) {
+		if (userDetails == null) {
+			throw new BusinessLogicException(ExceptionCode.USER_NOT_FOUND);
+		}
 	}
 
 	@Override
