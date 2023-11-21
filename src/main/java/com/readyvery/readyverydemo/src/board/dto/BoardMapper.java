@@ -1,12 +1,13 @@
 package com.readyvery.readyverydemo.src.board.dto;
 
+import static com.readyvery.readyverydemo.global.Constant.*;
+
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
 import com.readyvery.readyverydemo.domain.ImgSize;
 import com.readyvery.readyverydemo.domain.Store;
-import com.readyvery.readyverydemo.domain.StoreImg;
 import com.readyvery.readyverydemo.global.exception.BusinessLogicException;
 import com.readyvery.readyverydemo.global.exception.ExceptionCode;
 
@@ -41,7 +42,7 @@ public class BoardMapper {
 			.imgUrl(store.getImgs().stream()
 				.filter(storeImg -> storeImg.getImgSize().equals(ImgSize.VERY_PICK_CAFE_BANNER))
 				.findFirst()
-				.map(StoreImg::getImgUrl)
+				.map(storeImg -> IMG_URL + store.getEngName() + storeImg.getImgUrl())
 				.orElse(null))
 			.build();
 	}

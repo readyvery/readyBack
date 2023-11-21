@@ -18,7 +18,6 @@ import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
 import com.readyvery.readyverydemo.domain.ImgSize;
 import com.readyvery.readyverydemo.domain.Order;
 import com.readyvery.readyverydemo.domain.Receipt;
-import com.readyvery.readyverydemo.domain.StoreImg;
 import com.readyvery.readyverydemo.src.order.config.TossPaymentConfig;
 
 import lombok.RequiredArgsConstructor;
@@ -33,7 +32,7 @@ public class OrderMapper {
 
 		return FoodyDetailRes.builder()
 			.name(foodie.getName())
-			.imgUrl(foodie.getImgUrl())
+			.imgUrl(IMG_URL + foodie.getFoodieCategory().getStore().getEngName() + foodie.getImgUrl())
 			.price(price)
 			.category(
 				foodie.getFoodieOptionCategory()
@@ -105,7 +104,7 @@ public class OrderMapper {
 				.getImgs()
 				.stream()
 				.filter(storeImg -> storeImg.getImgSize() == ImgSize.CAFE_LOGO)
-				.map(StoreImg::getImgUrl)
+				.map(storeImg -> IMG_URL + storeImg.getStore().getEngName() + storeImg.getImgUrl())
 				.findFirst()
 				.orElse(null))
 			.carts(
@@ -221,7 +220,7 @@ public class OrderMapper {
 				.getImgs()
 				.stream()
 				.filter(storeImg -> storeImg.getImgSize() == ImgSize.CAFE_LOGO)
-				.map(StoreImg::getImgUrl)
+				.map(storeImg -> IMG_URL + storeImg.getStore().getEngName() + storeImg.getImgUrl())
 				.findFirst()
 				.orElse(null))
 			.orderName(order.getOrderName())

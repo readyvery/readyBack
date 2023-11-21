@@ -1,12 +1,13 @@
 package com.readyvery.readyverydemo.src.store.dto;
 
+import static com.readyvery.readyverydemo.global.Constant.*;
+
 import org.springframework.stereotype.Component;
 
 import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieCategory;
 import com.readyvery.readyverydemo.domain.ImgSize;
 import com.readyvery.readyverydemo.domain.Store;
-import com.readyvery.readyverydemo.domain.StoreImg;
 
 @Component
 public class StoreMapper {
@@ -15,7 +16,7 @@ public class StoreMapper {
 			.imgs(store.getImgs()
 				.stream()
 				.filter(storeImg -> storeImg.getImgSize() == ImgSize.CAFE_BANNER)
-				.map(StoreImg::getImgUrl)
+				.map(storeImg -> IMG_URL + store.getEngName() + storeImg.getImgUrl())
 				.toList())
 			.name(store.getName())
 			.phone(store.getPhone())
@@ -48,7 +49,7 @@ public class StoreMapper {
 		return MenuItemDto.builder()
 			.foodyId(foodie.getId())
 			.name(foodie.getName())
-			.imgUrl(foodie.getImgUrl())
+			.imgUrl(IMG_URL + foodie.getFoodieCategory().getStore().getEngName() + foodie.getImgUrl())
 			.price(foodie.getPrice())
 			.sale(foodie.getTakeOut() != null ? foodie.getTakeOut().getPrice() : null)
 			.hit(foodie.isHit())
