@@ -49,6 +49,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
+import com.readyvery.readyverydemo.src.order.dto.CurrentRes;
 import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
@@ -199,6 +200,23 @@ public class OrderServiceImpl implements OrderService {
 		UserInfo user = getUserInfo(userDetails);
 		List<Order> orders = getOrders(user);
 		return orderMapper.ordersToHistoryRes(orders);
+	}
+
+	@Override
+	public CurrentRes getCurrent(String orderId) {
+		Order order = getOrder(orderId);
+		verifyOrderCurrent(order);
+		return orderMapper.orderToCurrentRes(order);
+	}
+
+	private void verifyOrderCurrent(Order order) {
+		if (order.getProgress().equals(Progress.ORDER)
+			|| order.getProgress().equals(Progress.MAKE)
+			|| order.getProgress().equals(Progress.COMPLETE)
+			|| order.getProgress().equals(Progress.PICKUP)) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.ORDER_NOT_CURRENT);
 	}
 
 	private List<Order> getOrders(UserInfo user) {

@@ -1,6 +1,7 @@
 package com.readyvery.readyverydemo.src.order.dto;
 
 import static com.readyvery.readyverydemo.global.Constant.*;
+import static org.hibernate.type.descriptor.java.JdbcTimeJavaType.*;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -212,6 +213,17 @@ public class OrderMapper {
 			.orderName(order.getOrderName())
 			.amount(order.getAmount())
 			.orderId(order.getOrderId())
+			.build();
+	}
+
+	public CurrentRes orderToCurrentRes(Order order) {
+		return CurrentRes.builder()
+			.name(order.getStore().getName())
+			.orderNum(order.getId())
+			.progress(order.getProgress())
+			.orderName(order.getOrderName())
+			.estimatedTime(order.getEstimatedTime() != null
+				? order.getEstimatedTime().format(DateTimeFormatter.ofPattern(TIME_FORMAT)) : null)
 			.build();
 	}
 }

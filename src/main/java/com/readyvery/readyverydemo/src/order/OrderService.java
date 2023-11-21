@@ -10,6 +10,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
+import com.readyvery.readyverydemo.src.order.dto.CurrentRes;
 import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
@@ -36,4 +37,6 @@ public interface OrderService {
 	FailDto tossPaymentFail(String code, String orderId, String message) throws BusinessLogicException;
 
 	HistoryRes getHistories(CustomUserDetails userDetails);
+
+	CurrentRes getCurrent(String orderId);
 }
