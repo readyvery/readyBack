@@ -11,12 +11,13 @@ public enum ExceptionCode {
 	INVALID_OPTION_COUNT(400, "Invalid option count."),
 	INVALID_OPTION(400, "Invalid option."),
 	OPTION_NOT_FOUND(404, "Option does not exists."),
-	CART_ITEM_NOT_FOUND(404, "Cart item does not exists."),
+	CART_ITEM_NOT_FOUND(200, "Cart item does not exists."),
 	CART_NOT_FOUND(404, "Cart does not exists."),
 	ITEM_NOT_SAME_STORE(400, "Item is not same store."),
 	TOSS_PAYMENT_SUCCESS_FAIL(400, "Toss payment success fail."),
 	ORDER_NOT_FOUND(400, "Order does not exists."),
-	TOSS_PAYMENT_AMOUNT_NOT_MATCH(400, "Toss payment amount not match.");
+	TOSS_PAYMENT_AMOUNT_NOT_MATCH(400, "Toss payment amount not match."),
+	;
 
 	private int status;
 	private String message;
