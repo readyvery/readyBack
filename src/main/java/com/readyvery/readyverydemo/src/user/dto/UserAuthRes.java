@@ -8,7 +8,7 @@ import lombok.Getter;
 public class UserAuthRes {
 	private Long id;
 	private String email;
-	private boolean isAuth;
-	private boolean isAdmin;
+	private boolean auth;
+	private boolean admin;
 }
 
