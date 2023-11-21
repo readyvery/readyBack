@@ -1,5 +1,7 @@
 package com.readyvery.readyverydemo.domain;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -66,6 +68,12 @@ public class Order extends BaseTimeEntity {
 	@Column
 	@Enumerated(EnumType.STRING)
 	private Progress progress;
+
+	@Column
+	private Boolean payStatus; // 결제 성공 실패 여부
+
+	@Column
+	private LocalDateTime estimatedTime;
 
 	// 가게 아이템 연관 관계
 	// @OneToMany(mappedBy = "order")

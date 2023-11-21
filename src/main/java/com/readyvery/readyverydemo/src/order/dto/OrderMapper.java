@@ -1,7 +1,10 @@
 package com.readyvery.readyverydemo.src.order.dto;
 
 import static com.readyvery.readyverydemo.global.Constant.*;
+import static org.hibernate.type.descriptor.java.JdbcTimeJavaType.*;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Component;
@@ -182,6 +185,45 @@ public class OrderMapper {
 			.transfer(tosspaymentDto.getTransfer() != null ? tosspaymentDto.getTransfer().toString() : null)
 			.cashReceipt(tosspaymentDto.getCashReceipt() != null ? tosspaymentDto.getCashReceipt().toString() : null)
 			.cashReceipts(tosspaymentDto.getCashReceipts() != null ? tosspaymentDto.getCashReceipts().toString() : null)
+			.build();
+	}
+
+	public FailDto makeFailDto(String code, String message) {
+		return FailDto.builder()
+			.code(code)
+			.message(message)
+			.build();
+	}
+
+	public HistoryRes ordersToHistoryRes(List<Order> orders) {
+		return HistoryRes.builder()
+			.receipts(
+				orders
+					.stream()
+					.map(this::orderToReceiptHistoryDto)
+					.toList())
+			.build();
+	}
+
+	private ReceiptHistoryDto orderToReceiptHistoryDto(Order order) {
+		return ReceiptHistoryDto.builder()
+			.dateTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
+			.name(order.getStore().getName())
+			.imgUrl(order.getStore().getImgs().isEmpty() ? null : order.getStore().getImgs().get(0).getImgUrl())
+			.orderName(order.getOrderName())
+			.amount(order.getAmount())
+			.orderId(order.getOrderId())
+			.build();
+	}
+
+	public CurrentRes orderToCurrentRes(Order order) {
+		return CurrentRes.builder()
+			.name(order.getStore().getName())
+			.orderNum(order.getId())
+			.progress(order.getProgress())
+			.orderName(order.getOrderName())
+			.estimatedTime(order.getEstimatedTime() != null
+				? order.getEstimatedTime().format(DateTimeFormatter.ofPattern(TIME_FORMAT)) : null)
 			.build();
 	}
 }

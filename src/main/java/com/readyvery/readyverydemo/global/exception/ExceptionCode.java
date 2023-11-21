@@ -17,7 +17,8 @@ public enum ExceptionCode {
 	TOSS_PAYMENT_SUCCESS_FAIL(400, "Toss payment success fail."),
 	ORDER_NOT_FOUND(400, "Order does not exists."),
 	TOSS_PAYMENT_AMOUNT_NOT_MATCH(400, "Toss payment amount not match."),
-	;
+	ORDER_NOT_CURRENT(400, "Order is not current.");
+
 
 	private int status;
 	private String message;
