@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.readyvery.readyverydemo.domain.ImgSize;
 import com.readyvery.readyverydemo.domain.Store;
+import com.readyvery.readyverydemo.domain.StoreImg;
 import com.readyvery.readyverydemo.global.exception.BusinessLogicException;
 import com.readyvery.readyverydemo.global.exception.ExceptionCode;
 
@@ -36,8 +38,11 @@ public class BoardMapper {
 			.idx(store.getId())
 			.name(store.getName())
 			.address(store.getAddress())
-			.imgUrl(store.getImgs().isEmpty() ? null : store.getImgs().get(0).getImgUrl())
-
+			.imgUrl(store.getImgs().stream()
+				.filter(storeImg -> storeImg.getImgSize().equals(ImgSize.VERY_PICK_CAFE_BANNER))
+				.findFirst()
+				.map(StoreImg::getImgUrl)
+				.orElse(null))
 			.build();
 	}
 }

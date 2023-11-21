@@ -59,6 +59,10 @@ public class Store extends BaseTimeEntity {
 	@Column
 	private String adImgUrl;
 
+	// 가게 영어 이름
+	@Column
+	private String engName;
+
 	//가게 등급
 	@Column
 	@Enumerated(EnumType.STRING)

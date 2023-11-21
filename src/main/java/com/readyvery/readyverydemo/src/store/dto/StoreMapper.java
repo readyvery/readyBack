@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieCategory;
+import com.readyvery.readyverydemo.domain.ImgSize;
 import com.readyvery.readyverydemo.domain.Store;
 import com.readyvery.readyverydemo.domain.StoreImg;
 
@@ -11,7 +12,11 @@ import com.readyvery.readyverydemo.domain.StoreImg;
 public class StoreMapper {
 	public StoreDetailRes storeToStoreDetailRes(Store store) {
 		return StoreDetailRes.builder()
-			.imgs(store.getImgs().stream().map(StoreImg::getImgUrl).toList())
+			.imgs(store.getImgs()
+				.stream()
+				.filter(storeImg -> storeImg.getImgSize() == ImgSize.CAFE_BANNER)
+				.map(StoreImg::getImgUrl)
+				.toList())
 			.name(store.getName())
 			.phone(store.getPhone())
 			.address(store.getAddress())
