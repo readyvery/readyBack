@@ -1,10 +1,9 @@
 package com.readyvery.readyverydemo.domain;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import static jakarta.persistence.FetchType.*;
 
-import jakarta.persistence.CascadeType;
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,9 +11,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,17 +20,17 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Builder
-@Table(name = "USER")
 @AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "CEO")
 @Slf4j
-public class UserInfo extends BaseTimeEntity {
+public class CeoInfo extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_idx")
+	@Column(name = "ceo_idx")
 	private Long id;
 
 	// 이메일
@@ -52,17 +50,16 @@ public class UserInfo extends BaseTimeEntity {
 	private String age;
 
 	// 생일
-	@Column
+	@Column(nullable = false)
 	private String birth;
 
 	// 전화번호
-	@Column
+	@Column(nullable = false)
 	private String phone;
 
-	// 유저 권한
-	@Column(nullable = false, columnDefinition = "VARCHAR(10) default 'USER'")
-	@Enumerated(EnumType.STRING)
-	private Role role;
+	// 계좌번호
+	@Column
+	private String accountNumber;
 
 	// 소셜 로그인 타입
 	@Column(nullable = false)
@@ -89,23 +86,8 @@ public class UserInfo extends BaseTimeEntity {
 	@Column
 	private LocalDateTime lastLoginDate;
 
-	// 유저 장바구니 연관관계 매핑
-	@Builder.Default
-	@OneToMany(mappedBy = "userInfo", cascade = CascadeType.ALL)
-	private List<Cart> carts = new ArrayList<Cart>();
+	// 사장님 가게 연관관계 매핑
+	@OneToOne(mappedBy = "ceoInfo", fetch = LAZY)
+	private Store store;
 
-	// 유저 주문 연관관계 매핑
-	@OneToMany(mappedBy = "userInfo", cascade = CascadeType.ALL)
-	@Builder.Default
-	private List<Order> orders = new ArrayList<Order>();
-
-	// 유저 쿠폰 연관관계 매핑
-	@OneToMany(mappedBy = "userInfo", cascade = CascadeType.ALL)
-	@Builder.Default
-	private List<Coupon> coupons = new ArrayList<Coupon>();
-
-	// 리프레시토큰 업데이트
-	public void updateRefresh(String updateRefreshToken) {
-		this.refreshToken = updateRefreshToken;
-	}
 }
