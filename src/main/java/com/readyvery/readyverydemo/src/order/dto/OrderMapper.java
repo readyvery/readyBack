@@ -15,6 +15,7 @@ import com.readyvery.readyverydemo.domain.CartOption;
 import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
+import com.readyvery.readyverydemo.domain.ImgSize;
 import com.readyvery.readyverydemo.domain.Order;
 import com.readyvery.readyverydemo.domain.Receipt;
 import com.readyvery.readyverydemo.src.order.config.TossPaymentConfig;
@@ -31,7 +32,7 @@ public class OrderMapper {
 
 		return FoodyDetailRes.builder()
 			.name(foodie.getName())
-			.imgUrl(foodie.getImgUrl())
+			.imgUrl(IMG_URL + foodie.getFoodieCategory().getStore().getEngName() + "/" + foodie.getImgUrl())
 			.price(price)
 			.category(
 				foodie.getFoodieOptionCategory()
@@ -99,7 +100,13 @@ public class OrderMapper {
 	public CartGetRes cartToCartGetRes(Cart cart, Long inout) {
 		return CartGetRes.builder()
 			.name(cart.getStore().getName())
-			.imgUrl(cart.getStore().getImgs().get(0).getImgUrl())
+			.imgUrl(cart.getStore()
+				.getImgs()
+				.stream()
+				.filter(storeImg -> storeImg.getImgSize() == ImgSize.CAFE_LOGO)
+				.map(storeImg -> IMG_URL + storeImg.getStore().getEngName() + "/" + storeImg.getImgUrl())
+				.findFirst()
+				.orElse(null))
 			.carts(
 				cart.getCartItems()
 					.stream()
@@ -209,7 +216,13 @@ public class OrderMapper {
 		return ReceiptHistoryDto.builder()
 			.dateTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
 			.name(order.getStore().getName())
-			.imgUrl(order.getStore().getImgs().isEmpty() ? null : order.getStore().getImgs().get(0).getImgUrl())
+			.imgUrl(order.getStore()
+				.getImgs()
+				.stream()
+				.filter(storeImg -> storeImg.getImgSize() == ImgSize.CAFE_LOGO)
+				.map(storeImg -> IMG_URL + storeImg.getStore().getEngName() + "/" + storeImg.getImgUrl())
+				.findFirst()
+				.orElse(null))
 			.orderName(order.getOrderName())
 			.amount(order.getAmount())
 			.orderId(order.getOrderId())
