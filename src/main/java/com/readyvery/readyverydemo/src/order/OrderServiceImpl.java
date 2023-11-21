@@ -210,10 +210,10 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void verifyOrderCurrent(Order order) {
-		if (order.getProgress().equals(Progress.ORDER) ||
-			order.getProgress().equals(Progress.MAKE) ||
-			order.getProgress().equals(Progress.COMPLETE) ||
-			order.getProgress().equals(Progress.PICKUP)) {
+		if (order.getProgress().equals(Progress.ORDER)
+			|| order.getProgress().equals(Progress.MAKE)
+			|| order.getProgress().equals(Progress.COMPLETE)
+			|| order.getProgress().equals(Progress.PICKUP)) {
 			return;
 		}
 		throw new BusinessLogicException(ExceptionCode.ORDER_NOT_CURRENT);

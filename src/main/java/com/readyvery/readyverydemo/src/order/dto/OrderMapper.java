@@ -222,9 +222,8 @@ public class OrderMapper {
 			.orderNum(order.getId())
 			.progress(order.getProgress())
 			.orderName(order.getOrderName())
-			// .estimatedTime(order.getEstimatedTime().format(DateTimeFormatter.ofPattern(TIME_FORMAT)))
-			.estimatedTime(order.getEstimatedTime() != null ?
-				order.getEstimatedTime().format(DateTimeFormatter.ofPattern(TIME_FORMAT)) : null)
+			.estimatedTime(order.getEstimatedTime() != null
+				? order.getEstimatedTime().format(DateTimeFormatter.ofPattern(TIME_FORMAT)) : null)
 			.build();
 	}
 }
