@@ -22,6 +22,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
+import com.readyvery.readyverydemo.src.order.dto.CurrentRes;
 import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
@@ -74,6 +75,12 @@ public class OrderController {
 	public ResponseEntity<HistoryRes> getHistories(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		HistoryRes historyRes = orderService.getHistories(userDetails);
 		return new ResponseEntity<>(historyRes, HttpStatus.OK);
+	}
+
+	@GetMapping("/current")
+	public ResponseEntity<CurrentRes> getCurrent(@RequestParam("orderId") String orderId) {
+		CurrentRes currentRes = orderService.getCurrent(orderId);
+		return new ResponseEntity<>(currentRes, HttpStatus.OK);
 	}
 
 	@PostMapping("/cart")
