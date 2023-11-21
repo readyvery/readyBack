@@ -33,6 +33,4 @@ public class StoreImg {
 	private Store store;
 
 	private String imgUrl;
-
-	private ImgSize imgSize;
 }
