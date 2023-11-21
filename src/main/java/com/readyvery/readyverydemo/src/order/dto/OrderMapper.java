@@ -184,4 +184,11 @@ public class OrderMapper {
 			.cashReceipts(tosspaymentDto.getCashReceipts() != null ? tosspaymentDto.getCashReceipts().toString() : null)
 			.build();
 	}
+
+	public FailDto makeFailDto(String code, String message) {
+		return FailDto.builder()
+			.code(code)
+			.message(message)
+			.build();
+	}
 }
