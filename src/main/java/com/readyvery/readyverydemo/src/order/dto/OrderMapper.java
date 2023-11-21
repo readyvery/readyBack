@@ -32,7 +32,8 @@ public class OrderMapper {
 
 		return FoodyDetailRes.builder()
 			.name(foodie.getName())
-			.imgUrl(IMG_URL + foodie.getFoodieCategory().getStore().getEngName() + "/" + foodie.getImgUrl())
+			.imgUrl(foodie.getImgUrl() != null ? IMG_URL + foodie.getFoodieCategory().getStore().getEngName() + "/"
+				+ foodie.getImgUrl() : null)
 			.price(price)
 			.category(
 				foodie.getFoodieOptionCategory()

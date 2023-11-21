@@ -49,7 +49,8 @@ public class StoreMapper {
 		return MenuItemDto.builder()
 			.foodyId(foodie.getId())
 			.name(foodie.getName())
-			.imgUrl(IMG_URL + foodie.getFoodieCategory().getStore().getEngName() + "/" + foodie.getImgUrl())
+			.imgUrl(foodie.getImgUrl() != null ? IMG_URL + foodie.getFoodieCategory().getStore().getEngName() + "/"
+				+ foodie.getImgUrl() : null)
 			.price(foodie.getPrice())
 			.sale(foodie.getTakeOut() != null ? foodie.getTakeOut().getPrice() : null)
 			.hit(foodie.isHit())
