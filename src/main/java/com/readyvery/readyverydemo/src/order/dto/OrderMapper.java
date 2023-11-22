@@ -128,7 +128,7 @@ public class OrderMapper {
 			.count(cartItem.getCount())
 			// img
 			.imgUrl(cartItem.getFoodie().getImgUrl() != null
-				? IMG_URL + cartItem.getFoodie().getImgUrl() + "/"
+				? IMG_URL + cartItem.getFoodie().getFoodieCategory().getStore().getEngName() + "/"
 				+ cartItem.getFoodie().getImgUrl()
 				: null)
 			.totalPrice(cartItemTotalPrice(cartItem, inout))
