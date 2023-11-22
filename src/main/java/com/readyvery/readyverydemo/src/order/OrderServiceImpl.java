@@ -163,7 +163,7 @@ public class OrderServiceImpl implements OrderService {
 		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
 		Long amount = calculateAmount2(cart, paymentReq.getInout());
 		//TODO: 쿠폰 추가
-		Order order = makeOrder(user, store, amount, cart);
+		Order order = makeOrder(user, store, amount, cart, paymentReq.getInout());
 		cartOrder(cart);
 		orderRepository.save(order);
 		cartRepository.save(cart);
@@ -278,7 +278,7 @@ public class OrderServiceImpl implements OrderService {
 		return headers;
 	}
 
-	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart) {
+	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart, Long inout) {
 		if (cart.getCartItems().isEmpty()) {
 			throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
 		}
@@ -296,6 +296,7 @@ public class OrderServiceImpl implements OrderService {
 			.totalAmount(amount)
 			.orderNumber(null)
 			.progress(Progress.REQUEST)
+			.inOut(inout)
 			.build();
 	}
 
