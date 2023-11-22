@@ -75,6 +75,9 @@ public class Order extends BaseTimeEntity {
 	@Column
 	private LocalDateTime estimatedTime;
 
+	@Column
+	private Long inOut;
+
 	// 가게 아이템 연관 관계
 	// @OneToMany(mappedBy = "order")
 	// @Builder.Default
