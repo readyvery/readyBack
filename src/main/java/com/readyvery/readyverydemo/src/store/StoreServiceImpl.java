@@ -7,6 +7,7 @@ import com.readyvery.readyverydemo.domain.repository.StoreRepository;
 import com.readyvery.readyverydemo.global.exception.BusinessLogicException;
 import com.readyvery.readyverydemo.global.exception.ExceptionCode;
 import com.readyvery.readyverydemo.src.store.dto.StoreDetailRes;
+import com.readyvery.readyverydemo.src.store.dto.StoreEventRes;
 import com.readyvery.readyverydemo.src.store.dto.StoreMapper;
 import com.readyvery.readyverydemo.src.store.dto.StoreMenuRes;
 
@@ -33,6 +34,12 @@ public class StoreServiceImpl implements StoreService {
 	public StoreMenuRes getStoreMenu(Long storeId) {
 		Store store = getStore(storeId);
 		return storeMapper.storeToStoreMenuRes(store);
+	}
+
+	@Override
+	public StoreEventRes getStoreEvent(Long storeId) {
+		Store store = getStore(storeId);
+		return storeMapper.storeToStoreEventRes(store);
 	}
 
 }

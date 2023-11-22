@@ -56,4 +56,10 @@ public class StoreMapper {
 			.hit(foodie.isHit())
 			.build();
 	}
+
+	public StoreEventRes storeToStoreEventRes(Store store) {
+		return StoreEventRes.builder()
+			.eventImgUrl(store.getAdImgUrl())
+			.build();
+	}
 }
