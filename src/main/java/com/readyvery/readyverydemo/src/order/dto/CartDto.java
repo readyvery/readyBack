@@ -12,5 +12,6 @@ public class CartDto {
 	private String name;
 	private Long count;
 	private Long totalPrice;
+	private String imgUrl;
 	private List<OptionDto> options;
 }
