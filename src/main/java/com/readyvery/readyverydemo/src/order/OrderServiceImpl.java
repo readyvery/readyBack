@@ -96,7 +96,8 @@ public class OrderServiceImpl implements OrderService {
 		verifyFoodieInStore(store, foodie);
 		verifyCartAddReq(foodie, cartAddReq);
 
-		Cart cart = cartRepository.findByUserInfoAndIsDeletedFalse(user).orElseGet(() -> makeCart(user, store));
+		Cart cart = cartRepository.findByUserInfoAndIsDeletedFalseAndIsOrderedFalse(user)
+			.orElseGet(() -> makeCart(user, store));
 		verifyItemsInCart(cart, store);
 		CartItem cartItem = makeCartItem(cart, foodie, cartAddReq.getCount());
 		List<CartOption> cartOptions = cartAddReq.getOptions().stream()
@@ -223,7 +224,7 @@ public class OrderServiceImpl implements OrderService {
 		applyCancelTosspaymentDto(order, tosspaymentDto);
 
 		orderRepository.save(order);
-		
+
 		return orderMapper.tosspaymentDtoToCancelRes();
 	}
 
@@ -352,6 +353,7 @@ public class OrderServiceImpl implements OrderService {
 			.store(store)
 			.amount(amount)
 			.orderId(UUID.randomUUID().toString())
+			.cart(cart)
 			.paymentKey(null)
 			.orderName(orderName)
 			.totalAmount(amount)
@@ -397,7 +399,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private Cart getCart(UserInfo user) {
-		return cartRepository.findByUserInfoAndIsDeletedFalse(user).orElseThrow(
+		return cartRepository.findByUserInfoAndIsDeletedFalseAndIsOrderedFalse(user).orElseThrow(
 			() -> new BusinessLogicException(ExceptionCode.CART_NOT_FOUND)
 		);
 	}
