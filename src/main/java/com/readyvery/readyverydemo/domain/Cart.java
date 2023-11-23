@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -57,8 +56,8 @@ public class Cart extends BaseTimeEntity {
 	@Builder.Default
 	private Boolean isDeleted = false;
 
-	@OneToOne(mappedBy = "cart")
-	private Order order;
+	@OneToMany(mappedBy = "cart")
+	private List<Order> orders = new ArrayList<Order>();
 
 	// 장바구니 장바구니 아이템 연관관계 매핑
 	@Builder.Default
