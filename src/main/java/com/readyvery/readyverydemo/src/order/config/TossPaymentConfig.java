@@ -8,6 +8,7 @@ import lombok.Getter;
 @Configuration
 @Getter
 public class TossPaymentConfig {
+	public static final String PAYMENT_URL = "https://api.tosspayments.com/v1/payments/";
 	public static final String CONFIRM_URL = "https://api.tosspayments.com/v1/payments/confirm";
 
 	@Value("${payment.toss.client_key}")

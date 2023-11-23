@@ -1,5 +1,7 @@
 package com.readyvery.readyverydemo.src.order;
 
+import static com.readyvery.readyverydemo.global.Constant.*;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collections;
@@ -55,6 +57,7 @@ import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
+import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentDto;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
@@ -207,6 +210,64 @@ public class OrderServiceImpl implements OrderService {
 		Order order = getOrder(orderId);
 		verifyOrderCurrent(order);
 		return orderMapper.orderToCurrentRes(order);
+	}
+
+	@Override
+	public Object cancelTossPayment(CustomUserDetails userDetails, TossCancelReq tossCancelReq) {
+		UserInfo user = getUserInfo(userDetails);
+		Order order = getOrder(tossCancelReq.getOrderId());
+		verifyCancel(order, user);
+
+		TosspaymentDto tosspaymentDto = requestTossPaymentCancel(order.getPaymentKey());
+
+		applyCancelTosspaymentDto(order, tosspaymentDto);
+
+		orderRepository.save(order);
+		
+		return orderMapper.tosspaymentDtoToCancelRes();
+	}
+
+	private void applyCancelTosspaymentDto(Order order, TosspaymentDto tosspaymentDto) {
+		order.setProgress(Progress.CANCEL);
+		order.setPayStatus(false);
+		order.getReceipt().setCancels(tosspaymentDto.getCancels().toString());
+		order.getReceipt().setStatus(tosspaymentDto.getStatus());
+	}
+
+	private TosspaymentDto requestTossPaymentCancel(String paymentKey) {
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = makeTossHeader();
+		JSONObject params = new JSONObject();
+
+		params.put("cancelReason", USER_CANCEL_RESON);
+
+		try {
+			return restTemplate.postForObject(TossPaymentConfig.PAYMENT_URL + paymentKey + "/cancel",
+				new HttpEntity<>(params, headers),
+				TosspaymentDto.class);
+		} catch (Exception e) {
+			System.out.println("e.getMessage() = " + e.getMessage());
+			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_SUCCESS_FAIL);
+		}
+	}
+
+	private void verifyCancel(Order order, UserInfo user) {
+		verifyCancelStatus(order);
+		verifyOrederUser(order, user);
+	}
+
+	private void verifyOrederUser(Order order, UserInfo user) {
+		if (order.getUserInfo().equals(user)) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.ORDER_NOT_CANCELABLE);
+	}
+
+	private void verifyCancelStatus(Order order) {
+		if (order.getProgress().equals(Progress.ORDER)) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.ORDER_NOT_CANCELABLE);
 	}
 
 	private void verifyOrderCurrent(Order order) {

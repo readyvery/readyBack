@@ -27,6 +27,7 @@ import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
+import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
 import lombok.RequiredArgsConstructor;
@@ -95,6 +96,13 @@ public class OrderController {
 		@RequestBody PaymentReq paymentReq) {
 		TosspaymentMakeRes tosspaymentMakeRes = orderService.requestTossPayment(userDetails, paymentReq);
 		return new ResponseEntity<>(tosspaymentMakeRes, HttpStatus.OK);
+	}
+
+	@PostMapping("/toss/cancel")
+	public ResponseEntity<Object> cancelTossPayment(@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody TossCancelReq tossCancelReq) {
+		Object result = orderService.cancelTossPayment(userDetails, tossCancelReq);
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
 	@PutMapping("/cart")
