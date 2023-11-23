@@ -245,4 +245,10 @@ public class OrderMapper {
 				? order.getEstimatedTime().format(DateTimeFormatter.ofPattern(TIME_FORMAT)) : null)
 			.build();
 	}
+
+	public DefaultRes tosspaymentDtoToCancelRes() {
+		return DefaultRes.builder()
+			.message("취소 성공")
+			.build();
+	}
 }

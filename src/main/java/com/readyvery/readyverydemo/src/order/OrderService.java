@@ -15,6 +15,7 @@ import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
+import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
 public interface OrderService {
@@ -39,4 +40,6 @@ public interface OrderService {
 	HistoryRes getHistories(CustomUserDetails userDetails);
 
 	CurrentRes getCurrent(String orderId);
+
+	Object cancelTossPayment(CustomUserDetails userDetails, TossCancelReq tossCancelReq);
 }
