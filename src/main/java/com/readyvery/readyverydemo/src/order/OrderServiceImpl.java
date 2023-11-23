@@ -223,7 +223,6 @@ public class OrderServiceImpl implements OrderService {
 		applyCancelTosspaymentDto(order, tosspaymentDto);
 
 		orderRepository.save(order);
-		
 		return orderMapper.tosspaymentDtoToCancelRes();
 	}
 
