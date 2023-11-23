@@ -30,8 +30,27 @@ jobs:
       - name: remove plain.jar
         run: rm -rf build/libs/*plain.jar
 
-      - name: file copy
-        uses: actions/upload-artifact@v3
+      # - name: file copy
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: libs
+      #     path: build/libs
+      - name: file upload
+        uses: appleboy/scp-action@v0.0.1
         with:
-          name: libs
-          path: build/libs
+          username: ${{ secrets.MAIN_USERNAME }}
+          host: ${{ secrets.MAIN_HOST }}
+          key: ${{ secrets.MAIN_SSH_KEY }}
+          source: "build/libs/*.jar"
+          target: "/home/ubuntu/docker/java/test/jar"
+      - name: SSH and deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.MAIN_HOST }}
+          username: ${{ secrets.MAIN_USERNAME }}
+          key: ${{ secrets.MAIN_SSH_KEY }}
+          timeout: 40s  # 30초 기본
+          script: |
+            docker-compose build readyvery
+            docker-compose up -d readyvery
+      
