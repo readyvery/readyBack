@@ -59,7 +59,7 @@ public class StoreMapper {
 
 	public StoreEventRes storeToStoreEventRes(Store store) {
 		return StoreEventRes.builder()
-			.eventImgUrl(store.getAdImgUrl())
+			.eventImgUrl("/images/" + store.getEngName() + "/" + store.getAdImgUrl())
 			.build();
 	}
 }
