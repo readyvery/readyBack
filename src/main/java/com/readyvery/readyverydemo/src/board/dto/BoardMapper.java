@@ -30,7 +30,20 @@ public class BoardMapper {
 			throw new BusinessLogicException(ExceptionCode.STORE_NOT_FOUND);
 		}
 		return BoardSearchRes.builder()
-			.stores(stores.stream().map(this::toStoreDto).toList())
+			.stores(stores.stream().map(this::toSearchStoreDto).toList())
+			.build();
+	}
+
+	private StoreDto toSearchStoreDto(Store store) {
+		return StoreDto.builder()
+			.idx(store.getId())
+			.name(store.getName())
+			.address(store.getAddress())
+			.imgUrl(store.getImgs().stream()
+				.filter(storeImg -> storeImg.getImgSize().equals(ImgSize.CAFE_LOGO))
+				.findFirst()
+				.map(storeImg -> IMG_URL + store.getEngName() + "/" + storeImg.getImgUrl())
+				.orElse(null))
 			.build();
 	}
 
