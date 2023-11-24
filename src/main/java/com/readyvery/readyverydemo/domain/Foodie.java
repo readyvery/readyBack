@@ -76,7 +76,7 @@ public class Foodie extends BaseTimeEntity {
 	private List<CartItem> cartItems = new ArrayList<CartItem>();
 
 	@OneToMany(mappedBy = "foodie", cascade = CascadeType.ALL)
-	private List<CouponMenu> couponMenus = new ArrayList<CouponMenu>();
+	private List<CouponDetail> couponDetails = new ArrayList<CouponDetail>();
 
 	@OneToMany(mappedBy = "foodie", cascade = CascadeType.ALL)
 	private List<OrderItem> orderItems = new ArrayList<OrderItem>();

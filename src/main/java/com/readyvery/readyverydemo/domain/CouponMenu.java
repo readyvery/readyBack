@@ -32,8 +32,4 @@ public class CouponMenu extends BaseTimeEntity {
 	@JoinColumn(name = "coupon_detail_idx")
 	private CouponDetail couponDetail;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "foodie_idx")
-	private Foodie foodie;
-
 }
