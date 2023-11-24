@@ -10,4 +10,6 @@ public class StoreDto {
 	private String name;
 	private String address;
 	private String imgUrl;
+	private String eventMessage;
+	private boolean status;
 }
