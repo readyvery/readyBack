@@ -1,0 +1,34 @@
+package com.readyvery.readyverydemo.src.coupon.dto;
+
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
+import com.readyvery.readyverydemo.domain.Coupon;
+
+import lombok.RequiredArgsConstructor;
+
+@Component
+@RequiredArgsConstructor
+public class CouponMapper {
+	public CouponsRes toCouponsRes(List<Coupon> coupons) {
+		return CouponsRes.builder()
+			//filter로 isUsed가 false인 쿠폰만 가져옴
+			.coupons(coupons.stream()
+				.filter(coupon -> !coupon.isUsed())
+				.map(this::toCouponDto)
+				.toList())
+			.build();
+	}
+
+	private CouponDto toCouponDto(Coupon coupon) {
+		return CouponDto.builder()
+			.couponName(coupon.getCouponDetail().getName())
+			.description(coupon.getCouponDetail().getDescription())
+			.expirationDate(coupon.getCouponDetail().getExpire())
+			.publisher(coupon.getCouponDetail().getStore() == null
+				? "레디베리" : coupon.getCouponDetail().getStore().getName())
+			.salePrice(coupon.getCouponDetail().getSalePrice())
+			.build();
+	}
+}
