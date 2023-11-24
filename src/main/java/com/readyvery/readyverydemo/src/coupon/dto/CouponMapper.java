@@ -23,6 +23,7 @@ public class CouponMapper {
 
 	private CouponDto toCouponDto(Coupon coupon) {
 		return CouponDto.builder()
+			.couponId(coupon.getId())
 			.couponName(coupon.getCouponDetail().getName())
 			.description(coupon.getCouponDetail().getDescription())
 			.expirationDate(coupon.getCouponDetail().getExpire())

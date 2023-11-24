@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CouponDto {
+	private Long couponId;
 	private String couponName;
 	private String publisher;
 	private String description;
