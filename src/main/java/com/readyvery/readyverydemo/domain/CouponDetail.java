@@ -46,7 +46,15 @@ public class CouponDetail extends BaseTimeEntity {
 	@Column
 	private LocalDateTime expire;
 
-	// 발행처 레디베리 발행(0) / 사장님 발행(ceo_idx)
+	// 쿠폰 코드
+	@Column(name = "coupon_code")
+	private String couponCode;
+
+	// 발급 갯수
+	@Column(name = "coupon_count")
+	private Long couponCount;
+
+	// 발행처 레디베리 발행(0) / 사장님 발행(store_idx)
 	@Column
 	private Long publisher;
 
@@ -54,9 +62,9 @@ public class CouponDetail extends BaseTimeEntity {
 	@JoinColumn(name = "event_idx")
 	private Event event;
 
-	@Builder.Default
-	@OneToMany(mappedBy = "couponDetail", cascade = CascadeType.ALL)
-	private List<CouponMenu> couponMenus = new ArrayList<CouponMenu>();
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "foodie_idx")
+	private Foodie foodie;
 
 	@Builder.Default
 	@OneToMany(mappedBy = "couponDetail", cascade = CascadeType.ALL)
