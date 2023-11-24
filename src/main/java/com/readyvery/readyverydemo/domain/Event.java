@@ -39,6 +39,10 @@ public class Event extends BaseTimeEntity {
 	@Column(name = "main_img")
 	private String mainImg;
 
+	// 이벤트 진행 여부
+	@Column(name = "is_active")
+	private boolean isActive;
+
 	@Builder.Default
 	@OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
 	private List<CouponDetail> coupons = new ArrayList<CouponDetail>();

@@ -56,6 +56,7 @@ public class Cart extends BaseTimeEntity {
 	@Builder.Default
 	private Boolean isDeleted = false;
 
+	@Builder.Default
 	@OneToMany(mappedBy = "cart")
 	private List<Order> orders = new ArrayList<Order>();
 
