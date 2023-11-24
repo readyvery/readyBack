@@ -18,7 +18,11 @@ public enum ExceptionCode {
 	ORDER_NOT_FOUND(400, "Order does not exists."),
 	TOSS_PAYMENT_AMOUNT_NOT_MATCH(400, "Toss payment amount not match."),
 	ORDER_NOT_CURRENT(400, "Order is not current."),
-	ORDER_NOT_CANCELABLE(400, "Order is not cancelable.");
+	ORDER_NOT_CANCELABLE(400, "Order is not cancelable."),
+	COUPON_NOT_FOUND(404, "Coupon does not exists."),
+	COUPON_NOT_ACTIVE(400, "Coupon is not active."),
+	COUPON_CODE_NOT_MATCH(400, "Coupon code is not match."),
+	COUPON_ISSUE_COUNT_EXCEED(400, "Coupon issue count exceed.");
 
 	private int status;
 	private String message;

@@ -42,10 +42,6 @@ public class Coupon extends BaseTimeEntity {
 	@JoinColumn(name = "user_idx")
 	private UserInfo userInfo;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "store_idx")
-	private Store store;
-
 	@OneToOne(mappedBy = "coupon", fetch = FetchType.LAZY)
 	private Order order;
 

@@ -1,5 +1,6 @@
 package com.readyvery.readyverydemo.src.order.dto;
 
+import static com.readyvery.readyverydemo.domain.Progress.*;
 import static com.readyvery.readyverydemo.global.Constant.*;
 import static org.hibernate.type.descriptor.java.JdbcTimeJavaType.*;
 
@@ -213,6 +214,7 @@ public class OrderMapper {
 			.receipts(
 				orders
 					.stream()
+					.filter(order -> order.getProgress() != REQUEST)
 					.map(this::orderToReceiptHistoryDto)
 					.toList())
 			.build();

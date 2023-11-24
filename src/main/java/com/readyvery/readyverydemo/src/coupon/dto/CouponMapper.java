@@ -31,4 +31,10 @@ public class CouponMapper {
 			.salePrice(coupon.getCouponDetail().getSalePrice())
 			.build();
 	}
+
+	public CouponIssueRes toCouponIssueRes() {
+		return CouponIssueRes.builder()
+			.message("쿠폰이 발급되었습니다.")
+			.build();
+	}
 }
