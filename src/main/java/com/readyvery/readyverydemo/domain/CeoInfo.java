@@ -45,14 +45,6 @@ public class CeoInfo extends BaseTimeEntity {
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String imageUrl;
 
-	// 연령대
-	@Column
-	private String age;
-
-	// 생일
-	@Column(nullable = false)
-	private String birth;
-
 	// 전화번호
 	@Column(nullable = false)
 	private String phone;
