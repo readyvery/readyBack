@@ -46,17 +46,34 @@ public class CouponDetail extends BaseTimeEntity {
 	@Column
 	private LocalDateTime expire;
 
-	// 발행처 레디베리 발행(0) / 사장님 발행(ceo_idx)
+	// 쿠폰 코드
+	@Column(name = "coupon_code")
+	private String couponCode;
+
+	// 발급 갯수
+	@Column(name = "coupon_count")
+	private Long couponCount;
+
+	// 쿠폰 설명
 	@Column
-	private Long publisher;
+	private String description;
+
+	// 이벤트 진행 여부
+	@Column(name = "is_active")
+	private boolean isActive;
+
+	// 배너 이미지 url
+	@Column(name = "banner_img")
+	private String bannerImg;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "event_idx")
-	private Event event;
+	@JoinColumn(name = "foodie_idx")
+	private Foodie foodie;
 
-	@Builder.Default
-	@OneToMany(mappedBy = "couponDetail", cascade = CascadeType.ALL)
-	private List<CouponMenu> couponMenus = new ArrayList<CouponMenu>();
+	// 발행처 레디베리 발행(null) / 사장님 발행(store_idx)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "store_idx")
+	private Store store;
 
 	@Builder.Default
 	@OneToMany(mappedBy = "couponDetail", cascade = CascadeType.ALL)
