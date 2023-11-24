@@ -44,6 +44,8 @@ public class BoardMapper {
 				.findFirst()
 				.map(storeImg -> IMG_URL + store.getEngName() + "/" + storeImg.getImgUrl())
 				.orElse(null))
+			.eventMessage(store.getEventMessage())
+			.status(store.isStatus())
 			.build();
 	}
 
@@ -57,6 +59,8 @@ public class BoardMapper {
 				.findFirst()
 				.map(storeImg -> IMG_URL + store.getEngName() + "/" + storeImg.getImgUrl())
 				.orElse(null))
+			.eventMessage(store.getEventMessage())
+			.status(store.isStatus())
 			.build();
 	}
 }
