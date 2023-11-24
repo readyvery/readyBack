@@ -59,7 +59,8 @@ public class SpringSecurityConfig {
 					"/login",
 					"/api/v1/store/**",
 					"/api/v1/board/**",
-					"/api/v1/order/current"
+					"/api/v1/order/current",
+					"/api/v1/auth"
 				).permitAll() // 위를 제외한 나머지는 모두 허용
 				.anyRequest().authenticated() // 해당 요청은 인증이 필요함
 			)
