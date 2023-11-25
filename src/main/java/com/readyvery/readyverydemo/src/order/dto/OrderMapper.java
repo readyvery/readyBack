@@ -215,6 +215,7 @@ public class OrderMapper {
 				orders
 					.stream()
 					.filter(order -> order.getProgress() != REQUEST)
+					.filter(order -> order.getProgress() != FAIL)
 					.map(this::orderToReceiptHistoryDto)
 					.toList())
 			.build();
@@ -241,7 +242,7 @@ public class OrderMapper {
 	public CurrentRes orderToCurrentRes(Order order) {
 		return CurrentRes.builder()
 			.name(order.getStore().getName())
-			.orderNum(order.getId())
+			.orderNum(order.getOrderNumber())
 			.progress(order.getProgress())
 			.orderName(order.getOrderName())
 			.estimatedTime(order.getEstimatedTime() != null
@@ -252,6 +253,22 @@ public class OrderMapper {
 	public DefaultRes tosspaymentDtoToCancelRes() {
 		return DefaultRes.builder()
 			.message("취소 성공")
+			.build();
+	}
+
+	public HistoryDetailRes orderToHistoryDetailRes(Order order) {
+		return HistoryDetailRes.builder()
+			.orderStatus(order.getProgress().toString())
+			.storeName(order.getStore().getName())
+			.orderTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
+			.orderId(order.getOrderId())
+			.storePhone(order.getStore().getPhone())
+			.cart(cartToCartGetRes(order.getCart(), order.getInOut()))
+			.salePrice(
+				String.valueOf(order.getCoupon() != null
+					? order.getCoupon().getCouponDetail().getSalePrice()
+					: null))
+			.method(order.getMethod())
 			.build();
 	}
 }

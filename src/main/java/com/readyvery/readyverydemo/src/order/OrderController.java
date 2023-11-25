@@ -19,12 +19,12 @@ import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
 import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
-import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.CurrentRes;
 import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
+import com.readyvery.readyverydemo.src.order.dto.HistoryDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
 import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
@@ -78,6 +78,13 @@ public class OrderController {
 		return new ResponseEntity<>(historyRes, HttpStatus.OK);
 	}
 
+	@GetMapping("/receipt")
+	public ResponseEntity<HistoryDetailRes> getReceipts(@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestParam("orderId") String orderId) {
+		HistoryDetailRes historyRes = orderService.getReceipt(userDetails, orderId);
+		return new ResponseEntity<>(historyRes, HttpStatus.OK);
+	}
+
 	@GetMapping("/current")
 	public ResponseEntity<CurrentRes> getCurrent(@RequestParam("orderId") String orderId) {
 		CurrentRes currentRes = orderService.getCurrent(orderId);
@@ -114,8 +121,8 @@ public class OrderController {
 
 	@DeleteMapping("/cart")
 	public ResponseEntity<CartItemDeleteRes> deleteCartItem(@AuthenticationPrincipal CustomUserDetails userDetails,
-		@RequestBody CartItemDeleteReq cartItemDeleteReq) {
-		CartItemDeleteRes cartItemDeleteRes = orderService.deleteCart(userDetails, cartItemDeleteReq);
+		@RequestParam Long idx) {
+		CartItemDeleteRes cartItemDeleteRes = orderService.deleteCart(userDetails, idx);
 		return new ResponseEntity<>(cartItemDeleteRes, HttpStatus.OK);
 	}
 
