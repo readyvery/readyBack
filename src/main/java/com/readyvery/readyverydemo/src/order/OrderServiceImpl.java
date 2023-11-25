@@ -291,11 +291,21 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void applyTosspaymentDto(Order order, TosspaymentDto tosspaymentDto) {
-		//TODO: orderNumber 적용
+		order.setOrderNumber(getOrderNumber(order));
 		order.setPaymentKey(tosspaymentDto.getPaymentKey());
 		order.setMethod(tosspaymentDto.getMethod());
 		order.setProgress(Progress.ORDER);
 		order.setPayStatus(true);
+		order.getCart().setIsOrdered(true);
+	}
+
+	private String getOrderNumber(Order order) {
+		long todayOrder = ordersRepository.countByCreatedAtBetweenAndProgressNot(
+			order.getCreatedAt().toLocalDate().atStartOfDay(),
+			order.getCreatedAt().toLocalDate().atTime(23, 59, 59),
+			Progress.REQUEST
+		) + 1;
+		return Long.toString(todayOrder);
 	}
 
 	private void verifyOrder(Order order, Long amount) {
