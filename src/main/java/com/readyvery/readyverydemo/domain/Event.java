@@ -30,6 +30,10 @@ public class Event extends BaseTimeEntity {
 	@Column(name = "main_img")
 	private String mainImg;
 
+	// 이벤트 리다이렉트 url
+	@Column(name = "redirect_url")
+	private String redirectUrl;
+
 	// 이벤트 진행 여부
 	@Column(name = "is_active")
 	private boolean isActive;
