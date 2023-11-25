@@ -112,6 +112,7 @@ public class OrderMapper {
 			.carts(
 				cart.getCartItems()
 					.stream()
+					.filter(cartItem -> !cartItem.getIsDeleted())
 					.map(cartItem -> cartItemToCartDto(cartItem, inout))
 					.toList())
 			.totalPrice(
