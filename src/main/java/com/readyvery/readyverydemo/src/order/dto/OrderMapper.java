@@ -118,6 +118,7 @@ public class OrderMapper {
 			.totalPrice(
 				cart.getCartItems()
 					.stream()
+					.filter(cartItem -> !cartItem.getIsDeleted())
 					.mapToLong(cartItem -> cartItemTotalPrice(cartItem, inout))
 					.sum())
 			.build();
