@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.readyvery.readyverydemo.domain.CouponDetail;
+import com.readyvery.readyverydemo.domain.Event;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,5 +27,15 @@ public class EventMapper {
 				.couponCode(couponDetail.getCouponCode())
 				.build()
 			).toList();
+	}
+
+	public EventMainRes toEventMainRes(List<Event> events) {
+		return EventMainRes.builder()
+			.mainEvents(events.stream().filter(Event::isActive).map(event -> MainEventDto.builder()
+				.imgUrl(event.getMainImg())
+				.redirectUrl(event.getRedirectUrl())
+				.build()
+			).toList())
+			.build();
 	}
 }
