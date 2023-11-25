@@ -119,7 +119,7 @@ public class OrderMapper {
 				cart.getCartItems()
 					.stream()
 					.filter(cartItem -> !cartItem.getIsDeleted())
-					.mapToLong(cartItem -> cartItemTotalPrice(cartItem, inout))
+					.mapToLong(cartItem -> cartItemsTotalPrice(cartItem, inout))//
 					.sum())
 			.build();
 	}
@@ -159,6 +159,15 @@ public class OrderMapper {
 
 		Long totalPrice = optionsPriceSum + determinePrice(cartItem.getFoodie(), inout);
 		return totalPrice * cartItem.getCount();
+	}
+
+	private Long cartItemsTotalPrice(CartItem cartItem, Long inout) {
+		Long optionsPriceSum = cartItem.getCartOptions()
+			.stream()
+			.mapToLong(cartOption -> cartOption.getFoodieOption().getPrice())
+			.sum();
+
+		return optionsPriceSum + determinePrice(cartItem.getFoodie(), inout);
 	}
 
 	public TosspaymentMakeRes orderToTosspaymentMakeRes(Order order) {
