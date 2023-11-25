@@ -418,6 +418,7 @@ public class OrderServiceImpl implements OrderService {
 
 	private Long calculateAmount2(Cart cart, Long inout) {
 		return cart.getCartItems().stream()
+			.filter(cartItem -> !cartItem.getIsDeleted())
 			.map(cartItem -> {
 				Long price = orderMapper.determinePrice(cartItem.getFoodie(), inout);
 				Long totalPrice = cartItem.getCartOptions().stream()
