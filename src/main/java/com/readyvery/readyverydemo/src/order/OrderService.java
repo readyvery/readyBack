@@ -4,7 +4,6 @@ import com.readyvery.readyverydemo.global.exception.BusinessLogicException;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
-import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
@@ -23,7 +22,7 @@ public interface OrderService {
 
 	CartAddRes addCart(CustomUserDetails userDetails, CartAddReq cartAddReq);
 
-	CartEidtRes editCart(CustomUserDetails userDetails, CartEditReq cartEditReq);
+	CartEidtRes editCart(CustomUserDetails userDetails, Long idx, Long count);
 
 	CartItemDeleteRes deleteCart(CustomUserDetails userDetails, Long idx);
 

@@ -45,7 +45,6 @@ import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.order.config.TossPaymentConfig;
 import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
-import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
@@ -118,12 +117,12 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public CartEidtRes editCart(CustomUserDetails userDetails, CartEditReq cartEditReq) {
-		CartItem cartItem = getCartItem(cartEditReq.getIdx());
+	public CartEidtRes editCart(CustomUserDetails userDetails, Long idx, Long count) {
+		CartItem cartItem = getCartItem(idx);
 
 		verifyCartItem(cartItem, userDetails);
 
-		editCartItem(cartItem, cartEditReq);
+		editCartItem(cartItem, count);
 		cartItemRepository.save(cartItem);
 		return orderMapper.cartToCartEditRes(cartItem);
 	}
@@ -444,8 +443,8 @@ public class OrderServiceImpl implements OrderService {
 		cartItem.setIsDeleted(true);
 	}
 
-	private void editCartItem(CartItem cartItem, CartEditReq cartEditReq) {
-		cartItem.setCount(cartEditReq.getCount());
+	private void editCartItem(CartItem cartItem, Long count) {
+		cartItem.setCount(count);
 	}
 
 	private void verifyCartItem(CartItem cartItem, CustomUserDetails userDetails) {

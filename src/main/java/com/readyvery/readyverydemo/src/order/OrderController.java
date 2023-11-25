@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
-import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
@@ -114,8 +113,9 @@ public class OrderController {
 
 	@PutMapping("/cart")
 	public ResponseEntity<CartEidtRes> updateCart(@AuthenticationPrincipal CustomUserDetails userDetails,
-		@RequestBody CartEditReq cartEditReq) {
-		CartEidtRes cartEditRes = orderService.editCart(userDetails, cartEditReq);
+		@RequestParam Long idx,
+		@RequestParam Long count) {
+		CartEidtRes cartEditRes = orderService.editCart(userDetails, idx, count);
 		return new ResponseEntity<>(cartEditRes, HttpStatus.OK);
 	}
 
