@@ -215,6 +215,7 @@ public class OrderMapper {
 				orders
 					.stream()
 					.filter(order -> order.getProgress() != REQUEST)
+					.filter(order -> order.getProgress() != FAIL)
 					.map(this::orderToReceiptHistoryDto)
 					.toList())
 			.build();
