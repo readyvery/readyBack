@@ -22,7 +22,8 @@ public enum ExceptionCode {
 	COUPON_NOT_FOUND(404, "Coupon does not exists."),
 	COUPON_NOT_ACTIVE(400, "Coupon is not active."),
 	COUPON_CODE_NOT_MATCH(400, "Coupon code is not match."),
-	COUPON_ISSUE_COUNT_EXCEED(400, "Coupon issue count exceed.");
+	COUPON_ISSUE_COUNT_EXCEED(400, "Coupon issue count exceed."),
+	ORDER_NOT_RECEIPT(400, "Order is not receipt.");
 
 	private int status;
 	private String message;

@@ -54,6 +54,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.CurrentRes;
 import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
+import com.readyvery.readyverydemo.src.order.dto.HistoryDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
@@ -227,6 +228,30 @@ public class OrderServiceImpl implements OrderService {
 		return orderMapper.tosspaymentDtoToCancelRes();
 	}
 
+	@Override
+	public HistoryDetailRes getReceipt(CustomUserDetails userDetails, String orderId) {
+		UserInfo user = getUserInfo(userDetails);
+		Order order = getOrder(orderId);
+		verifyReceipt(order, user);
+		return orderMapper.orderToHistoryDetailRes(order);
+	}
+
+	private void verifyReceipt(Order order, UserInfo user) {
+		verifyOrderReceipt(order);
+		verifyOrederUser(order, user);
+	}
+
+	private void verifyOrderReceipt(Order order) {
+		if (order.getProgress().equals(Progress.COMPLETE)
+			|| order.getProgress().equals(Progress.PICKUP)
+			|| order.getProgress().equals(Progress.CANCEL)
+			|| order.getProgress().equals(Progress.ORDER)
+			|| order.getProgress().equals(Progress.MAKE)) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.ORDER_NOT_RECEIPT);
+	}
+
 	private void applyCancelTosspaymentDto(Order order, TosspaymentDto tosspaymentDto) {
 		order.setProgress(Progress.CANCEL);
 		order.setPayStatus(false);
@@ -353,7 +378,8 @@ public class OrderServiceImpl implements OrderService {
 		if (cart.getCartItems().isEmpty()) {
 			throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
 		}
-		String orderName = cart.getCartItems().get(0).getFoodie().getName();
+		String orderName =
+			cart.getCartItems().get(0).getFoodie().getName() + " * " + cart.getCartItems().get(0).getCount();
 		if (cart.getCartItems().size() > 1) {
 			orderName += " 외 " + (cart.getCartItems().size() - 1) + "개";
 		}

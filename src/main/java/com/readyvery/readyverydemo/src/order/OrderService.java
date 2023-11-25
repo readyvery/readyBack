@@ -13,6 +13,7 @@ import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.CurrentRes;
 import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
+import com.readyvery.readyverydemo.src.order.dto.HistoryDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
 import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
@@ -42,4 +43,6 @@ public interface OrderService {
 	CurrentRes getCurrent(String orderId);
 
 	Object cancelTossPayment(CustomUserDetails userDetails, TossCancelReq tossCancelReq);
+
+	HistoryDetailRes getReceipt(CustomUserDetails userDetails, String orderId);
 }
