@@ -224,6 +224,7 @@ public class OrderMapper {
 		return ReceiptHistoryDto.builder()
 			.dateTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
 			.name(order.getStore().getName())
+			.progress(order.getProgress())
 			.imgUrl(order.getStore()
 				.getImgs()
 				.stream()
