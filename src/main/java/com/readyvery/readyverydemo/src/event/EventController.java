@@ -25,7 +25,7 @@ public class EventController {
 
 	@GetMapping("/main")
 	public ResponseEntity<EventMainRes> getMain() {
-		EventMainRes EventMainRes = eventService.getMainEvents();
-		return new ResponseEntity<>(EventMainRes, HttpStatus.OK);
+		EventMainRes eventMainRes = eventService.getMainEvents();
+		return new ResponseEntity<>(eventMainRes, HttpStatus.OK);
 	}
 }
