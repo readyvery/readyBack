@@ -48,7 +48,7 @@ public class OrderController {
 
 	@GetMapping("/cart")
 	public ResponseEntity<CartGetRes> getCart(@AuthenticationPrincipal CustomUserDetails userDetails,
-		@RequestParam("cartId") Long cartId) {
+		@RequestParam(value = "cartId", required = false) Long cartId) {
 		CartGetRes cartGetRes = orderService.getCart(userDetails, cartId);
 		return new ResponseEntity<>(cartGetRes, HttpStatus.OK);
 	}
