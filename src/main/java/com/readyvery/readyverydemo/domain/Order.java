@@ -97,7 +97,7 @@ public class Order extends BaseTimeEntity {
 	@JoinColumn(name = "cart_idx")
 	private Cart cart;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "coupon_idx")
 	private Coupon coupon;
 
