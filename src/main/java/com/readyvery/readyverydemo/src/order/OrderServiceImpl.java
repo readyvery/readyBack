@@ -85,9 +85,7 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout) {
-		Foodie foodie = foodieRepository.findById(foodyId).orElseThrow(
-			() -> new BusinessLogicException(ExceptionCode.FOODY_NOT_FOUND)
-		);
+		Foodie foodie = getFoody(foodyId);
 		return orderMapper.foodieToFoodyDetailRes(foodie, inout);
 	}
 
@@ -104,7 +102,7 @@ public class OrderServiceImpl implements OrderService {
 			.orElseGet(() -> makeCart(user, store, cartAddReq.getInout()));
 
 		verifyCart(cart);
-		verifyItemsInCart(cart, store);
+		verifyItemsInCart(cart, store, cartAddReq.getInout());
 		CartItem cartItem = makeCartItem(cart, foodie, cartAddReq.getCount());
 		List<CartOption> cartOptions = cartAddReq.getOptions().stream()
 			.map(option -> makeCartOption(cartItem, option))
@@ -117,10 +115,19 @@ public class OrderServiceImpl implements OrderService {
 		return orderMapper.cartToCartAddRes(cartItem);
 	}
 
-	private void verifyItemsInCart(Cart cart, Store store) {
+	private void verifyItemsInCart(Cart cart, Store store, Long inout) {
+		if (cart.getCartItems().stream().allMatch(CartItem::getIsDeleted)) {
+			changeCartStore(cart, store, inout);
+		}
 		if (!cart.getStore().equals(store)) {
 			throw new BusinessLogicException(ExceptionCode.ITEM_NOT_SAME_STORE);
 		}
+	}
+
+	private void changeCartStore(Cart cart, Store store, Long inout) {
+		cart.setStore(store);
+		cart.setInOut(inout);
+		cart.getCartItems().forEach(cartItem -> cartItem.setIsDeleted(true));
 	}
 
 	@Override
