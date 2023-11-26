@@ -108,4 +108,13 @@ public class UserInfo extends BaseTimeEntity {
 	public void updateRefresh(String updateRefreshToken) {
 		this.refreshToken = updateRefreshToken;
 	}
+
+	public void updateRemoveUserDate() {
+		this.status = true;
+		this.deleteDate = LocalDateTime.now();
+	}
+
+	public void updateStatus(boolean status) {
+		this.status = status;
+	}
 }
