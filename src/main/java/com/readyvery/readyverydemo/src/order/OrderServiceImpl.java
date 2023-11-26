@@ -3,6 +3,7 @@ package com.readyvery.readyverydemo.src.order;
 import static com.readyvery.readyverydemo.global.Constant.*;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +22,7 @@ import net.minidev.json.JSONObject;
 import com.readyvery.readyverydemo.domain.Cart;
 import com.readyvery.readyverydemo.domain.CartItem;
 import com.readyvery.readyverydemo.domain.CartOption;
+import com.readyvery.readyverydemo.domain.Coupon;
 import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
@@ -32,6 +34,7 @@ import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.CartItemRepository;
 import com.readyvery.readyverydemo.domain.repository.CartOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.CartRepository;
+import com.readyvery.readyverydemo.domain.repository.CouponRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieRepository;
 import com.readyvery.readyverydemo.domain.repository.OrderRepository;
@@ -60,6 +63,7 @@ import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentDto;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -77,6 +81,7 @@ public class OrderServiceImpl implements OrderService {
 	private final TossPaymentConfig tosspaymentConfig;
 	private final OrdersRepository ordersRepository;
 	private final ReceiptRepository receiptRepository;
+	private final CouponRepository couponRepository;
 
 	@Override
 	public FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout) {
@@ -173,15 +178,50 @@ public class OrderServiceImpl implements OrderService {
 		UserInfo user = getUserInfo(userDetails);
 		Cart cart = getCart(user);
 		Store store = cart.getStore();
+		Coupon coupon = getCoupon(paymentReq.getCouponId());
 
+		verifyCoupon(user, coupon);
 		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
 		Long amount = calculateAmount2(cart);
-		//TODO: 쿠폰 추가
-		Order order = makeOrder(user, store, amount, cart);
+		Order order = makeOrder(user, store, amount, cart, coupon);
 		cartOrder(cart);
 		orderRepository.save(order);
 		cartRepository.save(cart);
 		return orderMapper.orderToTosspaymentMakeRes(order);
+	}
+
+	private void verifyCoupon(UserInfo user, Coupon coupon) {
+		isCoupon(coupon);
+		isUserCoupon(user, coupon);
+	}
+
+	private void isUserCoupon(UserInfo user, Coupon coupon) {
+		if (coupon.getUserInfo().equals(user)) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.COUPON_NOT_ACTIVE);
+	}
+
+	private void isCoupon(Coupon coupon) {
+		if (coupon == null) {
+			return;
+		}
+		if (!coupon.isUsed()) {
+			return;
+		}
+		if (coupon.getCouponDetail().getExpire().isAfter(LocalDateTime.now())) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.COUPON_NOT_VALID);
+	}
+
+	private Coupon getCoupon(Long couponId) {
+		if (couponId == null) {
+			return null;
+		}
+		return couponRepository.findById(couponId).orElseThrow(
+			() -> new BusinessLogicException(ExceptionCode.COUPON_NOT_FOUND)
+		);
 	}
 
 	private void cartOrder(Cart cart) {
@@ -189,6 +229,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
+	@Transactional
 	public String tossPaymentSuccess(String paymentKey, String orderId, Long amount) {
 		Order order = getOrder(orderId);
 		verifyOrder(order, amount);
@@ -331,6 +372,7 @@ public class OrderServiceImpl implements OrderService {
 		order.setProgress(Progress.ORDER);
 		order.setPayStatus(true);
 		order.getCart().setIsOrdered(true);
+		order.getCoupon().setUsed(true);
 	}
 
 	private String getOrderNumber(Order order) {
@@ -343,7 +385,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void verifyOrder(Order order, Long amount) {
-		if (!order.getTotalAmount().equals(amount)) {
+		if (!order.getAmount().equals(amount)) {
 			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_AMOUNT_NOT_MATCH);
 		}
 	}
@@ -383,7 +425,7 @@ public class OrderServiceImpl implements OrderService {
 		return headers;
 	}
 
-	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart) {
+	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart, Coupon coupon) {
 		if (cart.getCartItems().isEmpty()) {
 			throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
 		}
@@ -395,9 +437,10 @@ public class OrderServiceImpl implements OrderService {
 		return Order.builder()
 			.userInfo(user)
 			.store(store)
-			.amount(amount)
+			.amount(amount - coupon.getCouponDetail().getSalePrice())
 			.orderId(UUID.randomUUID().toString())
 			.cart(cart)
+			.coupon(coupon)
 			.paymentKey(null)
 			.orderName(orderName)
 			.totalAmount(amount)
