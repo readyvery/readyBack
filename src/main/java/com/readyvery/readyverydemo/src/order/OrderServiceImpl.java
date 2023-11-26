@@ -375,7 +375,9 @@ public class OrderServiceImpl implements OrderService {
 		order.setProgress(Progress.ORDER);
 		order.setPayStatus(true);
 		order.getCart().setIsOrdered(true);
-		order.getCoupon().setUsed(true);
+		if (order.getCoupon() != null) {
+			order.getCoupon().setUsed(true);
+		}
 	}
 
 	private String getOrderNumber(Order order) {
