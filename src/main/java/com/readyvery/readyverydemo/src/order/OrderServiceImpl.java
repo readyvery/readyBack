@@ -191,7 +191,7 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public TosspaymentMakeRes requestTossPayment(CustomUserDetails userDetails, PaymentReq paymentReq) {
 		UserInfo user = getUserInfo(userDetails);
-		Cart cart = getCart(user);
+		Cart cart = getCartId(user, paymentReq.getCartId());
 		Store store = cart.getStore();
 		Coupon coupon = getCoupon(paymentReq.getCouponId());
 
