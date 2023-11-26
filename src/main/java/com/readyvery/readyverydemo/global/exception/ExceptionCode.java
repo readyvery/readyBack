@@ -26,7 +26,8 @@ public enum ExceptionCode {
 	ORDER_NOT_RECEIPT(400, "Order is not receipt."),
 	INVALID_INOUT(400, "Invalid inout."),
 	CART_NOT_EDITABLE(400, "Cart is not editable."),
-	COUPON_NOT_VALID(400, "Coupon is not valid.");
+	COUPON_NOT_VALID(400, "Coupon is not valid."),
+	NOT_MY_CART(400, "Not my cart.");
 
 	private int status;
 	private String message;

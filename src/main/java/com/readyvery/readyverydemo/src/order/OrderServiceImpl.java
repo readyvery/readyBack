@@ -178,14 +178,13 @@ public class OrderServiceImpl implements OrderService {
 		if (cart.getUserInfo().equals(user)) {
 			return;
 		}
-		throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
+		System.out.println("asdf");
+		throw new BusinessLogicException(ExceptionCode.NOT_MY_CART);
 	}
 
 	private Cart getCartId(UserInfo user, Long cartId) {
-		if (cartId == null) {
-			return getCart(user);
-		}
-		return cartRepository.findById(cartId).orElse(getCart(user));
+		return (cartId == null) ? getCart(user)
+			: cartRepository.findById(cartId).orElseGet(() -> getCart(user));
 	}
 
 	@Override
