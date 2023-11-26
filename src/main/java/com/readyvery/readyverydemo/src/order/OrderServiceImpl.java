@@ -196,6 +196,9 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void isUserCoupon(UserInfo user, Coupon coupon) {
+		if (coupon == null) {
+			return;
+		}
 		if (coupon.getUserInfo().equals(user)) {
 			return;
 		}
