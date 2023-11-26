@@ -15,4 +15,7 @@ public class ReceiptHistoryDto {
 	private Long amount;
 	private String orderId;
 	private Progress progress;
+	private Long cartId;
+	private Long storeId;
+	private Long inOut;
 }

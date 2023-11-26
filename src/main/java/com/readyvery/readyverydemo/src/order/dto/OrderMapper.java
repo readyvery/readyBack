@@ -236,6 +236,9 @@ public class OrderMapper {
 		return ReceiptHistoryDto.builder()
 			.dateTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
 			.name(order.getStore().getName())
+			.cartId(order.getCart().getId())
+			.storeId(order.getStore().getId())
+			.inOut(order.getInOut())
 			.progress(order.getProgress())
 			.imgUrl(order.getStore()
 				.getImgs()
@@ -269,9 +272,6 @@ public class OrderMapper {
 
 	public HistoryDetailRes orderToHistoryDetailRes(Order order) {
 		return HistoryDetailRes.builder()
-			.cartId(order.getCart().getId())
-			.storeId(order.getStore().getId())
-			.inOut(order.getInOut())
 			.orderStatus(order.getProgress().toString())
 			.storeName(order.getStore().getName())
 			.orderTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
