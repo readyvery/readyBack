@@ -11,5 +11,6 @@ public class CartGetRes {
 	private String name;
 	private String imgUrl;
 	private Long totalPrice;
+	private Long cartId;
 	private List<CartDto> carts;
 }
