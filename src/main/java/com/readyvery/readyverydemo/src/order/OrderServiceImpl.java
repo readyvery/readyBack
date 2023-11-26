@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -166,11 +167,17 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public CartGetRes getCart(CustomUserDetails userDetails) {
+	public CartGetRes getCart(CustomUserDetails userDetails, Long cartId) {
 		UserInfo user = getUserInfo(userDetails);
-		Cart cart = getCart(user);
+		Cart cart = getCartId(user, cartId);
 
 		return orderMapper.cartToCartGetRes(cart);
+	}
+
+	private Cart getCartId(UserInfo user, Long cartId) {
+		return Optional.ofNullable(cartId)
+			.flatMap(id -> cartRepository.findById(cartId))
+			.orElseGet(() -> getCart(user));
 	}
 
 	@Override
