@@ -96,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
 		verifyCartAddReq(foodie, cartAddReq);
 
 		Cart cart = cartRepository.findByUserInfoAndIsDeletedFalseAndIsOrderedFalse(user)
-			.orElseGet(() -> makeCart(user, store));
+			.orElseGet(() -> makeCart(user, store, cartAddReq.getInout()));
 		verifyItemsInCart(cart, store);
 		CartItem cartItem = makeCartItem(cart, foodie, cartAddReq.getCount());
 		List<CartOption> cartOptions = cartAddReq.getOptions().stream()
@@ -482,10 +482,11 @@ public class OrderServiceImpl implements OrderService {
 			.build();
 	}
 
-	private Cart makeCart(UserInfo user, Store store) {
+	private Cart makeCart(UserInfo user, Store store, Long inout) {
 		return Cart.builder()
 			.userInfo(user)
 			.store(store)
+			.inout(inout)
 			.build();
 	}
 
@@ -504,6 +505,13 @@ public class OrderServiceImpl implements OrderService {
 	private void verifyCartAddReq(Foodie foodie, CartAddReq cartAddReq) {
 		verifyOption(foodie, cartAddReq.getOptions());
 		verifyEssentialOption(foodie, cartAddReq.getOptions());
+		verifyInout(cartAddReq.getInout());
+	}
+
+	private void verifyInout(Long inout) {
+		if (!inout.equals(EAT_IN) && !inout.equals(TAKE_OUT)) {
+			throw new BusinessLogicException(ExceptionCode.INVALID_INOUT);
+		}
 	}
 
 	private Foodie getFoody(Long foodieId) {

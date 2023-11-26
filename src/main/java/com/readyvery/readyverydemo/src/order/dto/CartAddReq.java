@@ -10,4 +10,5 @@ public class CartAddReq {
 	private Long foodieId;
 	private List<Long> options;
 	private Long count;
+	private Long inout;
 }
