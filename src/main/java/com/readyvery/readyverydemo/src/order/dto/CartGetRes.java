@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class CartGetRes {
 	private String name;
+	private Boolean edit;
 	private String imgUrl;
 	private Long totalPrice;
 	private Long cartId;
