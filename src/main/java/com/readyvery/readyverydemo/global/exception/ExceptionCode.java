@@ -24,7 +24,8 @@ public enum ExceptionCode {
 	COUPON_CODE_NOT_MATCH(400, "Coupon code is not match."),
 	COUPON_ISSUE_COUNT_EXCEED(400, "Coupon issue count exceed."),
 	ORDER_NOT_RECEIPT(400, "Order is not receipt."),
-	INVALID_INOUT(400, "Invalid inout.");
+	INVALID_INOUT(400, "Invalid inout."),
+	CART_NOT_EDITABLE(400, "Cart is not editable.");
 
 	private int status;
 	private String message;

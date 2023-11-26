@@ -28,7 +28,7 @@ public interface OrderService {
 
 	CartResetRes resetCart(CustomUserDetails userDetails);
 
-	CartGetRes getCart(CustomUserDetails userDetails, Long inout);
+	CartGetRes getCart(CustomUserDetails userDetails);
 
 	TosspaymentMakeRes requestTossPayment(CustomUserDetails userDetails, PaymentReq paymentReq);
 

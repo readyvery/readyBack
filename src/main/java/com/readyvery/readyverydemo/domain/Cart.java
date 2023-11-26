@@ -38,7 +38,7 @@ public class Cart extends BaseTimeEntity {
 	private Long id;
 
 	@Column(nullable = false)
-	private Long inout;
+	private Long inOut;
 
 	// 장바구니 유저 연관관계 매핑
 

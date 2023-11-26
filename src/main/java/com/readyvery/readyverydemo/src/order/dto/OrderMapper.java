@@ -99,7 +99,7 @@ public class OrderMapper {
 			.build();
 	}
 
-	public CartGetRes cartToCartGetRes(Cart cart, Long inout) {
+	public CartGetRes cartToCartGetRes(Cart cart) {
 		return CartGetRes.builder()
 			.name(cart.getStore().getName())
 			.imgUrl(cart.getStore()
@@ -113,13 +113,13 @@ public class OrderMapper {
 				cart.getCartItems()
 					.stream()
 					.filter(cartItem -> !cartItem.getIsDeleted())
-					.map(cartItem -> cartItemToCartDto(cartItem, inout))
+					.map(cartItem -> cartItemToCartDto(cartItem, cart.getInOut()))
 					.toList())
 			.totalPrice(
 				cart.getCartItems()
 					.stream()
 					.filter(cartItem -> !cartItem.getIsDeleted())
-					.mapToLong(cartItem -> cartItemTotalPrice(cartItem, inout))//
+					.mapToLong(cartItem -> cartItemTotalPrice(cartItem, cart.getInOut()))//
 					.sum())
 			.build();
 	}
@@ -176,8 +176,8 @@ public class OrderMapper {
 			.orderName(order.getOrderName())
 			.successUrl(tossPaymentConfig.getTossSuccessUrl())
 			.failUrl(tossPaymentConfig.getTossFailUrl())
-			.customerEmail("test@naver.com")
-			.customerName("test")
+			.customerEmail(order.getUserInfo().getEmail())
+			.customerName(order.getUserInfo().getNickName())
 			.amount(order.getAmount())
 			.build();
 	}
@@ -274,7 +274,7 @@ public class OrderMapper {
 			.orderTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
 			.orderId(order.getOrderId())
 			.storePhone(order.getStore().getPhone())
-			.cart(cartToCartGetRes(order.getCart(), order.getInOut()))
+			.cart(cartToCartGetRes(order.getCart()))
 			.salePrice(
 				String.valueOf(order.getCoupon() != null
 					? order.getCoupon().getCouponDetail().getSalePrice()

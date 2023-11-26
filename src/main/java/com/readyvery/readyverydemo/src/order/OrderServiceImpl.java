@@ -97,6 +97,8 @@ public class OrderServiceImpl implements OrderService {
 
 		Cart cart = cartRepository.findByUserInfoAndIsDeletedFalseAndIsOrderedFalse(user)
 			.orElseGet(() -> makeCart(user, store, cartAddReq.getInout()));
+
+		verifyCart(cart);
 		verifyItemsInCart(cart, store);
 		CartItem cartItem = makeCartItem(cart, foodie, cartAddReq.getCount());
 		List<CartOption> cartOptions = cartAddReq.getOptions().stream()
@@ -119,12 +121,21 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public CartEidtRes editCart(CustomUserDetails userDetails, Long idx, Long count) {
 		CartItem cartItem = getCartItem(idx);
-
+		verifyCart(cartItem.getCart());
 		verifyCartItem(cartItem, userDetails);
 
 		editCartItem(cartItem, count);
 		cartItemRepository.save(cartItem);
 		return orderMapper.cartToCartEditRes(cartItem);
+	}
+
+	private void verifyCart(Cart cart) {
+		if (cart.getIsOrdered()) {
+			throw new BusinessLogicException(ExceptionCode.CART_NOT_EDITABLE);
+		}
+		if (cart.getIsDeleted()) {
+			throw new BusinessLogicException(ExceptionCode.CART_NOT_EDITABLE);
+		}
 	}
 
 	@Override
@@ -150,11 +161,11 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public CartGetRes getCart(CustomUserDetails userDetails, Long inout) {
+	public CartGetRes getCart(CustomUserDetails userDetails) {
 		UserInfo user = getUserInfo(userDetails);
 		Cart cart = getCart(user);
 
-		return orderMapper.cartToCartGetRes(cart, inout);
+		return orderMapper.cartToCartGetRes(cart);
 	}
 
 	@Override
@@ -164,9 +175,9 @@ public class OrderServiceImpl implements OrderService {
 		Store store = cart.getStore();
 
 		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
-		Long amount = calculateAmount2(cart, paymentReq.getInout());
+		Long amount = calculateAmount2(cart);
 		//TODO: 쿠폰 추가
-		Order order = makeOrder(user, store, amount, cart, paymentReq.getInout());
+		Order order = makeOrder(user, store, amount, cart);
 		cartOrder(cart);
 		orderRepository.save(order);
 		cartRepository.save(cart);
@@ -372,7 +383,7 @@ public class OrderServiceImpl implements OrderService {
 		return headers;
 	}
 
-	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart, Long inout) {
+	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart) {
 		if (cart.getCartItems().isEmpty()) {
 			throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
 		}
@@ -392,7 +403,7 @@ public class OrderServiceImpl implements OrderService {
 			.totalAmount(amount)
 			.orderNumber(null)
 			.progress(Progress.REQUEST)
-			.inOut(inout)
+			.inOut(cart.getInOut())
 			.build();
 	}
 
@@ -415,11 +426,11 @@ public class OrderServiceImpl implements OrderService {
 	// 		.reduce(0L, Long::sum);
 	// }
 
-	private Long calculateAmount2(Cart cart, Long inout) {
+	private Long calculateAmount2(Cart cart) {
 		return cart.getCartItems().stream()
 			.filter(cartItem -> !cartItem.getIsDeleted())
 			.map(cartItem -> {
-				Long price = orderMapper.determinePrice(cartItem.getFoodie(), inout);
+				Long price = orderMapper.determinePrice(cartItem.getFoodie(), cart.getInOut());
 				Long totalPrice = cartItem.getCartOptions().stream()
 					.map(CartOption::getFoodieOption)
 					.map(FoodieOption::getPrice)
@@ -486,7 +497,7 @@ public class OrderServiceImpl implements OrderService {
 		return Cart.builder()
 			.userInfo(user)
 			.store(store)
-			.inout(inout)
+			.inOut(inout)
 			.build();
 	}
 
