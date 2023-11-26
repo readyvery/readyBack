@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.user.dto.UserAuthRes;
 import com.readyvery.readyverydemo.src.user.dto.UserInfoRes;
+import com.readyvery.readyverydemo.src.user.dto.UserLogoutRes;
 import com.readyvery.readyverydemo.src.user.dto.UserRemoveRes;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -63,10 +64,13 @@ public class UserController {
 	 * 사용자 로그아웃
 	 */
 	@GetMapping("/user/logout")
-	public boolean logout(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) {
+	public UserLogoutRes logout(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) {
 
 		userServiceImpl.removeRefreshTokenInDB(userDetails.getId(), response);
-		return true;
+		return UserLogoutRes.builder()
+			.success(true)
+			.message("로그아웃 성공")
+			.build();
 	}
 
 	/**
