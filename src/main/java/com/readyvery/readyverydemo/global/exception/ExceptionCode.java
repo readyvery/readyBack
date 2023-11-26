@@ -25,7 +25,8 @@ public enum ExceptionCode {
 	COUPON_ISSUE_COUNT_EXCEED(400, "Coupon issue count exceed."),
 	ORDER_NOT_RECEIPT(400, "Order is not receipt."),
 	INVALID_INOUT(400, "Invalid inout."),
-	CART_NOT_EDITABLE(400, "Cart is not editable.");
+	CART_NOT_EDITABLE(400, "Cart is not editable."),
+	COUPON_NOT_VALID(400, "Coupon is not valid.");
 
 	private int status;
 	private String message;
