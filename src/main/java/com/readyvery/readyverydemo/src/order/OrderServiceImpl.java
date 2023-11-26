@@ -446,14 +446,20 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart, Coupon coupon) {
-		if (cart.getCartItems().isEmpty()) {
+		List<CartItem> cartItems = cart.getCartItems().stream()
+			.filter(cartItem -> !cartItem.getIsDeleted())
+			.toList();
+
+		if (cartItems.stream().allMatch(CartItem::getIsDeleted)) {
 			throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
 		}
+		CartItem firstItem = cartItems.get(0);
 		String orderName =
-			cart.getCartItems().get(0).getFoodie().getName() + " * " + cart.getCartItems().get(0).getCount();
-		if (cart.getCartItems().size() > 1) {
+			firstItem.getCount() == 1 ? firstItem.getFoodie().getName() :
+				firstItem.getFoodie().getName() + " * " + firstItem.getCount();
+		if (cartItems.size() > 1) {
 			orderName += " 외 "
-				+ (cart.getCartItems().stream().filter(cartItem -> !cartItem.getIsDeleted()).count() - 1) + "개";
+				+ (cartItems.stream().filter(cartItem -> !cartItem.getIsDeleted()).count() - 1) + "개";
 		}
 		return Order.builder()
 			.userInfo(user)
