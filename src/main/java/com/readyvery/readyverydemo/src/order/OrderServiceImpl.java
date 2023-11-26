@@ -452,7 +452,8 @@ public class OrderServiceImpl implements OrderService {
 		String orderName =
 			cart.getCartItems().get(0).getFoodie().getName() + " * " + cart.getCartItems().get(0).getCount();
 		if (cart.getCartItems().size() > 1) {
-			orderName += " 외 " + (cart.getCartItems().size() - 1) + "개";
+			orderName += " 외 "
+				+ (cart.getCartItems().stream().filter(cartItem -> !cartItem.getIsDeleted()).count() - 1) + "개";
 		}
 		return Order.builder()
 			.userInfo(user)
