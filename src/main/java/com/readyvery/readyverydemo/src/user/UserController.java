@@ -1,5 +1,7 @@
 package com.readyvery.readyverydemo.src.user;
 
+import java.io.IOException;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.user.dto.UserAuthRes;
 import com.readyvery.readyverydemo.src.user.dto.UserInfoRes;
+import com.readyvery.readyverydemo.src.user.dto.UserRemoveRes;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -74,6 +77,18 @@ public class UserController {
 	@GetMapping("/refresh/token")
 	public boolean refreshEndpoint() {
 		return true;
+	}
+
+	/**
+	 * 회원 탈퇴
+	 * @param userDetails
+	 * @return
+	 * @throws IOException
+	 */
+	@GetMapping("/user/remove")
+	public UserRemoveRes remove(@AuthenticationPrincipal CustomUserDetails userDetails,
+		HttpServletResponse response) throws IOException {
+		return userServiceImpl.removeUser(userDetails.getId(), response);
 	}
 
 }
