@@ -63,6 +63,10 @@ public class Store extends BaseTimeEntity {
 	@Column
 	private String engName;
 
+	// 가게 서브 이름
+	@Column
+	private String subName;
+
 	// 가게 이벤트 메세지
 	@Column
 	private String eventMessage;
