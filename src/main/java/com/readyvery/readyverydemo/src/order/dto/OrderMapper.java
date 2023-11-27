@@ -147,6 +147,7 @@ public class OrderMapper {
 	private OptionDto cartOptionToOptionDto(CartOption cartOption) {
 		return OptionDto.builder()
 			.idx(cartOption.getId())
+			.required(cartOption.getFoodieOption().getFoodieOptionCategory().isRequired())
 			.name(cartOption.getFoodieOption().getName())
 			.price(cartOption.getFoodieOption().getPrice())
 			.build();
@@ -274,6 +275,7 @@ public class OrderMapper {
 	public HistoryDetailRes orderToHistoryDetailRes(Order order) {
 		return HistoryDetailRes.builder()
 			.orderStatus(order.getProgress().toString())
+			.orderNumber(order.getOrderNumber())
 			.storeName(order.getStore().getName())
 			.orderTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
 			.orderId(order.getOrderId())
