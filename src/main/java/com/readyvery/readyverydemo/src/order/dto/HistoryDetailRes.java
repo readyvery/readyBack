@@ -14,4 +14,5 @@ public class HistoryDetailRes {
 	private CartGetRes cart;
 	private String salePrice;
 	private String method;
+	private String orderNumber;
 }
