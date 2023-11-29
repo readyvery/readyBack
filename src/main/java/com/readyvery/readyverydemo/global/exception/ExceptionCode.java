@@ -27,7 +27,10 @@ public enum ExceptionCode {
 	INVALID_INOUT(400, "Invalid inout."),
 	CART_NOT_EDITABLE(400, "Cart is not editable."),
 	COUPON_NOT_VALID(400, "Coupon is not valid."),
-	NOT_MY_CART(400, "Not my cart.");
+	NOT_MY_CART(400, "Not my cart."),
+	STORE_NOT_OPEN(400, "Store is not open."),
+	CART_SOLD_OUT(400, "Cart is sold out."),
+	CART_INOUT_NOT_MATCH(400, "Cart inout is not match.");
 
 	private int status;
 	private String message;

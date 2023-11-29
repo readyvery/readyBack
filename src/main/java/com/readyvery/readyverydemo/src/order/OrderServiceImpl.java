@@ -101,7 +101,7 @@ public class OrderServiceImpl implements OrderService {
 		Cart cart = cartRepository.findByUserInfoAndIsDeletedFalseAndIsOrderedFalse(user)
 			.orElseGet(() -> makeCart(user, store, cartAddReq.getInout()));
 
-		verifyCart(cart);
+		verifyCart(cart, cartAddReq.getInout());
 		verifyItemsInCart(cart, store, cartAddReq.getInout());
 		CartItem cartItem = makeCartItem(cart, foodie, cartAddReq.getCount());
 		List<CartOption> cartOptions = cartAddReq.getOptions().stream()
@@ -133,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public CartEidtRes editCart(CustomUserDetails userDetails, Long idx, Long count) {
 		CartItem cartItem = getCartItem(idx);
-		verifyCart(cartItem.getCart());
+		verifyCart(cartItem.getCart(), null);
 		verifyCartItem(cartItem, userDetails);
 
 		editCartItem(cartItem, count);
@@ -141,12 +141,18 @@ public class OrderServiceImpl implements OrderService {
 		return orderMapper.cartToCartEditRes(cartItem);
 	}
 
-	private void verifyCart(Cart cart) {
+	private void verifyCart(Cart cart, Long inout) {
 		if (cart.getIsOrdered()) {
 			throw new BusinessLogicException(ExceptionCode.CART_NOT_EDITABLE);
 		}
 		if (cart.getIsDeleted()) {
 			throw new BusinessLogicException(ExceptionCode.CART_NOT_EDITABLE);
+		}
+		if (inout == null) {
+			return;
+		}
+		if (!cart.getInOut().equals(inout)) {
+			throw new BusinessLogicException(ExceptionCode.CART_INOUT_NOT_MATCH);
 		}
 	}
 
@@ -202,6 +208,7 @@ public class OrderServiceImpl implements OrderService {
 		Coupon coupon = getCoupon(paymentReq.getCouponId());
 
 		verifyCoupon(user, coupon);
+		verifyCartSoldOut(cart);
 		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
 		Long amount = calculateAmount2(cart);
 		Order order = makeOrder(user, store, amount, cart, coupon);
@@ -209,6 +216,12 @@ public class OrderServiceImpl implements OrderService {
 		orderRepository.save(order);
 		cartRepository.save(cart);
 		return orderMapper.orderToTosspaymentMakeRes(order);
+	}
+
+	private void verifyCartSoldOut(Cart cart) {
+		if (cart.getCartItems().stream().anyMatch(cartItem -> cartItem.getFoodie().isSoldOut())) {
+			throw new BusinessLogicException(ExceptionCode.CART_SOLD_OUT);
+		}
 	}
 
 	private void verifyCoupon(UserInfo user, Coupon coupon) {
@@ -590,9 +603,23 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void verifyCartAddReq(Foodie foodie, CartAddReq cartAddReq) {
+		verifyStoreOpen(foodie.getFoodieCategory().getStore());
+		verifyFoodyNotSoldOut(foodie);
 		verifyOption(foodie, cartAddReq.getOptions());
 		verifyEssentialOption(foodie, cartAddReq.getOptions());
 		verifyInout(cartAddReq.getInout());
+	}
+
+	private void verifyFoodyNotSoldOut(Foodie foodie) {
+		if (foodie.isSoldOut()) {
+			throw new BusinessLogicException(ExceptionCode.FOODY_NOT_FOUND);
+		}
+	}
+
+	private void verifyStoreOpen(Store store) {
+		if (!store.isStatus()) {
+			throw new BusinessLogicException(ExceptionCode.STORE_NOT_OPEN);
+		}
 	}
 
 	private void verifyInout(Long inout) {
