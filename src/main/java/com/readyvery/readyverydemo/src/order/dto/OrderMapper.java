@@ -102,6 +102,7 @@ public class OrderMapper {
 	public CartGetRes cartToCartGetRes(Cart cart) {
 		return CartGetRes.builder()
 			.cartId(cart.getId())
+			.inOut(cart.getInOut())
 			.name(cart.getStore().getName())
 			.edit(!cart.getIsOrdered() && !cart.getIsDeleted())
 			.imgUrl(cart.getStore()

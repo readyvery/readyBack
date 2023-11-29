@@ -14,4 +14,5 @@ public class CartGetRes {
 	private Long totalPrice;
 	private Long cartId;
 	private List<CartDto> carts;
+	private Long inOut;
 }
