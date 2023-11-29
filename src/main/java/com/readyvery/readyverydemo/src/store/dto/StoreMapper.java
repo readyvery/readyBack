@@ -40,6 +40,7 @@ public class StoreMapper {
 			.category(category.getName())
 			.menuItems(category.getFoodies()
 				.stream()
+				.filter(foodie -> !foodie.isSoldOut())
 				.map(this::foodieToMenuItems)
 				.toList())
 			.build();
