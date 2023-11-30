@@ -46,4 +46,6 @@ public interface OrderService {
 	HistoryDetailRes getReceipt(CustomUserDetails userDetails, String orderId);
 
 	CartCountRes getCartCount(CustomUserDetails userDetails);
+
+	HistoryRes getNewHistories(CustomUserDetails userDetails);
 }

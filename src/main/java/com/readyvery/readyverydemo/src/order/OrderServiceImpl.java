@@ -331,6 +331,14 @@ public class OrderServiceImpl implements OrderService {
 		return orderMapper.cartToCartCountRes(cart);
 	}
 
+	@Override
+	public HistoryRes getNewHistories(CustomUserDetails userDetails) {
+		UserInfo user = getUserInfo(userDetails);
+		List<Order> orders = getOrders(user);
+		return orderMapper.ordersToNewHistoryRes(orders);
+
+	}
+
 	private void verifyReceipt(Order order, UserInfo user) {
 		verifyOrderReceipt(order);
 		verifyOrederUser(order, user);

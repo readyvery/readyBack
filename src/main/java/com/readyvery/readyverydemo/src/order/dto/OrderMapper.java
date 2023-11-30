@@ -231,7 +231,19 @@ public class OrderMapper {
 			.receipts(
 				orders
 					.stream()
-					.filter(order -> order.getProgress() != REQUEST)
+					.filter(order -> order.getProgress() == PICKUP)
+					.map(this::orderToReceiptHistoryDto)
+					.toList())
+			.build();
+	}
+
+	public HistoryRes ordersToNewHistoryRes(List<Order> orders) {
+		return HistoryRes.builder()
+			.receipts(
+				orders
+					.stream()
+					.filter(order -> order.getProgress() != CANCEL)
+					.filter(order -> order.getProgress() != PICKUP)
 					.filter(order -> order.getProgress() != FAIL)
 					.map(this::orderToReceiptHistoryDto)
 					.toList())
@@ -281,6 +293,7 @@ public class OrderMapper {
 			.orderStatus(order.getProgress().toString())
 			.orderNumber(order.getOrderNumber())
 			.storeName(order.getStore().getName())
+			.cancelReason(order.getReceipt().getCancels())
 			.orderTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
 			.orderId(order.getOrderId())
 			.storePhone(order.getStore().getPhone())

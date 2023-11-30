@@ -78,9 +78,15 @@ public class OrderController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
-	@GetMapping("/history")
+	@GetMapping("/history/old")
 	public ResponseEntity<HistoryRes> getHistories(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		HistoryRes historyRes = orderService.getHistories(userDetails);
+		return new ResponseEntity<>(historyRes, HttpStatus.OK);
+	}
+
+	@GetMapping("/history/new")
+	public ResponseEntity<HistoryRes> getNewHistories(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		HistoryRes historyRes = orderService.getNewHistories(userDetails);
 		return new ResponseEntity<>(historyRes, HttpStatus.OK);
 	}
 
