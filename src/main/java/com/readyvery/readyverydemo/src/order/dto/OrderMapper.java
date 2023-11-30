@@ -152,6 +152,7 @@ public class OrderMapper {
 			.idx(cartOption.getId())
 			.required(cartOption.getFoodieOption().getFoodieOptionCategory().isRequired())
 			.name(cartOption.getFoodieOption().getName())
+			.categoryName(cartOption.getFoodieOption().getFoodieOptionCategory().getName())
 			.price(cartOption.getFoodieOption().getPrice())
 			.build();
 	}
