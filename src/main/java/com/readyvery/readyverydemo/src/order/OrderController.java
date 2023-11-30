@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
+import com.readyvery.readyverydemo.src.order.dto.CartCountRes;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
@@ -51,6 +52,12 @@ public class OrderController {
 		@RequestParam(value = "cartId", required = false) Long cartId) {
 		CartGetRes cartGetRes = orderService.getCart(userDetails, cartId);
 		return new ResponseEntity<>(cartGetRes, HttpStatus.OK);
+	}
+
+	@GetMapping("/cart/count")
+	public ResponseEntity<CartCountRes> getCartCount(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		CartCountRes cartCount = orderService.getCartCount(userDetails);
+		return new ResponseEntity<>(cartCount, HttpStatus.OK);
 	}
 
 	@GetMapping("/toss/success")

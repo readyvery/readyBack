@@ -48,6 +48,7 @@ import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.order.config.TossPaymentConfig;
 import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
+import com.readyvery.readyverydemo.src.order.dto.CartCountRes;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
@@ -321,6 +322,13 @@ public class OrderServiceImpl implements OrderService {
 		Order order = getOrder(orderId);
 		verifyReceipt(order, user);
 		return orderMapper.orderToHistoryDetailRes(order);
+	}
+
+	@Override
+	public CartCountRes getCartCount(CustomUserDetails userDetails) {
+		UserInfo user = getUserInfo(userDetails);
+		Cart cart = getCart(user);
+		return orderMapper.cartToCartCountRes(cart);
 	}
 
 	private void verifyReceipt(Order order, UserInfo user) {

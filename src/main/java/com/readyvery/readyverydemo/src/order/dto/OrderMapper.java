@@ -290,4 +290,13 @@ public class OrderMapper {
 			.method(order.getMethod())
 			.build();
 	}
+
+	public CartCountRes cartToCartCountRes(Cart cart) {
+		return CartCountRes.builder()
+			.count(cart.getCartItems()
+				.stream()
+				.filter(cartItem -> !cartItem.getIsDeleted())
+				.count())
+			.build();
+	}
 }
