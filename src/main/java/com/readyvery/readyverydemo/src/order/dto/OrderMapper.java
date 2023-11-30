@@ -103,6 +103,7 @@ public class OrderMapper {
 		return CartGetRes.builder()
 			.cartId(cart.getId())
 			.inOut(cart.getInOut())
+			.isOpened(cart.getStore().isStatus())
 			.name(cart.getStore().getName())
 			.edit(!cart.getIsOrdered() && !cart.getIsDeleted())
 			.imgUrl(cart.getStore()
@@ -151,6 +152,7 @@ public class OrderMapper {
 			.idx(cartOption.getId())
 			.required(cartOption.getFoodieOption().getFoodieOptionCategory().isRequired())
 			.name(cartOption.getFoodieOption().getName())
+			.categoryName(cartOption.getFoodieOption().getFoodieOptionCategory().getName())
 			.price(cartOption.getFoodieOption().getPrice())
 			.build();
 	}

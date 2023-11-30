@@ -15,4 +15,5 @@ public class CartGetRes {
 	private Long cartId;
 	private List<CartDto> carts;
 	private Long inOut;
+	private Boolean isOpened;
 }
