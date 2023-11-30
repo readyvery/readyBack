@@ -103,6 +103,7 @@ public class OrderMapper {
 		return CartGetRes.builder()
 			.cartId(cart.getId())
 			.inOut(cart.getInOut())
+			.isOpened(cart.getStore().isStatus())
 			.name(cart.getStore().getName())
 			.edit(!cart.getIsOrdered() && !cart.getIsDeleted())
 			.imgUrl(cart.getStore()
