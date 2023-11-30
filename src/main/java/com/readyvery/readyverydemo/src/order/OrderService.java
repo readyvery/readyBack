@@ -4,6 +4,7 @@ import com.readyvery.readyverydemo.global.exception.BusinessLogicException;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
+import com.readyvery.readyverydemo.src.order.dto.CartCountRes;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
@@ -43,4 +44,6 @@ public interface OrderService {
 	Object cancelTossPayment(CustomUserDetails userDetails, TossCancelReq tossCancelReq);
 
 	HistoryDetailRes getReceipt(CustomUserDetails userDetails, String orderId);
+
+	CartCountRes getCartCount(CustomUserDetails userDetails);
 }
