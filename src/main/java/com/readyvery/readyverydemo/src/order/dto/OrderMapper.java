@@ -242,6 +242,7 @@ public class OrderMapper {
 			.receipts(
 				orders
 					.stream()
+					.filter(order -> order.getProgress() != REQUEST)
 					.filter(order -> order.getProgress() != CANCEL)
 					.filter(order -> order.getProgress() != PICKUP)
 					.filter(order -> order.getProgress() != FAIL)
