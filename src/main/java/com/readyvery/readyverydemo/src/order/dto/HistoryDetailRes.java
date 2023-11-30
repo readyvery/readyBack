@@ -15,4 +15,5 @@ public class HistoryDetailRes {
 	private String salePrice;
 	private String method;
 	private String orderNumber;
+	private Object cancelReason;
 }
