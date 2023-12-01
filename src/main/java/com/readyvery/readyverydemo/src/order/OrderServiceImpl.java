@@ -102,8 +102,8 @@ public class OrderServiceImpl implements OrderService {
 		Cart cart = cartRepository.findByUserInfoAndIsDeletedFalseAndIsOrderedFalse(user)
 			.orElseGet(() -> makeCart(user, store, cartAddReq.getInout()));
 
-		verifyCart(cart, cartAddReq.getInout());
 		verifyItemsInCart(cart, store, cartAddReq.getInout());
+		verifyCart(cart, cartAddReq.getInout());
 		CartItem cartItem = makeCartItem(cart, foodie, cartAddReq.getCount());
 		List<CartOption> cartOptions = cartAddReq.getOptions().stream()
 			.map(option -> makeCartOption(cartItem, option))
