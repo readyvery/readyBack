@@ -13,6 +13,7 @@ import com.readyvery.readyverydemo.domain.Store;
 public class StoreMapper {
 	public StoreDetailRes storeToStoreDetailRes(Store store) {
 		return StoreDetailRes.builder()
+			.status(store.isStatus())
 			.imgs(store.getImgs()
 				.stream()
 				.filter(storeImg -> storeImg.getImgSize() == ImgSize.CAFE_BANNER)
