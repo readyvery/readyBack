@@ -101,6 +101,7 @@ public class OrderMapper {
 
 	public CartGetRes cartToCartGetRes(Cart cart) {
 		return CartGetRes.builder()
+			.storeId(cart.getStore().getId())
 			.cartId(cart.getId())
 			.inOut(cart.getInOut())
 			.isOpened(cart.getStore().isStatus())
