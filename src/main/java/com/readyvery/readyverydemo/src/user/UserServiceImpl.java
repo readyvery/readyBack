@@ -37,8 +37,14 @@ public class UserServiceImpl implements UserService {
 	private final UserMapper userMapper;
 	@Value("${jwt.refresh.cookie}")
 	private String refreshCookie;
+	@Value("${jwt.access.cookie}")
+	private String accessToken;
 	@Value("${service.app.admin.key}")
 	private String serviceAppAdminKey;
+	@Value("${jwt.access.cookie.domain}")
+	private String accessCookieDomain;
+	@Value("${jwt.refresh.cookie.domain}")
+	private String refreshCookieDomain;
 
 	@Override
 	public UserAuthRes getUserAuthByCustomUserDetails(CustomUserDetails userDetails) {
@@ -90,8 +96,14 @@ public class UserServiceImpl implements UserService {
 		Cookie refreshTokenCookie = new Cookie(refreshCookie, null); // 쿠키 이름을 동일하게 설정
 		refreshTokenCookie.setHttpOnly(true);
 		refreshTokenCookie.setPath("/api/v1/refresh/token"); // 기존과 동일한 경로 설정
+		refreshTokenCookie.setDomain(refreshCookieDomain);
 		refreshTokenCookie.setMaxAge(0); // 만료 시간을 0으로 설정하여 즉시 만료
 		response.addCookie(refreshTokenCookie);
+		Cookie accessTokenCookie = new Cookie(accessToken, null); // 쿠키 이름을 동일하게 설정
+		accessTokenCookie.setPath("/"); // 기존과 동일한 경로 설정
+		accessTokenCookie.setDomain(accessCookieDomain);
+		accessTokenCookie.setMaxAge(0); // 만료 시간을 0으로 설정하여 즉시 만료
+		response.addCookie(accessTokenCookie);
 	}
 
 	private UserInfo getUserInfo(Long id) {
