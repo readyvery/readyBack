@@ -8,13 +8,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -77,9 +74,8 @@ public class Store extends BaseTimeEntity {
 	private Grade grade;
 
 	//가게 사장님 연관관계 매핑
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "ceo_idx")
-	private CeoInfo ceoInfo;
+	@OneToMany(mappedBy = "store")
+	private List<CeoInfo> ceoInfos = new ArrayList<CeoInfo>();
 
 	//가게 메뉴 카테고리 연관관계 매핑
 	@OneToMany(mappedBy = "store", cascade = CascadeType.ALL)

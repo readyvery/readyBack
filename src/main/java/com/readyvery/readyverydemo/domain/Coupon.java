@@ -51,6 +51,7 @@ public class Coupon extends BaseTimeEntity {
 	@Version
 	private Long version;
 
+	@Builder.Default
 	@OneToMany(mappedBy = "coupon", fetch = FetchType.LAZY)
 	private List<Order> orders = new ArrayList<Order>();
 }
