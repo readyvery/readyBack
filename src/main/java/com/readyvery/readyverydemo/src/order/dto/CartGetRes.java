@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CartGetRes {
+	private Long storeId;
 	private String name;
 	private Boolean edit;
 	private String imgUrl;
