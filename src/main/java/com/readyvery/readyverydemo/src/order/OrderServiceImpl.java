@@ -117,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void verifyItemsInCart(Cart cart, Store store, Long inout) {
-		if (cart.getCartItems().stream().allMatch(CartItem::getIsDeleted)) {
+		if (getCartItemCount(cart) == EMPTY_CART) {
 			changeCartStore(cart, store, inout);
 		}
 		if (!cart.getStore().equals(store)) {
@@ -152,9 +152,19 @@ public class OrderServiceImpl implements OrderService {
 		if (inout == null) {
 			return;
 		}
+		if (getCartItemCount(cart) == EMPTY_CART) {
+			return;
+		}
 		if (!cart.getInOut().equals(inout)) {
 			throw new BusinessLogicException(ExceptionCode.CART_INOUT_NOT_MATCH);
 		}
+	}
+
+	private int getCartItemCount(Cart cart) {
+		return cart.getCartItems().stream()
+			.filter(cartItem -> !cartItem.getIsDeleted())
+			.toList()
+			.size();
 	}
 
 	@Override
