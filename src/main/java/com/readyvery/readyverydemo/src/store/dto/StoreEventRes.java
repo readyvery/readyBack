@@ -7,4 +7,5 @@ import lombok.Getter;
 @Builder
 public class StoreEventRes {
 	private String eventImgUrl;
+	private String takeOutEvent;
 }

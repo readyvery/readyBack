@@ -61,6 +61,7 @@ public class StoreMapper {
 
 	public StoreEventRes storeToStoreEventRes(Store store) {
 		return StoreEventRes.builder()
+			.takeOutEvent(store.getTakeOutEventMessage())
 			.eventImgUrl("/images/" + store.getEngName() + "/" + store.getAdImgUrl())
 			.build();
 	}

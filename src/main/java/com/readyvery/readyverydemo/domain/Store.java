@@ -68,6 +68,10 @@ public class Store extends BaseTimeEntity {
 	@Column
 	private String eventMessage;
 
+	// 가게 테이크 아웃 이벤트 메시지
+	@Column
+	private String takeOutEventMessage;
+
 	//가게 등급
 	@Column
 	@Enumerated(EnumType.STRING)
