@@ -349,6 +349,13 @@ public class OrderServiceImpl implements OrderService {
 
 	}
 
+	@Override
+	public HistoryRes getFastHistories(CustomUserDetails userDetails) {
+		UserInfo user = getUserInfo(userDetails);
+		List<Order> orders = getOrders(user);
+		return orderMapper.ordersToFastOrderRes(orders);
+	}
+
 	private void verifyReceipt(Order order, UserInfo user) {
 		verifyOrderReceipt(order);
 		verifyOrederUser(order, user);

@@ -12,7 +12,7 @@ public class HistoryDetailRes {
 	private String orderId;
 	private String storePhone;
 	private CartGetRes cart;
-	private String salePrice;
+	private Long salePrice;
 	private String method;
 	private String orderNumber;
 	private Object cancelReason;

@@ -232,9 +232,23 @@ public class OrderMapper {
 			.receipts(
 				orders
 					.stream()
-					.filter(order -> order.getProgress() == PICKUP)
+					.filter(order -> order.getProgress() == PICKUP
+						|| order.getProgress() == FAIL
+						|| order.getProgress() == CANCEL)
 					.map(this::orderToReceiptHistoryDto)
 					.toList())
+			.build();
+	}
+
+	public HistoryRes ordersToFastOrderRes(List<Order> orders) {
+		return HistoryRes.builder()
+			.receipts(
+				orders
+					.stream()
+					.filter(order -> order.getProgress() == COMPLETE
+						|| order.getProgress() == PICKUP)
+					.map(this::orderToReceiptHistoryDto)
+					.toList().subList(Math.max(orders.size() - MAX_FASTORDER_SIZE, 0), orders.size()))
 			.build();
 	}
 
@@ -243,10 +257,9 @@ public class OrderMapper {
 			.receipts(
 				orders
 					.stream()
-					.filter(order -> order.getProgress() != REQUEST)
-					.filter(order -> order.getProgress() != CANCEL)
-					.filter(order -> order.getProgress() != PICKUP)
-					.filter(order -> order.getProgress() != FAIL)
+					.filter(order -> order.getProgress() == ORDER
+						|| order.getProgress() == MAKE
+						|| order.getProgress() == COMPLETE)
 					.map(this::orderToReceiptHistoryDto)
 					.toList())
 			.build();
@@ -301,9 +314,9 @@ public class OrderMapper {
 			.storePhone(order.getStore().getPhone())
 			.cart(cartToCartGetRes(order.getCart()))
 			.salePrice(
-				String.valueOf(order.getCoupon() != null
+				order.getCoupon() != null
 					? order.getCoupon().getCouponDetail().getSalePrice()
-					: null))
+					: 0L)
 			.method(order.getMethod())
 			.build();
 	}
