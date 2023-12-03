@@ -104,6 +104,7 @@ public class UserServiceImpl implements UserService {
 		accessTokenCookie.setDomain(accessCookieDomain);
 		accessTokenCookie.setMaxAge(0); // 만료 시간을 0으로 설정하여 즉시 만료
 		response.addCookie(accessTokenCookie);
+
 	}
 
 	private UserInfo getUserInfo(Long id) {
