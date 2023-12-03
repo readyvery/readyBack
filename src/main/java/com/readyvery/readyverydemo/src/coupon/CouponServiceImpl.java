@@ -9,6 +9,7 @@ import com.readyvery.readyverydemo.domain.Coupon;
 import com.readyvery.readyverydemo.domain.CouponDetail;
 import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.CouponDetailRepository;
+import com.readyvery.readyverydemo.domain.repository.CouponRepository;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
 import com.readyvery.readyverydemo.global.exception.BusinessLogicException;
 import com.readyvery.readyverydemo.global.exception.ExceptionCode;
@@ -26,6 +27,7 @@ public class CouponServiceImpl implements CouponService {
 	private final CouponMapper couponMapper;
 	private final UserRepository userRepository;
 	private final CouponDetailRepository couponDetailRepository;
+	private final CouponRepository couponRepository;
 
 	@Override
 	public CouponsRes getCoupon(CustomUserDetails userDetails) {
@@ -34,17 +36,28 @@ public class CouponServiceImpl implements CouponService {
 	}
 
 	@Override
-	public CouponIssueRes issueCoupon(CustomUserDetails userDetails, CouponIssueReq couponIssueReq) {
-		UserInfo userInfo = getUserInfo(userDetails);
+	public synchronized CouponIssueRes issueCoupon(CustomUserDetails userDetails, CouponIssueReq couponIssueReq) {
 		CouponDetail couponDetail = getCouponDetail(couponIssueReq);
-		Long issuedCouponCount = getCouponCount(userInfo, couponDetail);
+		verifyCouponDetail(couponDetail, couponIssueReq);
 
-		verifyCouponIssue(couponDetail, couponIssueReq, issuedCouponCount);
+		UserInfo userInfo = getUserInfo(userDetails);
+		Long issuedCouponCount = getIssuedCouponCount(userInfo, couponDetail);
+
+		verifyCouponIssue(couponDetail, issuedCouponCount);
 
 		userInfo.getCoupons().addAll(issueUserCoupon(userInfo, couponDetail, issuedCouponCount));
 		userRepository.save(userInfo);
 
 		return couponMapper.toCouponIssueRes();
+	}
+
+	private Long getIssuedCouponCount(UserInfo userInfo, CouponDetail couponDetail) {
+		return couponRepository.countByCouponDetailIdAndUserInfoId(couponDetail.getId(), userInfo.getId());
+	}
+
+	private void verifyCouponDetail(CouponDetail couponDetail, CouponIssueReq couponIssueReq) {
+		verifyCoupon(couponDetail);
+		verifyCouponCode(couponDetail, couponIssueReq);
 	}
 
 	private List<Coupon> issueUserCoupon(UserInfo userInfo, CouponDetail couponDetail, Long issuedCouponCount) {
@@ -64,10 +77,7 @@ public class CouponServiceImpl implements CouponService {
 			.count();
 	}
 
-	private void verifyCouponIssue(CouponDetail couponDetail, CouponIssueReq couponIssueReq,
-		Long issuedCouponCount) {
-		verifyCoupon(couponDetail);
-		verifyCouponCode(couponDetail, couponIssueReq);
+	private void verifyCouponIssue(CouponDetail couponDetail, Long issuedCouponCount) {
 		verifyCouponIssueCount(issuedCouponCount, couponDetail);
 	}
 
