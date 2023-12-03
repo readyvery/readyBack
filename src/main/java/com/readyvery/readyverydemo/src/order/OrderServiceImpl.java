@@ -1,6 +1,9 @@
 package com.readyvery.readyverydemo.src.order;
 
+import static com.readyvery.readyverydemo.global.Constant.*;
+
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +22,7 @@ import net.minidev.json.JSONObject;
 import com.readyvery.readyverydemo.domain.Cart;
 import com.readyvery.readyverydemo.domain.CartItem;
 import com.readyvery.readyverydemo.domain.CartOption;
+import com.readyvery.readyverydemo.domain.Coupon;
 import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
@@ -30,6 +34,7 @@ import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.CartItemRepository;
 import com.readyvery.readyverydemo.domain.repository.CartOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.CartRepository;
+import com.readyvery.readyverydemo.domain.repository.CouponRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieRepository;
 import com.readyvery.readyverydemo.domain.repository.OrderRepository;
@@ -43,24 +48,28 @@ import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.order.config.TossPaymentConfig;
 import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
-import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
+import com.readyvery.readyverydemo.src.order.dto.CartCountRes;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
-import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.CurrentRes;
 import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
+import com.readyvery.readyverydemo.src.order.dto.HistoryDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
+import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentDto;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 	private final CartRepository cartRepository;
@@ -75,12 +84,11 @@ public class OrderServiceImpl implements OrderService {
 	private final TossPaymentConfig tosspaymentConfig;
 	private final OrdersRepository ordersRepository;
 	private final ReceiptRepository receiptRepository;
+	private final CouponRepository couponRepository;
 
 	@Override
 	public FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout) {
-		Foodie foodie = foodieRepository.findById(foodyId).orElseThrow(
-			() -> new BusinessLogicException(ExceptionCode.FOODY_NOT_FOUND)
-		);
+		Foodie foodie = getFoody(foodyId);
 		return orderMapper.foodieToFoodyDetailRes(foodie, inout);
 	}
 
@@ -93,8 +101,11 @@ public class OrderServiceImpl implements OrderService {
 		verifyFoodieInStore(store, foodie);
 		verifyCartAddReq(foodie, cartAddReq);
 
-		Cart cart = cartRepository.findByUserInfoAndIsDeletedFalse(user).orElseGet(() -> makeCart(user, store));
-		verifyItemsInCart(cart, store);
+		Cart cart = cartRepository.findByUserInfoAndIsDeletedFalseAndIsOrderedFalse(user)
+			.orElseGet(() -> makeCart(user, store, cartAddReq.getInout()));
+
+		verifyItemsInCart(cart, store, cartAddReq.getInout());
+		verifyCart(cart, cartAddReq.getInout());
 		CartItem cartItem = makeCartItem(cart, foodie, cartAddReq.getCount());
 		List<CartOption> cartOptions = cartAddReq.getOptions().stream()
 			.map(option -> makeCartOption(cartItem, option))
@@ -107,26 +118,60 @@ public class OrderServiceImpl implements OrderService {
 		return orderMapper.cartToCartAddRes(cartItem);
 	}
 
-	private void verifyItemsInCart(Cart cart, Store store) {
+	private void verifyItemsInCart(Cart cart, Store store, Long inout) {
+		if (getCartItemCount(cart) == EMPTY_CART) {
+			changeCartStore(cart, store, inout);
+		}
 		if (!cart.getStore().equals(store)) {
 			throw new BusinessLogicException(ExceptionCode.ITEM_NOT_SAME_STORE);
 		}
 	}
 
-	@Override
-	public CartEidtRes editCart(CustomUserDetails userDetails, CartEditReq cartEditReq) {
-		CartItem cartItem = getCartItem(cartEditReq.getIdx());
+	private void changeCartStore(Cart cart, Store store, Long inout) {
+		cart.setStore(store);
+		cart.setInOut(inout);
+		cart.getCartItems().forEach(cartItem -> cartItem.setIsDeleted(true));
+	}
 
+	@Override
+	public CartEidtRes editCart(CustomUserDetails userDetails, Long idx, Long count) {
+		CartItem cartItem = getCartItem(idx);
+		verifyCart(cartItem.getCart(), null);
 		verifyCartItem(cartItem, userDetails);
 
-		editCartItem(cartItem, cartEditReq);
+		editCartItem(cartItem, count);
 		cartItemRepository.save(cartItem);
 		return orderMapper.cartToCartEditRes(cartItem);
 	}
 
+	private void verifyCart(Cart cart, Long inout) {
+		if (cart.getIsOrdered()) {
+			throw new BusinessLogicException(ExceptionCode.CART_NOT_EDITABLE);
+		}
+		if (cart.getIsDeleted()) {
+			throw new BusinessLogicException(ExceptionCode.CART_NOT_EDITABLE);
+		}
+		if (inout == null) {
+			return;
+		}
+		if (getCartItemCount(cart) == EMPTY_CART) {
+			return;
+		}
+		if (!cart.getInOut().equals(inout)) {
+			throw new BusinessLogicException(ExceptionCode.CART_INOUT_NOT_MATCH);
+		}
+	}
+
+	private int getCartItemCount(Cart cart) {
+		return cart.getCartItems().stream()
+			.filter(cartItem -> !cartItem.getIsDeleted())
+			.toList()
+			.size();
+	}
+
 	@Override
-	public CartItemDeleteRes deleteCart(CustomUserDetails userDetails, CartItemDeleteReq cartItemDeleteReq) {
-		CartItem cartItem = getCartItem(cartItemDeleteReq.getIdx());
+	public CartItemDeleteRes deleteCart(CustomUserDetails userDetails, Long idx) {
+		CartItem cartItem = getCartItem(idx);
 
 		verifyCartItem(cartItem, userDetails);
 
@@ -147,27 +192,85 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public CartGetRes getCart(CustomUserDetails userDetails, Long inout) {
+	public CartGetRes getCart(CustomUserDetails userDetails, Long cartId) {
 		UserInfo user = getUserInfo(userDetails);
-		Cart cart = getCart(user);
+		Cart cart = getCartId(user, cartId);
+		verifyMyCart(user, cart);
 
-		return orderMapper.cartToCartGetRes(cart, inout);
+		return orderMapper.cartToCartGetRes(cart);
+	}
+
+	private void verifyMyCart(UserInfo user, Cart cart) {
+		if (cart.getUserInfo().equals(user)) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.NOT_MY_CART);
+	}
+
+	private Cart getCartId(UserInfo user, Long cartId) {
+		return (cartId == null) ? getCart(user)
+			: cartRepository.findById(cartId).orElseGet(() -> getCart(user));
 	}
 
 	@Override
 	public TosspaymentMakeRes requestTossPayment(CustomUserDetails userDetails, PaymentReq paymentReq) {
 		UserInfo user = getUserInfo(userDetails);
-		Cart cart = getCart(user);
+		Cart cart = getCartId(user, paymentReq.getCartId());
 		Store store = cart.getStore();
+		Coupon coupon = getCoupon(paymentReq.getCouponId());
 
+		verifyCoupon(user, coupon);
+		verifyCartSoldOut(cart);
 		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
-		Long amount = calculateAmount2(cart, paymentReq.getInout());
-		//TODO: 쿠폰 추가
-		Order order = makeOrder(user, store, amount, cart);
+		Long amount = calculateAmount2(cart);
+		Order order = makeOrder(user, store, amount, cart, coupon);
 		cartOrder(cart);
 		orderRepository.save(order);
 		cartRepository.save(cart);
 		return orderMapper.orderToTosspaymentMakeRes(order);
+	}
+
+	private void verifyCartSoldOut(Cart cart) {
+		if (cart.getCartItems().stream().anyMatch(cartItem -> cartItem.getFoodie().isSoldOut())) {
+			throw new BusinessLogicException(ExceptionCode.CART_SOLD_OUT);
+		}
+	}
+
+	private void verifyCoupon(UserInfo user, Coupon coupon) {
+		isCoupon(coupon);
+		isUserCoupon(user, coupon);
+	}
+
+	private void isUserCoupon(UserInfo user, Coupon coupon) {
+		if (coupon == null) {
+			return;
+		}
+		if (coupon.getUserInfo().equals(user)) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.COUPON_NOT_ACTIVE);
+	}
+
+	private void isCoupon(Coupon coupon) {
+		if (coupon == null) {
+			return;
+		}
+		if (!coupon.isUsed()) {
+			return;
+		}
+		if (coupon.getCouponDetail().getExpire().isAfter(LocalDateTime.now())) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.COUPON_NOT_VALID);
+	}
+
+	private Coupon getCoupon(Long couponId) {
+		if (couponId == null) {
+			return null;
+		}
+		return couponRepository.findById(couponId).orElseThrow(
+			() -> new BusinessLogicException(ExceptionCode.COUPON_NOT_FOUND)
+		);
 	}
 
 	private void cartOrder(Cart cart) {
@@ -175,6 +278,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
+	@Transactional
 	public String tossPaymentSuccess(String paymentKey, String orderId, Long amount) {
 		Order order = getOrder(orderId);
 		verifyOrder(order, amount);
@@ -209,11 +313,116 @@ public class OrderServiceImpl implements OrderService {
 		return orderMapper.orderToCurrentRes(order);
 	}
 
+	@Override
+	public Object cancelTossPayment(CustomUserDetails userDetails, TossCancelReq tossCancelReq) {
+		UserInfo user = getUserInfo(userDetails);
+		Order order = getOrder(tossCancelReq.getOrderId());
+		verifyCancel(order, user);
+
+		TosspaymentDto tosspaymentDto = requestTossPaymentCancel(order.getPaymentKey());
+
+		applyCancelTosspaymentDto(order, tosspaymentDto);
+
+		orderRepository.save(order);
+		return orderMapper.tosspaymentDtoToCancelRes();
+	}
+
+	@Override
+	public HistoryDetailRes getReceipt(CustomUserDetails userDetails, String orderId) {
+		UserInfo user = getUserInfo(userDetails);
+		Order order = getOrder(orderId);
+		verifyReceipt(order, user);
+		return orderMapper.orderToHistoryDetailRes(order);
+	}
+
+	@Override
+	public CartCountRes getCartCount(CustomUserDetails userDetails) {
+		UserInfo user = getUserInfo(userDetails);
+		Cart cart = getCart(user);
+		return orderMapper.cartToCartCountRes(cart);
+	}
+
+	@Override
+	public HistoryRes getNewHistories(CustomUserDetails userDetails) {
+		UserInfo user = getUserInfo(userDetails);
+		List<Order> orders = getOrders(user);
+		return orderMapper.ordersToNewHistoryRes(orders);
+
+	}
+
+	@Override
+	public HistoryRes getFastHistories(CustomUserDetails userDetails) {
+		UserInfo user = getUserInfo(userDetails);
+		List<Order> orders = getOrders(user);
+		return orderMapper.ordersToFastOrderRes(orders);
+	}
+
+	private void verifyReceipt(Order order, UserInfo user) {
+		verifyOrderReceipt(order);
+		verifyOrederUser(order, user);
+	}
+
+	private void verifyOrderReceipt(Order order) {
+		if (order.getProgress().equals(Progress.COMPLETE)
+			|| order.getProgress().equals(Progress.PICKUP)
+			|| order.getProgress().equals(Progress.CANCEL)
+			|| order.getProgress().equals(Progress.ORDER)
+			|| order.getProgress().equals(Progress.MAKE)) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.ORDER_NOT_RECEIPT);
+	}
+
+	private void applyCancelTosspaymentDto(Order order, TosspaymentDto tosspaymentDto) {
+		order.setProgress(Progress.CANCEL);
+		order.setPayStatus(false);
+		order.getReceipt().setCancels(tosspaymentDto.getCancels().toString());
+		order.getReceipt().setStatus(tosspaymentDto.getStatus());
+		order.getCoupon().setUsed(false);
+	}
+
+	private TosspaymentDto requestTossPaymentCancel(String paymentKey) {
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = makeTossHeader();
+		JSONObject params = new JSONObject();
+
+		params.put("cancelReason", USER_CANCEL_RESON);
+
+		try {
+			return restTemplate.postForObject(TossPaymentConfig.PAYMENT_URL + paymentKey + "/cancel",
+				new HttpEntity<>(params, headers),
+				TosspaymentDto.class);
+		} catch (Exception e) {
+			log.error("e.getMessage() = " + e.getMessage());
+			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_SUCCESS_FAIL);
+		}
+	}
+
+	private void verifyCancel(Order order, UserInfo user) {
+		verifyCancelStatus(order);
+		verifyOrederUser(order, user);
+	}
+
+	private void verifyOrederUser(Order order, UserInfo user) {
+		if (order.getUserInfo().equals(user)) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.ORDER_NOT_CANCELABLE);
+	}
+
+	private void verifyCancelStatus(Order order) {
+		if (order.getProgress().equals(Progress.ORDER)) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.ORDER_NOT_CANCELABLE);
+	}
+
 	private void verifyOrderCurrent(Order order) {
 		if (order.getProgress().equals(Progress.ORDER)
 			|| order.getProgress().equals(Progress.MAKE)
 			|| order.getProgress().equals(Progress.COMPLETE)
-			|| order.getProgress().equals(Progress.PICKUP)) {
+			|| order.getProgress().equals(Progress.PICKUP)
+			|| order.getProgress().equals(Progress.CANCEL)) {
 			return;
 		}
 		throw new BusinessLogicException(ExceptionCode.ORDER_NOT_CURRENT);
@@ -230,15 +439,28 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void applyTosspaymentDto(Order order, TosspaymentDto tosspaymentDto) {
-		//TODO: orderNumber 적용
+		order.setOrderNumber(getOrderNumber(order));
 		order.setPaymentKey(tosspaymentDto.getPaymentKey());
 		order.setMethod(tosspaymentDto.getMethod());
 		order.setProgress(Progress.ORDER);
 		order.setPayStatus(true);
+		order.getCart().setIsOrdered(true);
+		if (order.getCoupon() != null) {
+			order.getCoupon().setUsed(true);
+		}
+	}
+
+	private String getOrderNumber(Order order) {
+		long todayOrder = ordersRepository.countByCreatedAtBetweenAndProgressNot(
+			order.getCreatedAt().toLocalDate().atStartOfDay(),
+			order.getCreatedAt().toLocalDate().atTime(23, 59, 59),
+			Progress.REQUEST
+		) + 1;
+		return Long.toString(todayOrder);
 	}
 
 	private void verifyOrder(Order order, Long amount) {
-		if (!order.getTotalAmount().equals(amount)) {
+		if (!order.getAmount().equals(amount)) {
 			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_AMOUNT_NOT_MATCH);
 		}
 	}
@@ -263,7 +485,7 @@ public class OrderServiceImpl implements OrderService {
 				new HttpEntity<>(params, headers),
 				TosspaymentDto.class);
 		} catch (Exception e) {
-			System.out.println("e.getMessage() = " + e.getMessage());
+			log.error("e.getMessage() = " + e.getMessage());
 			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_SUCCESS_FAIL);
 		}
 	}
@@ -278,24 +500,35 @@ public class OrderServiceImpl implements OrderService {
 		return headers;
 	}
 
-	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart) {
-		if (cart.getCartItems().isEmpty()) {
+	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart, Coupon coupon) {
+		List<CartItem> cartItems = cart.getCartItems().stream()
+			.filter(cartItem -> !cartItem.getIsDeleted())
+			.toList();
+
+		if (cartItems.stream().allMatch(CartItem::getIsDeleted)) {
 			throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
 		}
-		String orderName = cart.getCartItems().get(0).getFoodie().getName();
-		if (cart.getCartItems().size() > 1) {
-			orderName += " 외 " + (cart.getCartItems().size() - 1) + "개";
+		CartItem firstItem = cartItems.get(0);
+		String orderName =
+			firstItem.getCount() == 1 ? firstItem.getFoodie().getName() :
+				firstItem.getFoodie().getName() + " * " + firstItem.getCount();
+		if (cartItems.size() > 1) {
+			orderName += " 외 "
+				+ (cartItems.stream().filter(cartItem -> !cartItem.getIsDeleted()).count() - 1) + "개";
 		}
 		return Order.builder()
 			.userInfo(user)
 			.store(store)
-			.amount(amount)
+			.amount(amount - (coupon != null ? coupon.getCouponDetail().getSalePrice() : 0))
 			.orderId(UUID.randomUUID().toString())
+			.cart(cart)
+			.coupon(coupon)
 			.paymentKey(null)
 			.orderName(orderName)
 			.totalAmount(amount)
 			.orderNumber(null)
 			.progress(Progress.REQUEST)
+			.inOut(cart.getInOut())
 			.build();
 	}
 
@@ -318,10 +551,11 @@ public class OrderServiceImpl implements OrderService {
 	// 		.reduce(0L, Long::sum);
 	// }
 
-	private Long calculateAmount2(Cart cart, Long inout) {
+	private Long calculateAmount2(Cart cart) {
 		return cart.getCartItems().stream()
+			.filter(cartItem -> !cartItem.getIsDeleted())
 			.map(cartItem -> {
-				Long price = orderMapper.determinePrice(cartItem.getFoodie(), inout);
+				Long price = orderMapper.determinePrice(cartItem.getFoodie(), cart.getInOut());
 				Long totalPrice = cartItem.getCartOptions().stream()
 					.map(CartOption::getFoodieOption)
 					.map(FoodieOption::getPrice)
@@ -336,7 +570,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private Cart getCart(UserInfo user) {
-		return cartRepository.findByUserInfoAndIsDeletedFalse(user).orElseThrow(
+		return cartRepository.findByUserInfoAndIsDeletedFalseAndIsOrderedFalse(user).orElseThrow(
 			() -> new BusinessLogicException(ExceptionCode.CART_NOT_FOUND)
 		);
 	}
@@ -345,8 +579,8 @@ public class OrderServiceImpl implements OrderService {
 		cartItem.setIsDeleted(true);
 	}
 
-	private void editCartItem(CartItem cartItem, CartEditReq cartEditReq) {
-		cartItem.setCount(cartEditReq.getCount());
+	private void editCartItem(CartItem cartItem, Long count) {
+		cartItem.setCount(count);
 	}
 
 	private void verifyCartItem(CartItem cartItem, CustomUserDetails userDetails) {
@@ -384,10 +618,11 @@ public class OrderServiceImpl implements OrderService {
 			.build();
 	}
 
-	private Cart makeCart(UserInfo user, Store store) {
+	private Cart makeCart(UserInfo user, Store store, Long inout) {
 		return Cart.builder()
 			.userInfo(user)
 			.store(store)
+			.inOut(inout)
 			.build();
 	}
 
@@ -404,8 +639,29 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void verifyCartAddReq(Foodie foodie, CartAddReq cartAddReq) {
+		verifyStoreOpen(foodie.getFoodieCategory().getStore());
+		verifyFoodyNotSoldOut(foodie);
 		verifyOption(foodie, cartAddReq.getOptions());
 		verifyEssentialOption(foodie, cartAddReq.getOptions());
+		verifyInout(cartAddReq.getInout());
+	}
+
+	private void verifyFoodyNotSoldOut(Foodie foodie) {
+		if (foodie.isSoldOut()) {
+			throw new BusinessLogicException(ExceptionCode.FOODY_NOT_FOUND);
+		}
+	}
+
+	private void verifyStoreOpen(Store store) {
+		if (!store.isStatus()) {
+			throw new BusinessLogicException(ExceptionCode.STORE_NOT_OPEN);
+		}
+	}
+
+	private void verifyInout(Long inout) {
+		if (!inout.equals(EAT_IN) && !inout.equals(TAKE_OUT)) {
+			throw new BusinessLogicException(ExceptionCode.INVALID_INOUT);
+		}
 	}
 
 	private Foodie getFoody(Long foodieId) {

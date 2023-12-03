@@ -9,4 +9,6 @@ public class OptionDto {
 	private Long idx;
 	private String name;
 	private Long price;
+	private Boolean required;
+	private String categoryName;
 }

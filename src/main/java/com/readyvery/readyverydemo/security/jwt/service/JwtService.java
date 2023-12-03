@@ -50,6 +50,10 @@ public class JwtService {
 	private String refreshCookie;
 	@Value("${jwt.redirect-uri}")
 	private String frontendUrl;
+	@Value("${jwt.access.cookie.domain}")
+	private String accessCookieDomain;
+	@Value("${jwt.refresh.cookie.domain}")
+	private String refreshCookieDomain;
 
 	/**
 	 * AccessToken 생성 메소드
@@ -154,6 +158,8 @@ public class JwtService {
 		//accessTokenCookie.setHttpOnly(true); // JavaScript가 쿠키를 읽는 것을 방지
 		accessTokenCookie.setPath("/"); // 쿠키 경로 설정
 
+		accessTokenCookie.setDomain(accessCookieDomain);
+
 		// 필요한 경우 Secure 플래그 설정 (HTTPS에서만 쿠키 전송)
 		//accessTokenCookie.setSecure(true);
 
@@ -171,10 +177,12 @@ public class JwtService {
 	/**
 	 * RefreshToken 헤더 설정
 	 */
-	public void setRefreshTokenCookie(HttpServletResponse response, String accessToken) {
-		Cookie refreshTokenCookie = new Cookie(refreshCookie, accessToken); // 쿠키 생성
+	public void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+		Cookie refreshTokenCookie = new Cookie(refreshCookie, refreshToken); // 쿠키 생성
 		refreshTokenCookie.setHttpOnly(true); // JavaScript가 쿠키를 읽는 것을 방지
 		refreshTokenCookie.setPath("/api/v1/refresh/token"); // 쿠키 경로 설정
+
+		refreshTokenCookie.setDomain(refreshCookieDomain);
 
 		// 필요한 경우 Secure 플래그 설정 (HTTPS에서만 쿠키 전송)
 		// accessTokenCookie.setSecure(true);
@@ -183,7 +191,7 @@ public class JwtService {
 		// accessTokenCookie.setSameSite("Strict");
 
 		// 쿠키 만료 시간 설정 (예: 액세스 토큰 만료 시간과 같게 설정)
-		refreshTokenCookie.setMaxAge(accessTokenExpirationPeriod.intValue()); // 초 단위로 설정
+		refreshTokenCookie.setMaxAge(refreshTokenExpirationPeriod.intValue()); // 초 단위로 설정
 		response.addCookie(refreshTokenCookie); // 응답에 쿠키 추가
 	}
 

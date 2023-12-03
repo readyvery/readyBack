@@ -82,6 +82,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 		if (findUser == null) {
 			return saveUser(attributes, socialType);
+		} else if (findUser.isStatus()) {
+			findUser.updateStatus(false);
+			userRepository.save(findUser);
 		}
 		return findUser;
 	}

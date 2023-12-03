@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.readyvery.readyverydemo.src.store.dto.StoreDetailRes;
+import com.readyvery.readyverydemo.src.store.dto.StoreEventRes;
 import com.readyvery.readyverydemo.src.store.dto.StoreMenuRes;
 
 import lombok.RequiredArgsConstructor;
@@ -28,5 +29,11 @@ public class StoreController {
 	public ResponseEntity<StoreMenuRes> getStoreMenu(@PathVariable("storeId") Long storeId) {
 		StoreMenuRes storeMenuRes = storeService.getStoreMenu(storeId);
 		return new ResponseEntity<>(storeMenuRes, HttpStatus.OK);
+	}
+
+	@GetMapping("/{storeId}/event")
+	public ResponseEntity<StoreEventRes> getStoreEvent(@PathVariable("storeId") Long storeId) {
+		StoreEventRes storeEvent = storeService.getStoreEvent(storeId);
+		return new ResponseEntity<>(storeEvent, HttpStatus.OK);
 	}
 }

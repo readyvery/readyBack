@@ -1,17 +1,17 @@
 package com.readyvery.readyverydemo.domain;
 
-import static jakarta.persistence.FetchType.*;
-
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,14 +44,6 @@ public class CeoInfo extends BaseTimeEntity {
 	// 프로필 이미지
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String imageUrl;
-
-	// 연령대
-	@Column
-	private String age;
-
-	// 생일
-	@Column(nullable = false)
-	private String birth;
 
 	// 전화번호
 	@Column(nullable = false)
@@ -87,7 +79,8 @@ public class CeoInfo extends BaseTimeEntity {
 	private LocalDateTime lastLoginDate;
 
 	// 사장님 가게 연관관계 매핑
-	@OneToOne(mappedBy = "ceoInfo", fetch = LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "store_idx")
 	private Store store;
 
 }

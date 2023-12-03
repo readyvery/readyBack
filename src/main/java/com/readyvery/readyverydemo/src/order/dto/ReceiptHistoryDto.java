@@ -1,5 +1,7 @@
 package com.readyvery.readyverydemo.src.order.dto;
 
+import com.readyvery.readyverydemo.domain.Progress;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,4 +14,8 @@ public class ReceiptHistoryDto {
 	private String orderName;
 	private Long amount;
 	private String orderId;
+	private Progress progress;
+	private Long cartId;
+	private Long storeId;
+	private Long inOut;
 }

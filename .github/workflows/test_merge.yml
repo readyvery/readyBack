@@ -29,20 +29,20 @@ jobs:
       - name: remove plain.jar
         run: rm -rf build/libs/*plain.jar
 
-      - name: file copy
-        uses: actions/upload-artifact@v3
-        with:
-          name: libs
-          path: build/libs
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: file download
-        uses: actions/download-artifact@v3
-        with:
-          name: libs
-          path: libs
+      #      - name: file copy
+      #        uses: actions/upload-artifact@v3
+      #        with:
+      #          name: libs
+      #          path: build/libs
+      #  deploy:
+      #    needs: build
+      #    runs-on: ubuntu-latest
+      #    steps:
+      #      - name: file download
+      #        uses: actions/download-artifact@v3
+      #        with:
+      #          name: libs
+      #          path: libs
       - name: Upload to Cloudflare
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
@@ -51,7 +51,7 @@ jobs:
           BUCKET_NAME: ${{ secrets.CF_BUCKET_NAME }}
           ENDPOINT_URL: ${{ secrets.CF_ENDPOINT_URL }}
         run: |
-          aws s3 sync libs/ s3://$BUCKET_NAME/java/main/test \
+          aws s3 sync build/libs/ s3://$BUCKET_NAME/java/main/test \
             --endpoint-url $ENDPOINT_URL --delete --exact-timestamps
 
       - name: SSH and deploy

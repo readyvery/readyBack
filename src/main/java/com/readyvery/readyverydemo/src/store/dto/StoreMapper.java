@@ -13,6 +13,7 @@ import com.readyvery.readyverydemo.domain.Store;
 public class StoreMapper {
 	public StoreDetailRes storeToStoreDetailRes(Store store) {
 		return StoreDetailRes.builder()
+			.status(store.isStatus())
 			.imgs(store.getImgs()
 				.stream()
 				.filter(storeImg -> storeImg.getImgSize() == ImgSize.CAFE_BANNER)
@@ -40,6 +41,7 @@ public class StoreMapper {
 			.category(category.getName())
 			.menuItems(category.getFoodies()
 				.stream()
+				.filter(foodie -> !foodie.isSoldOut())
 				.map(this::foodieToMenuItems)
 				.toList())
 			.build();
@@ -54,6 +56,13 @@ public class StoreMapper {
 			.price(foodie.getPrice())
 			.sale(foodie.getTakeOut() != null ? foodie.getTakeOut().getPrice() : null)
 			.hit(foodie.isHit())
+			.build();
+	}
+
+	public StoreEventRes storeToStoreEventRes(Store store) {
+		return StoreEventRes.builder()
+			.takeOutEvent(store.getTakeOutEventMessage())
+			.eventImgUrl("/images/" + store.getEngName() + "/" + store.getAdImgUrl())
 			.build();
 	}
 }

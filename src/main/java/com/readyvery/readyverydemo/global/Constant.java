@@ -5,4 +5,7 @@ public class Constant {
 	public static final Long TAKE_OUT = 2L;
 	public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
 	public static final String IMG_URL = "/images/";
+	public static final String USER_CANCEL_RESON = "단순 변심";
+	public static final Integer EMPTY_CART = 0;
+	public static final Integer MAX_FASTORDER_SIZE = 5;
 }

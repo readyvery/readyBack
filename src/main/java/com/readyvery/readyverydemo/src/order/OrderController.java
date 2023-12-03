@@ -16,17 +16,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.src.order.dto.CartAddReq;
 import com.readyvery.readyverydemo.src.order.dto.CartAddRes;
-import com.readyvery.readyverydemo.src.order.dto.CartEditReq;
+import com.readyvery.readyverydemo.src.order.dto.CartCountRes;
 import com.readyvery.readyverydemo.src.order.dto.CartEidtRes;
 import com.readyvery.readyverydemo.src.order.dto.CartGetRes;
-import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteReq;
 import com.readyvery.readyverydemo.src.order.dto.CartItemDeleteRes;
 import com.readyvery.readyverydemo.src.order.dto.CartResetRes;
 import com.readyvery.readyverydemo.src.order.dto.CurrentRes;
 import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
+import com.readyvery.readyverydemo.src.order.dto.HistoryDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
+import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
 import lombok.RequiredArgsConstructor;
@@ -48,9 +49,15 @@ public class OrderController {
 
 	@GetMapping("/cart")
 	public ResponseEntity<CartGetRes> getCart(@AuthenticationPrincipal CustomUserDetails userDetails,
-		@RequestParam("inout") Long inout) {
-		CartGetRes cartGetRes = orderService.getCart(userDetails, inout);
+		@RequestParam(value = "cartId", required = false) Long cartId) {
+		CartGetRes cartGetRes = orderService.getCart(userDetails, cartId);
 		return new ResponseEntity<>(cartGetRes, HttpStatus.OK);
+	}
+
+	@GetMapping("/cart/count")
+	public ResponseEntity<CartCountRes> getCartCount(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		CartCountRes cartCount = orderService.getCartCount(userDetails);
+		return new ResponseEntity<>(cartCount, HttpStatus.OK);
 	}
 
 	@GetMapping("/toss/success")
@@ -71,9 +78,28 @@ public class OrderController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
-	@GetMapping("/history")
+	@GetMapping("/history/fast")
+	public ResponseEntity<HistoryRes> getFastHistories(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		HistoryRes historyRes = orderService.getFastHistories(userDetails);
+		return new ResponseEntity<>(historyRes, HttpStatus.OK);
+	}
+
+	@GetMapping("/history/old")
 	public ResponseEntity<HistoryRes> getHistories(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		HistoryRes historyRes = orderService.getHistories(userDetails);
+		return new ResponseEntity<>(historyRes, HttpStatus.OK);
+	}
+
+	@GetMapping("/history/new")
+	public ResponseEntity<HistoryRes> getNewHistories(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		HistoryRes historyRes = orderService.getNewHistories(userDetails);
+		return new ResponseEntity<>(historyRes, HttpStatus.OK);
+	}
+
+	@GetMapping("/receipt")
+	public ResponseEntity<HistoryDetailRes> getReceipts(@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestParam("orderId") String orderId) {
+		HistoryDetailRes historyRes = orderService.getReceipt(userDetails, orderId);
 		return new ResponseEntity<>(historyRes, HttpStatus.OK);
 	}
 
@@ -97,17 +123,25 @@ public class OrderController {
 		return new ResponseEntity<>(tosspaymentMakeRes, HttpStatus.OK);
 	}
 
+	@PostMapping("/toss/cancel")
+	public ResponseEntity<Object> cancelTossPayment(@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody TossCancelReq tossCancelReq) {
+		Object result = orderService.cancelTossPayment(userDetails, tossCancelReq);
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+
 	@PutMapping("/cart")
 	public ResponseEntity<CartEidtRes> updateCart(@AuthenticationPrincipal CustomUserDetails userDetails,
-		@RequestBody CartEditReq cartEditReq) {
-		CartEidtRes cartEditRes = orderService.editCart(userDetails, cartEditReq);
+		@RequestParam Long idx,
+		@RequestParam Long count) {
+		CartEidtRes cartEditRes = orderService.editCart(userDetails, idx, count);
 		return new ResponseEntity<>(cartEditRes, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/cart")
 	public ResponseEntity<CartItemDeleteRes> deleteCartItem(@AuthenticationPrincipal CustomUserDetails userDetails,
-		@RequestBody CartItemDeleteReq cartItemDeleteReq) {
-		CartItemDeleteRes cartItemDeleteRes = orderService.deleteCart(userDetails, cartItemDeleteReq);
+		@RequestParam Long idx) {
+		CartItemDeleteRes cartItemDeleteRes = orderService.deleteCart(userDetails, idx);
 		return new ResponseEntity<>(cartItemDeleteRes, HttpStatus.OK);
 	}
 

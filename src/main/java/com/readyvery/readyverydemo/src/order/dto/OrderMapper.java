@@ -1,5 +1,6 @@
 package com.readyvery.readyverydemo.src.order.dto;
 
+import static com.readyvery.readyverydemo.domain.Progress.*;
 import static com.readyvery.readyverydemo.global.Constant.*;
 import static org.hibernate.type.descriptor.java.JdbcTimeJavaType.*;
 
@@ -98,9 +99,14 @@ public class OrderMapper {
 			.build();
 	}
 
-	public CartGetRes cartToCartGetRes(Cart cart, Long inout) {
+	public CartGetRes cartToCartGetRes(Cart cart) {
 		return CartGetRes.builder()
+			.storeId(cart.getStore().getId())
+			.cartId(cart.getId())
+			.inOut(cart.getInOut())
+			.isOpened(cart.getStore().isStatus())
 			.name(cart.getStore().getName())
+			.edit(!cart.getIsOrdered() && !cart.getIsDeleted())
 			.imgUrl(cart.getStore()
 				.getImgs()
 				.stream()
@@ -111,12 +117,14 @@ public class OrderMapper {
 			.carts(
 				cart.getCartItems()
 					.stream()
-					.map(cartItem -> cartItemToCartDto(cartItem, inout))
+					.filter(cartItem -> !cartItem.getIsDeleted())
+					.map(cartItem -> cartItemToCartDto(cartItem, cart.getInOut()))
 					.toList())
 			.totalPrice(
 				cart.getCartItems()
 					.stream()
-					.mapToLong(cartItem -> cartItemTotalPrice(cartItem, inout))
+					.filter(cartItem -> !cartItem.getIsDeleted())
+					.mapToLong(cartItem -> cartItemTotalPrice(cartItem, cart.getInOut()))//
 					.sum())
 			.build();
 	}
@@ -128,10 +136,10 @@ public class OrderMapper {
 			.count(cartItem.getCount())
 			// img
 			.imgUrl(cartItem.getFoodie().getImgUrl() != null
-				? IMG_URL + cartItem.getFoodie().getImgUrl() + "/"
+				? IMG_URL + cartItem.getFoodie().getFoodieCategory().getStore().getEngName() + "/"
 				+ cartItem.getFoodie().getImgUrl()
 				: null)
-			.totalPrice(cartItemTotalPrice(cartItem, inout))
+			.totalPrice(cartItemsTotalPrice(cartItem, inout))
 			.options(
 				cartItem.getCartOptions()
 					.stream()
@@ -143,7 +151,9 @@ public class OrderMapper {
 	private OptionDto cartOptionToOptionDto(CartOption cartOption) {
 		return OptionDto.builder()
 			.idx(cartOption.getId())
+			.required(cartOption.getFoodieOption().getFoodieOptionCategory().isRequired())
 			.name(cartOption.getFoodieOption().getName())
+			.categoryName(cartOption.getFoodieOption().getFoodieOptionCategory().getName())
 			.price(cartOption.getFoodieOption().getPrice())
 			.build();
 	}
@@ -158,14 +168,23 @@ public class OrderMapper {
 		return totalPrice * cartItem.getCount();
 	}
 
+	private Long cartItemsTotalPrice(CartItem cartItem, Long inout) {
+		Long optionsPriceSum = cartItem.getCartOptions()
+			.stream()
+			.mapToLong(cartOption -> cartOption.getFoodieOption().getPrice())
+			.sum();
+
+		return optionsPriceSum + determinePrice(cartItem.getFoodie(), inout);
+	}
+
 	public TosspaymentMakeRes orderToTosspaymentMakeRes(Order order) {
 		return TosspaymentMakeRes.builder()
 			.orderId(order.getOrderId())
 			.orderName(order.getOrderName())
 			.successUrl(tossPaymentConfig.getTossSuccessUrl())
 			.failUrl(tossPaymentConfig.getTossFailUrl())
-			.customerEmail("test@naver.com")
-			.customerName("test")
+			.customerEmail(order.getUserInfo().getEmail())
+			.customerName(order.getUserInfo().getNickName())
 			.amount(order.getAmount())
 			.build();
 	}
@@ -213,6 +232,34 @@ public class OrderMapper {
 			.receipts(
 				orders
 					.stream()
+					.filter(order -> order.getProgress() == PICKUP
+						|| order.getProgress() == FAIL
+						|| order.getProgress() == CANCEL)
+					.map(this::orderToReceiptHistoryDto)
+					.toList())
+			.build();
+	}
+
+	public HistoryRes ordersToFastOrderRes(List<Order> orders) {
+		return HistoryRes.builder()
+			.receipts(
+				orders
+					.stream()
+					.filter(order -> order.getProgress() == COMPLETE
+						|| order.getProgress() == PICKUP)
+					.map(this::orderToReceiptHistoryDto)
+					.toList().subList(Math.max(orders.size() - MAX_FASTORDER_SIZE, 0), orders.size()))
+			.build();
+	}
+
+	public HistoryRes ordersToNewHistoryRes(List<Order> orders) {
+		return HistoryRes.builder()
+			.receipts(
+				orders
+					.stream()
+					.filter(order -> order.getProgress() == ORDER
+						|| order.getProgress() == MAKE
+						|| order.getProgress() == COMPLETE)
 					.map(this::orderToReceiptHistoryDto)
 					.toList())
 			.build();
@@ -222,6 +269,10 @@ public class OrderMapper {
 		return ReceiptHistoryDto.builder()
 			.dateTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
 			.name(order.getStore().getName())
+			.cartId(order.getCart().getId())
+			.storeId(order.getStore().getId())
+			.inOut(order.getInOut())
+			.progress(order.getProgress())
 			.imgUrl(order.getStore()
 				.getImgs()
 				.stream()
@@ -237,12 +288,46 @@ public class OrderMapper {
 
 	public CurrentRes orderToCurrentRes(Order order) {
 		return CurrentRes.builder()
+			.cancels(order.getReceipt().getCancels())
 			.name(order.getStore().getName())
-			.orderNum(order.getId())
+			.orderNum(order.getOrderNumber())
 			.progress(order.getProgress())
 			.orderName(order.getOrderName())
 			.estimatedTime(order.getEstimatedTime() != null
 				? order.getEstimatedTime().format(DateTimeFormatter.ofPattern(TIME_FORMAT)) : null)
+			.build();
+	}
+
+	public DefaultRes tosspaymentDtoToCancelRes() {
+		return DefaultRes.builder()
+			.message("취소 성공")
+			.build();
+	}
+
+	public HistoryDetailRes orderToHistoryDetailRes(Order order) {
+		return HistoryDetailRes.builder()
+			.orderStatus(order.getProgress().toString())
+			.orderNumber(order.getOrderNumber())
+			.storeName(order.getStore().getName())
+			.cancelReason(order.getReceipt().getCancels())
+			.orderTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
+			.orderId(order.getOrderId())
+			.storePhone(order.getStore().getPhone())
+			.cart(cartToCartGetRes(order.getCart()))
+			.salePrice(
+				order.getCoupon() != null
+					? order.getCoupon().getCouponDetail().getSalePrice()
+					: 0L)
+			.method(order.getMethod())
+			.build();
+	}
+
+	public CartCountRes cartToCartCountRes(Cart cart) {
+		return CartCountRes.builder()
+			.count(cart.getCartItems()
+				.stream()
+				.filter(cartItem -> !cartItem.getIsDeleted())
+				.count())
 			.build();
 	}
 }

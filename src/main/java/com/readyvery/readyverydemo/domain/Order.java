@@ -75,6 +75,9 @@ public class Order extends BaseTimeEntity {
 	@Column
 	private LocalDateTime estimatedTime;
 
+	@Column
+	private Long inOut;
+
 	// 가게 아이템 연관 관계
 	// @OneToMany(mappedBy = "order")
 	// @Builder.Default
@@ -90,11 +93,11 @@ public class Order extends BaseTimeEntity {
 	@JoinColumn(name = "user_idx")
 	private UserInfo userInfo;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "cart_idx")
 	private Cart cart;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "coupon_idx")
 	private Coupon coupon;
 

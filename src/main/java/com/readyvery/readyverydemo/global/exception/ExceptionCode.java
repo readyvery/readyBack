@@ -17,8 +17,20 @@ public enum ExceptionCode {
 	TOSS_PAYMENT_SUCCESS_FAIL(400, "Toss payment success fail."),
 	ORDER_NOT_FOUND(400, "Order does not exists."),
 	TOSS_PAYMENT_AMOUNT_NOT_MATCH(400, "Toss payment amount not match."),
-	ORDER_NOT_CURRENT(400, "Order is not current.");
-
+	ORDER_NOT_CURRENT(400, "Order is not current."),
+	ORDER_NOT_CANCELABLE(400, "Order is not cancelable."),
+	COUPON_NOT_FOUND(404, "Coupon does not exists."),
+	COUPON_NOT_ACTIVE(400, "Coupon is not active."),
+	COUPON_CODE_NOT_MATCH(400, "Coupon code is not match."),
+	COUPON_ISSUE_COUNT_EXCEED(400, "Coupon issue count exceed."),
+	ORDER_NOT_RECEIPT(400, "Order is not receipt."),
+	INVALID_INOUT(400, "Invalid inout."),
+	CART_NOT_EDITABLE(400, "Cart is not editable."),
+	COUPON_NOT_VALID(400, "Coupon is not valid."),
+	NOT_MY_CART(400, "Not my cart."),
+	STORE_NOT_OPEN(401, "Store is not open."),
+	CART_SOLD_OUT(400, "Cart is sold out."),
+	CART_INOUT_NOT_MATCH(409, "Cart inout is not match.");
 
 	private int status;
 	private String message;

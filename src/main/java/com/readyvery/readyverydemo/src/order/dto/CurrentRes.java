@@ -9,8 +9,9 @@ import lombok.Getter;
 @Builder
 public class CurrentRes {
 	private String name;
-	private Long orderNum;
+	private String orderNum;
 	private Progress progress;
 	private String orderName;
 	private String estimatedTime;
+	private String cancels;
 }

@@ -13,4 +13,5 @@ public class StoreDetailRes {
 	private String phone;
 	private String address;
 	private String openTime;
+	private Boolean status;
 }
