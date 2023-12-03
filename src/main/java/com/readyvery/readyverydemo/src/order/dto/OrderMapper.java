@@ -288,6 +288,7 @@ public class OrderMapper {
 
 	public CurrentRes orderToCurrentRes(Order order) {
 		return CurrentRes.builder()
+			.cancels(order.getReceipt().getCancels().toString())
 			.name(order.getStore().getName())
 			.orderNum(order.getOrderNumber())
 			.progress(order.getProgress())

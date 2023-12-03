@@ -13,4 +13,5 @@ public class CurrentRes {
 	private Progress progress;
 	private String orderName;
 	private String estimatedTime;
+	private String cancels;
 }
