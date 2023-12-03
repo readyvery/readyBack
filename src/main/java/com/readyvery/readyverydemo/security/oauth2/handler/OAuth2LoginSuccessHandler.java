@@ -28,12 +28,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 		Authentication authentication) throws
 		IOException, ServletException {
-		log.info("OAuth2 Login 성공!");
+
 		try {
 			CustomOAuth2User oAuth2User = (CustomOAuth2User)authentication.getPrincipal();
 
 			loginSuccess(response, oAuth2User); // 로그인에 성공한 경우 access, refresh 토큰 생성
-			log.info("OAuth2 Login 성공! - 로그인 성공 후 리다이렉트");
+
 			response.sendRedirect(jwtService.getFrontendUrl());
 		} catch (Exception e) {
 			throw e;
