@@ -419,7 +419,8 @@ public class OrderServiceImpl implements OrderService {
 		if (order.getProgress().equals(Progress.ORDER)
 			|| order.getProgress().equals(Progress.MAKE)
 			|| order.getProgress().equals(Progress.COMPLETE)
-			|| order.getProgress().equals(Progress.PICKUP)) {
+			|| order.getProgress().equals(Progress.PICKUP)
+			|| order.getProgress().equals(Progress.CANCEL)) {
 			return;
 		}
 		throw new BusinessLogicException(ExceptionCode.ORDER_NOT_CURRENT);
