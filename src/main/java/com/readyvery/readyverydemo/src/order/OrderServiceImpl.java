@@ -66,8 +66,10 @@ import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 	private final CartRepository cartRepository;
@@ -202,7 +204,6 @@ public class OrderServiceImpl implements OrderService {
 		if (cart.getUserInfo().equals(user)) {
 			return;
 		}
-		System.out.println("asdf");
 		throw new BusinessLogicException(ExceptionCode.NOT_MY_CART);
 	}
 
@@ -391,7 +392,7 @@ public class OrderServiceImpl implements OrderService {
 				new HttpEntity<>(params, headers),
 				TosspaymentDto.class);
 		} catch (Exception e) {
-			System.out.println("e.getMessage() = " + e.getMessage());
+			log.error("e.getMessage() = " + e.getMessage());
 			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_SUCCESS_FAIL);
 		}
 	}
@@ -483,7 +484,7 @@ public class OrderServiceImpl implements OrderService {
 				new HttpEntity<>(params, headers),
 				TosspaymentDto.class);
 		} catch (Exception e) {
-			System.out.println("e.getMessage() = " + e.getMessage());
+			log.error("e.getMessage() = " + e.getMessage());
 			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_SUCCESS_FAIL);
 		}
 	}
