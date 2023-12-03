@@ -248,7 +248,7 @@ public class OrderMapper {
 					.filter(order -> order.getProgress() == COMPLETE
 						|| order.getProgress() == PICKUP)
 					.map(this::orderToReceiptHistoryDto)
-					.toList().subList(Math.max(orders.size() - MAX_FASTORDER_SIZE, 0), orders.size()))
+					.toList())
 			.build();
 	}
 
