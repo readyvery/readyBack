@@ -48,4 +48,6 @@ public interface OrderService {
 	CartCountRes getCartCount(CustomUserDetails userDetails);
 
 	HistoryRes getNewHistories(CustomUserDetails userDetails);
+
+	HistoryRes getFastHistories(CustomUserDetails userDetails);
 }

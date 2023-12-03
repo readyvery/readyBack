@@ -78,6 +78,12 @@ public class OrderController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
+	@GetMapping("/history/fast")
+	public ResponseEntity<HistoryRes> getFastHistories(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		HistoryRes historyRes = orderService.getFastHistories(userDetails);
+		return new ResponseEntity<>(historyRes, HttpStatus.OK);
+	}
+
 	@GetMapping("/history/old")
 	public ResponseEntity<HistoryRes> getHistories(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		HistoryRes historyRes = orderService.getHistories(userDetails);
