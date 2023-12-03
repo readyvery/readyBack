@@ -12,4 +12,6 @@ import jakarta.persistence.LockModeType;
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
 	@Lock(LockModeType.OPTIMISTIC)
 	Optional<Coupon> findById(Long id);
+
+	Long countByCouponDetailIdAndUserInfoId(Long couponDetailId, Long userInfoId);
 }
