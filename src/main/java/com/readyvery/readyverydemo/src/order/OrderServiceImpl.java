@@ -387,11 +387,12 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
-	private String getOrderNumber(Order order) {
-		long todayOrder = ordersRepository.countByCreatedAtBetweenAndProgressNot(
+	private synchronized String getOrderNumber(Order order) {
+		long todayOrder = ordersRepository.countByCreatedAtBetweenAndProgressNotAndStore(
 			order.getCreatedAt().toLocalDate().atStartOfDay(),
 			order.getCreatedAt().toLocalDate().atTime(23, 59, 59),
-			Progress.REQUEST
+			Progress.REQUEST,
+			order.getStore()
 		) + 1;
 		return Long.toString(todayOrder);
 	}
