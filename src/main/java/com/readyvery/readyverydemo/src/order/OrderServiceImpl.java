@@ -93,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public CartAddRes addCart(CustomUserDetails userDetails, CartAddReq cartAddReq) {
+	public synchronized CartAddRes addCart(CustomUserDetails userDetails, CartAddReq cartAddReq) {
 		UserInfo user = getUserInfo(userDetails);
 		Store store = getStore(cartAddReq.getStoreId());
 		Foodie foodie = getFoody(cartAddReq.getFoodieId());
