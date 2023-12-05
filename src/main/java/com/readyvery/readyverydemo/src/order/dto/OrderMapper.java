@@ -331,9 +331,9 @@ public class OrderMapper {
 			.build();
 	}
 
-	public PaySuccess tosspaymentDtoToPaySuccess(TosspaymentDto tosspaymentDto) {
+	public PaySuccess tosspaymentDtoToPaySuccess(String message) {
 		return PaySuccess.builder()
-			.message(tosspaymentDto.getMessage())
+			.message(message)
 			.build();
 	}
 }

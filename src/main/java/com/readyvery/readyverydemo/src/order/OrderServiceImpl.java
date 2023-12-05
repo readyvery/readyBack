@@ -289,13 +289,13 @@ public class OrderServiceImpl implements OrderService {
 
 		applyTosspaymentDto(order, tosspaymentDto);
 		orderRepository.save(order);
-		if (Objects.equals(order.getMessage(), TOSSPAYMENT_SUCCESS_MESSAGE)) {
-			return orderMapper.tosspaymentDtoToPaySuccess(tosspaymentDto);
+		if (!Objects.equals(order.getMessage(), TOSSPAYMENT_SUCCESS_MESSAGE)) {
+			return orderMapper.tosspaymentDtoToPaySuccess(order.getMessage());
 		}
 		//TODO: 영수증 처리
 		Receipt receipt = orderMapper.tosspaymentDtoToReceipt(tosspaymentDto, order);
 		receiptRepository.save(receipt);
-		return orderMapper.tosspaymentDtoToPaySuccess(tosspaymentDto);
+		return orderMapper.tosspaymentDtoToPaySuccess(TOSSPAYMENT_SUCCESS_MESSAGE);
 	}
 
 	@Override
@@ -475,6 +475,9 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void verifyOrder(Order order, Long amount) {
+		if (order.getPayStatus() != null) {
+			throw new BusinessLogicException(ExceptionCode.ORDER_ALREADY_END);
+		}
 		if (!order.getAmount().equals(amount)) {
 			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_AMOUNT_NOT_MATCH);
 		}
