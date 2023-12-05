@@ -374,7 +374,8 @@ public class OrderServiceImpl implements OrderService {
 			|| order.getProgress().equals(Progress.PICKUP)
 			|| order.getProgress().equals(Progress.CANCEL)
 			|| order.getProgress().equals(Progress.ORDER)
-			|| order.getProgress().equals(Progress.MAKE)) {
+			|| order.getProgress().equals(Progress.MAKE)
+			|| order.getProgress().equals(Progress.FAIL)) {
 			return;
 		}
 		throw new BusinessLogicException(ExceptionCode.ORDER_NOT_RECEIPT);
