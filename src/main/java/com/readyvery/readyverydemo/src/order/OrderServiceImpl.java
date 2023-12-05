@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import net.minidev.json.JSONObject;
@@ -59,6 +61,7 @@ import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
+import com.readyvery.readyverydemo.src.order.dto.PaySuccess;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
 import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentDto;
@@ -279,16 +282,20 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	@Transactional
-	public String tossPaymentSuccess(String paymentKey, String orderId, Long amount) {
+	public PaySuccess tossPaymentSuccess(String paymentKey, String orderId, Long amount) {
 		Order order = getOrder(orderId);
 		verifyOrder(order, amount);
 		TosspaymentDto tosspaymentDto = requestTossPaymentAccept(paymentKey, orderId, amount);
+
 		applyTosspaymentDto(order, tosspaymentDto);
 		orderRepository.save(order);
+		if (Objects.equals(order.getMessage(), TOSSPAYMENT_SUCCESS_MESSAGE)) {
+			return orderMapper.tosspaymentDtoToPaySuccess(tosspaymentDto);
+		}
 		//TODO: 영수증 처리
 		Receipt receipt = orderMapper.tosspaymentDtoToReceipt(tosspaymentDto, order);
 		receiptRepository.save(receipt);
-		return "결제 성공";
+		return orderMapper.tosspaymentDtoToPaySuccess(tosspaymentDto);
 	}
 
 	@Override
@@ -439,12 +446,19 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void applyTosspaymentDto(Order order, TosspaymentDto tosspaymentDto) {
+		if (tosspaymentDto.getPaymentKey() == null) {
+			order.setMessage(tosspaymentDto.getMessage());
+			order.setProgress(Progress.FAIL);
+			order.setPayStatus(false);
+			return;
+		}
 		order.setOrderNumber(getOrderNumber(order));
 		order.setPaymentKey(tosspaymentDto.getPaymentKey());
 		order.setMethod(tosspaymentDto.getMethod());
 		order.setProgress(Progress.ORDER);
 		order.setPayStatus(true);
 		order.getCart().setIsOrdered(true);
+		order.setMessage(TOSSPAYMENT_SUCCESS_MESSAGE);
 		if (order.getCoupon() != null) {
 			order.getCoupon().setUsed(true);
 		}
@@ -485,6 +499,8 @@ public class OrderServiceImpl implements OrderService {
 			return restTemplate.postForObject(TossPaymentConfig.CONFIRM_URL,
 				new HttpEntity<>(params, headers),
 				TosspaymentDto.class);
+		} catch (HttpClientErrorException e) {
+			return e.getResponseBodyAs(TosspaymentDto.class);
 		} catch (Exception e) {
 			log.error("e.getMessage() = " + e.getMessage());
 			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_SUCCESS_FAIL);

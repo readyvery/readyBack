@@ -26,6 +26,7 @@ import com.readyvery.readyverydemo.src.order.dto.FailDto;
 import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
+import com.readyvery.readyverydemo.src.order.dto.PaySuccess;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
 import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
@@ -61,11 +62,11 @@ public class OrderController {
 	}
 
 	@GetMapping("/toss/success")
-	public ResponseEntity<String> tossPaymentSuccess(
+	public ResponseEntity<PaySuccess> tossPaymentSuccess(
 		@RequestParam("paymentKey") String paymentKey,
 		@RequestParam("orderId") String orderId,
 		@RequestParam("amount") Long amount) {
-		String result = orderService.tossPaymentSuccess(paymentKey, orderId, amount);
+		PaySuccess result = orderService.tossPaymentSuccess(paymentKey, orderId, amount);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
