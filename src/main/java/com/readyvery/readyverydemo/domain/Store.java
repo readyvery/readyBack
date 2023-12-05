@@ -72,6 +72,10 @@ public class Store extends BaseTimeEntity {
 	@Column
 	private String takeOutEventMessage;
 
+	//가게 계좌번호
+	@Column
+	private String account;
+
 	//가게 등급
 	@Column
 	@Enumerated(EnumType.STRING)
