@@ -330,4 +330,10 @@ public class OrderMapper {
 				.count())
 			.build();
 	}
+
+	public PaySuccess tosspaymentDtoToPaySuccess(TosspaymentDto tosspaymentDto) {
+		return PaySuccess.builder()
+			.message(tosspaymentDto.getMessage())
+			.build();
+	}
 }

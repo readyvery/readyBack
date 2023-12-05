@@ -8,4 +8,5 @@ public class Constant {
 	public static final String USER_CANCEL_RESON = "단순 변심";
 	public static final Integer EMPTY_CART = 0;
 	public static final Integer MAX_FASTORDER_SIZE = 5;
+	public static final String TOSSPAYMENT_SUCCESS_MESSAGE = "결제 성공";
 }

@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class TosspaymentDto {
+	private String message;
 	private String paymentKey;
 	private String type;
 	private String orderId;

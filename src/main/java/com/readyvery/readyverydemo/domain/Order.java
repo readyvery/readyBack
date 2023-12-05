@@ -78,6 +78,9 @@ public class Order extends BaseTimeEntity {
 	@Column
 	private Long inOut;
 
+	@Column
+	private String message;
+
 	// 가게 아이템 연관 관계
 	// @OneToMany(mappedBy = "order")
 	// @Builder.Default
