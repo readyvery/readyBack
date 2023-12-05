@@ -30,7 +30,8 @@ public enum ExceptionCode {
 	NOT_MY_CART(400, "Not my cart."),
 	STORE_NOT_OPEN(401, "Store is not open."),
 	CART_SOLD_OUT(400, "Cart is sold out."),
-	CART_INOUT_NOT_MATCH(409, "Cart inout is not match.");
+	CART_INOUT_NOT_MATCH(409, "Cart inout is not match."),
+	ORDER_ALREADY_END(400, "Order is already end.");
 
 	private int status;
 	private String message;
