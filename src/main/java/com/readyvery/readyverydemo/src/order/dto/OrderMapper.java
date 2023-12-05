@@ -309,7 +309,7 @@ public class OrderMapper {
 			.orderStatus(order.getProgress().toString())
 			.orderNumber(order.getOrderNumber())
 			.storeName(order.getStore().getName())
-			.cancelReason(order.getReceipt().getCancels())
+			.cancelReason(order.getReceipt() != null ? order.getReceipt().getFailure() : null)
 			.orderTime(order.getCreatedAt().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
 			.orderId(order.getOrderId())
 			.storePhone(order.getStore().getPhone())
