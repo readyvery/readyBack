@@ -222,6 +222,7 @@ public class OrderServiceImpl implements OrderService {
 		Store store = cart.getStore();
 		Coupon coupon = getCoupon(paymentReq.getCouponId());
 
+		verifyStoreOpen(store);
 		verifyCoupon(user, coupon);
 		verifyCartSoldOut(cart);
 		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
