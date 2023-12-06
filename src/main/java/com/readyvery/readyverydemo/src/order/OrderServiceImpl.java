@@ -387,7 +387,10 @@ public class OrderServiceImpl implements OrderService {
 		order.setPayStatus(false);
 		order.getReceipt().setCancels(tosspaymentDto.getCancels().toString());
 		order.getReceipt().setStatus(tosspaymentDto.getStatus());
-		order.getCoupon().setUsed(false);
+		if (order.getCoupon() != null) {
+			order.getCoupon().setUsed(false);
+		}
+
 	}
 
 	private TosspaymentDto requestTossPaymentCancel(String paymentKey) {
