@@ -12,4 +12,5 @@ public class MenuItemDto {
 	private Long price;
 	private Long sale;
 	private Boolean hit;
+	private Long sequence;
 }
