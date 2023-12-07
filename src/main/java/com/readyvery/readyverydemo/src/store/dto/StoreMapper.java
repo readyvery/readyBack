@@ -2,6 +2,8 @@ package com.readyvery.readyverydemo.src.store.dto;
 
 import static com.readyvery.readyverydemo.global.Constant.*;
 
+import java.util.Comparator;
+
 import org.springframework.stereotype.Component;
 
 import com.readyvery.readyverydemo.domain.Foodie;
@@ -41,6 +43,7 @@ public class StoreMapper {
 			.category(category.getName())
 			.menuItems(category.getFoodies()
 				.stream()
+				.sorted(Comparator.comparing(Foodie::getSequence))
 				.filter(foodie -> !foodie.isSoldOut())
 				.map(this::foodieToMenuItems)
 				.toList())
@@ -56,6 +59,7 @@ public class StoreMapper {
 			.price(foodie.getPrice())
 			.sale(foodie.getTakeOut() != null ? foodie.getTakeOut().getPrice() : null)
 			.hit(foodie.isHit())
+			.sequence(foodie.getSequence())
 			.build();
 	}
 
