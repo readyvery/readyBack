@@ -14,4 +14,5 @@ public class CurrentRes {
 	private String orderName;
 	private String estimatedTime;
 	private String cancels;
+	private Long inout;
 }
