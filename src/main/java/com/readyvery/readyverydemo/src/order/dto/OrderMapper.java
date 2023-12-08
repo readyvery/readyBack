@@ -4,6 +4,7 @@ import static com.readyvery.readyverydemo.domain.Progress.*;
 import static com.readyvery.readyverydemo.global.Constant.*;
 import static org.hibernate.type.descriptor.java.JdbcTimeJavaType.*;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -245,6 +246,9 @@ public class OrderMapper {
 			.receipts(
 				orders
 					.stream()
+					.filter(order -> order.getCreatedAt()
+						// 데이터 변경 시점 이후의 데이터만 가져옴
+						.isAfter(LocalDateTime.of(2023, 12, 6, 0, 0, 0)))
 					.filter(order -> order.getProgress() == COMPLETE
 						|| order.getProgress() == PICKUP)
 					.map(this::orderToReceiptHistoryDto)
