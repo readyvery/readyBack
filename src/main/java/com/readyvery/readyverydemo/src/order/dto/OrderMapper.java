@@ -311,6 +311,7 @@ public class OrderMapper {
 
 	public HistoryDetailRes orderToHistoryDetailRes(Order order) {
 		return HistoryDetailRes.builder()
+			.inout(order.getInOut())
 			.orderStatus(order.getProgress().toString())
 			.orderNumber(order.getOrderNumber())
 			.storeName(order.getStore().getName())

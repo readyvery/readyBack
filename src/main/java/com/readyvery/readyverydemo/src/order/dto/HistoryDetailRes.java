@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class HistoryDetailRes {
+	private Long inout;
 	private String orderStatus;
 	private String storeName;
 	private String orderTime;
