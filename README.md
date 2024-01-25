@@ -7,15 +7,15 @@
 </div>
 <h2 align=center>☕ [고객사이드] 간편 선결제 테이크아웃 서비스, 레디베리 🥤</h2>
 <div align=center>
-  <img alt="123" src="https://github.com/readyvery/readyBusinessBack/assets/78861124/5487eaa8-6e6a-4f9b-9ffb-92a6ac8eed60">
+  <!--<img alt="123" src="https://github.com/readyvery/readyBusinessBack/assets/78861124/5487eaa8-6e6a-4f9b-9ffb-92a6ac8eed60">-->
 </div>
 
 
 
 ## API Docs
 
-### 💎 [Readyvery BACK-End WEB API DOCs Swagger](https://readyvery.com/swagger-ui/index.html#/)
-
+<!--### 💎 [Readyvery BACK-End WEB API DOCs Swagger](https://readyvery.com/swagger-ui/index.html#/) -->
+### 💎 [Readyvery BACK-End WEB API DOCs](https://marinesnow34.notion.site/API-99df1c2335bd4b188a8b5c739e73b958)
 
 ## 기술스택
 
