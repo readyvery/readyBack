@@ -10,6 +10,12 @@
   <!--<img alt="123" src="https://github.com/readyvery/readyBusinessBack/assets/78861124/5487eaa8-6e6a-4f9b-9ffb-92a6ac8eed60">-->
 </div>
 
+## 예시
+<div align=center>
+	
+![ready](https://github.com/readyvery/readyBack/assets/50243183/80bfa4f3-2cff-4456-94d9-d97f00673143)
+</div>
+
 
 
 ## API Docs
