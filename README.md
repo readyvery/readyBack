@@ -73,3 +73,9 @@ Give a ⭐️ if this project helped you!
 
 	
 
+## 📝 License
+
+Copyright © 2023 [readyvery](https://github.com/readyvery).<br />
+This project is [MIT](https://github.com/readyvery/readyBack/blob/main/LICENSE) licensed.
+
+***
