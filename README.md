@@ -26,9 +26,15 @@
 ## 기술스택
 
 <p>
-  <img src="https://img.shields.io/badge/-Java-red"/>&nbsp
-  <img src="https://img.shields.io/badge/-MySQL-orange"/>&nbsp
-  <img src="https://img.shields.io/badge/-Spring_Boot-green"/>&nbsp
+	<img src="https://img.shields.io/badge/-Java-red"/>&nbsp
+	<img src="https://img.shields.io/badge/-JPA-red"/>&nbsp
+	<img src="https://img.shields.io/badge/-Spring_Boot-green"/>&nbsp
+  	<img src="https://img.shields.io/badge/-MySQL-orange"/>&nbsp
+  	<img src="https://img.shields.io/badge/-JWT-blue"/>&nbsp
+	<img src="https://img.shields.io/badge/-Swagger-black"/>&nbsp
+	<img src="https://img.shields.io/badge/-SpringSecurity-green"/>&nbsp
+	<img src="https://img.shields.io/badge/-AWS-orange"/>&nbsp
+  	<img src="https://img.shields.io/badge/-Nginx-red"/>&nbsp
 </p>
 
 ## 개발환경
