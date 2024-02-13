@@ -39,7 +39,6 @@ import com.readyvery.readyverydemo.domain.repository.CartRepository;
 import com.readyvery.readyverydemo.domain.repository.CouponRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieRepository;
-import com.readyvery.readyverydemo.domain.repository.OrderRepository;
 import com.readyvery.readyverydemo.domain.repository.OrdersRepository;
 import com.readyvery.readyverydemo.domain.repository.ReceiptRepository;
 import com.readyvery.readyverydemo.domain.repository.StoreRepository;
@@ -82,7 +81,6 @@ public class OrderServiceImpl implements OrderService {
 	private final FoodieOptionRepository foodieOptionRepository;
 	private final UserRepository userRepository;
 	private final StoreRepository storeRepository;
-	private final OrderRepository orderRepository;
 	private final OrderMapper orderMapper;
 	private final TossPaymentConfig tosspaymentConfig;
 	private final OrdersRepository ordersRepository;
@@ -229,7 +227,7 @@ public class OrderServiceImpl implements OrderService {
 		Long amount = calculateAmount2(cart);
 		Order order = makeOrder(user, store, amount, cart, coupon);
 		cartOrder(cart);
-		orderRepository.save(order);
+		ordersRepository.save(order);
 		cartRepository.save(cart);
 		return orderMapper.orderToTosspaymentMakeRes(order);
 	}
@@ -289,7 +287,7 @@ public class OrderServiceImpl implements OrderService {
 		TosspaymentDto tosspaymentDto = requestTossPaymentAccept(paymentKey, orderId, amount);
 
 		applyTosspaymentDto(order, tosspaymentDto);
-		orderRepository.save(order);
+		ordersRepository.save(order);
 		if (!Objects.equals(order.getMessage(), TOSSPAYMENT_SUCCESS_MESSAGE)) {
 			return orderMapper.tosspaymentDtoToPaySuccess(order.getMessage());
 		}
@@ -303,7 +301,7 @@ public class OrderServiceImpl implements OrderService {
 	public FailDto tossPaymentFail(String code, String orderId, String message) {
 		Order order = getOrder(orderId);
 		applyOrderFail(order);
-		orderRepository.save(order);
+		ordersRepository.save(order);
 		return orderMapper.makeFailDto(code, message);
 	}
 
@@ -331,7 +329,7 @@ public class OrderServiceImpl implements OrderService {
 
 		applyCancelTosspaymentDto(order, tosspaymentDto);
 
-		orderRepository.save(order);
+		ordersRepository.save(order);
 		return orderMapper.tosspaymentDtoToCancelRes();
 	}
 
