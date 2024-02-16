@@ -556,7 +556,7 @@ public class OrderServiceImpl implements OrderService {
 		return Order.builder()
 			.userInfo(user)
 			.store(store)
-			.amount(amount - (coupon != null ? coupon.getCouponDetail().getSalePrice() : 0))
+			.amount(Math.max(0, amount - (coupon != null ? coupon.getCouponDetail().getSalePrice() : 0)))
 			.orderId(UUID.randomUUID().toString())
 			.cart(cart)
 			.coupon(coupon)
