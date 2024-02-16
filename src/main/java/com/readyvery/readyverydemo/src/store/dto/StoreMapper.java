@@ -25,6 +25,7 @@ public class StoreMapper {
 			.phone(store.getPhone())
 			.address(store.getAddress())
 			.openTime(store.getTime())
+			.eventMessage(store.getEventMessage())
 			.build();
 	}
 
