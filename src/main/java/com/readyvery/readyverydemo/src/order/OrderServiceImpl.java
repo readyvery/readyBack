@@ -286,10 +286,9 @@ public class OrderServiceImpl implements OrderService {
 		verifyOrder(order, amount);
 
 		TosspaymentDto tosspaymentDto;
-		if(amount > 0) {
+		if (amount > 0) {
 			tosspaymentDto = requestTossPaymentAccept(paymentKey, orderId, amount);
-		}
-		else { // 쿠폰 및 포인트 결제로 0원 결제 시
+		} else { // 쿠폰 및 포인트 결제로 0원 결제 시
 			tosspaymentDto = makeZeroPaymentDto(paymentKey);
 		}
 
