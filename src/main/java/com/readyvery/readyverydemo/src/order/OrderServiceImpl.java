@@ -284,7 +284,14 @@ public class OrderServiceImpl implements OrderService {
 	public PaySuccess tossPaymentSuccess(String paymentKey, String orderId, Long amount) {
 		Order order = getOrder(orderId);
 		verifyOrder(order, amount);
-		TosspaymentDto tosspaymentDto = requestTossPaymentAccept(paymentKey, orderId, amount);
+
+		TosspaymentDto tosspaymentDto;
+		if(amount > 0) {
+			tosspaymentDto = requestTossPaymentAccept(paymentKey, orderId, amount);
+		}
+		else { // 쿠폰 및 포인트 결제로 0원 결제 시
+			tosspaymentDto = makeZeroPaymentDto(paymentKey);
+		}
 
 		applyTosspaymentDto(order, tosspaymentDto);
 		ordersRepository.save(order);
@@ -295,6 +302,13 @@ public class OrderServiceImpl implements OrderService {
 		Receipt receipt = orderMapper.tosspaymentDtoToReceipt(tosspaymentDto, order);
 		receiptRepository.save(receipt);
 		return orderMapper.tosspaymentDtoToPaySuccess(TOSSPAYMENT_SUCCESS_MESSAGE);
+	}
+
+	private TosspaymentDto makeZeroPaymentDto(String paymentKey) {
+		return TosspaymentDto.builder()
+			.paymentKey(paymentKey)
+			.method(MEMBERSHIP_PAYMENT_METHOD)
+			.build();
 	}
 
 	@Override
