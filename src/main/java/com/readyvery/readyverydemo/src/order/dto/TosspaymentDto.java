@@ -1,8 +1,10 @@
 package com.readyvery.readyverydemo.src.order.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class TosspaymentDto {
 	private String message;
 	private String paymentKey;
