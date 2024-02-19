@@ -14,4 +14,5 @@ public class StoreDetailRes {
 	private String address;
 	private String openTime;
 	private Boolean status;
+	private String eventMessage;
 }
