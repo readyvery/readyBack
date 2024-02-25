@@ -219,17 +219,29 @@ public class OrderServiceImpl implements OrderService {
 		Cart cart = getCartId(user, paymentReq.getCartId());
 		Store store = cart.getStore();
 		Coupon coupon = getCoupon(paymentReq.getCouponId());
+		Long point = paymentReq.getPoint();
 
 		verifyStoreOpen(store);
 		verifyCoupon(user, coupon);
 		verifyCartSoldOut(cart);
+		verifyPoint(user, point);
 		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
 		Long amount = calculateAmount2(cart);
-		Order order = makeOrder(user, store, amount, cart, coupon);
+		Order order = makeOrder(user, store, amount, cart, coupon, point);
 		cartOrder(cart);
 		ordersRepository.save(order);
 		cartRepository.save(cart);
 		return orderMapper.orderToTosspaymentMakeRes(order);
+	}
+
+	private void verifyPoint(UserInfo user, Long point) {
+		if (point == null) {
+			return;
+		}
+		if (user.getPoint() >= point) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.POINT_NOT_ENOUGH);
 	}
 
 	private void verifyCartSoldOut(Cart cart) {
@@ -536,7 +548,7 @@ public class OrderServiceImpl implements OrderService {
 		return headers;
 	}
 
-	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart, Coupon coupon) {
+	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart, Coupon coupon, Long point) {
 		List<CartItem> cartItems = cart.getCartItems().stream()
 			.filter(cartItem -> !cartItem.getIsDeleted())
 			.toList();
@@ -560,6 +572,7 @@ public class OrderServiceImpl implements OrderService {
 			.cart(cart)
 			.coupon(coupon)
 			.paymentKey(null)
+			.point(point)
 			.orderName(orderName)
 			.totalAmount(amount)
 			.orderNumber(null)

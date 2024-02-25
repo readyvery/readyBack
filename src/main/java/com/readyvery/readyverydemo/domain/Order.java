@@ -81,6 +81,10 @@ public class Order extends BaseTimeEntity {
 	@Column
 	private String message;
 
+	// 사용 포인트
+	@Column
+	private Long point;
+
 	// 가게 아이템 연관 관계
 	// @OneToMany(mappedBy = "order")
 	// @Builder.Default
