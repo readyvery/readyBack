@@ -19,6 +19,7 @@ import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
 import com.readyvery.readyverydemo.domain.ImgSize;
 import com.readyvery.readyverydemo.domain.Order;
+import com.readyvery.readyverydemo.domain.Point;
 import com.readyvery.readyverydemo.domain.Receipt;
 import com.readyvery.readyverydemo.src.order.config.TossPaymentConfig;
 
@@ -340,6 +341,14 @@ public class OrderMapper {
 	public PaySuccess tosspaymentDtoToPaySuccess(String message) {
 		return PaySuccess.builder()
 			.message(message)
+			.build();
+	}
+
+	public Point orderToPoint(Order order) {
+		return Point.builder()
+			.order(order)
+			.userInfo(order.getUserInfo())
+			.point(order.getPoint())
 			.build();
 	}
 }
