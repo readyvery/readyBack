@@ -219,7 +219,7 @@ public class OrderServiceImpl implements OrderService {
 		Cart cart = getCartId(user, paymentReq.getCartId());
 		Store store = cart.getStore();
 		Coupon coupon = getCoupon(paymentReq.getCouponId());
-		Long point = paymentReq.getPoint();
+		Long point = paymentReq.getPoint() != null ? paymentReq.getPoint() : 0L;
 
 		verifyStoreOpen(store);
 		verifyCoupon(user, coupon);
@@ -235,9 +235,6 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void verifyPoint(UserInfo user, Long point) {
-		if (point == null) {
-			return;
-		}
 		if (user.getPoint() >= point) {
 			return;
 		}
@@ -564,15 +561,19 @@ public class OrderServiceImpl implements OrderService {
 			orderName += " 외 "
 				+ (cartItems.stream().filter(cartItem -> !cartItem.getIsDeleted()).count() - 1) + "개";
 		}
+
+		Long couponAmount = Math.max(0, amount - (coupon != null ? coupon.getCouponDetail().getSalePrice() : 0));
+		Long pointAmount = Math.max(0, couponAmount - point);
+
 		return Order.builder()
 			.userInfo(user)
 			.store(store)
-			.amount(Math.max(0, amount - (coupon != null ? coupon.getCouponDetail().getSalePrice() : 0)))
+			.amount(pointAmount)
 			.orderId(UUID.randomUUID().toString())
 			.cart(cart)
 			.coupon(coupon)
 			.paymentKey(null)
-			.point(point)
+			.point(couponAmount - pointAmount)
 			.orderName(orderName)
 			.totalAmount(amount)
 			.orderNumber(null)
