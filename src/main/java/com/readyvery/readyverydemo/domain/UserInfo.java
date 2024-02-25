@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -88,6 +90,11 @@ public class UserInfo extends BaseTimeEntity {
 	// 마지막 로그인 일시
 	@Column
 	private LocalDateTime lastLoginDate;
+
+	//포인트
+	@Column
+	@ColumnDefault("0")
+	private Long point;
 
 	// 유저 장바구니 연관관계 매핑
 	@Builder.Default
