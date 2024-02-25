@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
+import com.readyvery.readyverydemo.src.point.dto.GetPointHistoryRes;
 import com.readyvery.readyverydemo.src.point.dto.GetPointRes;
 
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,11 @@ public class PointController {
 	public ResponseEntity<GetPointRes> getPoint(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		GetPointRes getPointRes = pointService.getPoint(userDetails);
 		return new ResponseEntity<>(getPointRes, HttpStatus.OK);
+	}
+
+	@GetMapping("/history")
+	public ResponseEntity<GetPointHistoryRes> getPointHistory(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		GetPointHistoryRes getPointHistoryRes = pointService.getPointHistory(userDetails);
+		return new ResponseEntity<>(getPointHistoryRes, HttpStatus.OK);
 	}
 }
