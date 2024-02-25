@@ -29,6 +29,7 @@ import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
 import com.readyvery.readyverydemo.domain.Order;
+import com.readyvery.readyverydemo.domain.Point;
 import com.readyvery.readyverydemo.domain.Progress;
 import com.readyvery.readyverydemo.domain.Receipt;
 import com.readyvery.readyverydemo.domain.Store;
@@ -40,6 +41,7 @@ import com.readyvery.readyverydemo.domain.repository.CouponRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieRepository;
 import com.readyvery.readyverydemo.domain.repository.OrdersRepository;
+import com.readyvery.readyverydemo.domain.repository.PointRepository;
 import com.readyvery.readyverydemo.domain.repository.ReceiptRepository;
 import com.readyvery.readyverydemo.domain.repository.StoreRepository;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
@@ -86,6 +88,7 @@ public class OrderServiceImpl implements OrderService {
 	private final OrdersRepository ordersRepository;
 	private final ReceiptRepository receiptRepository;
 	private final CouponRepository couponRepository;
+	private final PointRepository pointRepository;
 
 	@Override
 	public FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout) {
@@ -309,6 +312,11 @@ public class OrderServiceImpl implements OrderService {
 		//TODO: 영수증 처리
 		Receipt receipt = orderMapper.tosspaymentDtoToReceipt(tosspaymentDto, order);
 		receiptRepository.save(receipt);
+		// 포인트 처리
+		if (order.getPoint() > 0) {
+			Point point = orderMapper.orderToPoint(order);
+			pointRepository.save(point);
+		}
 		return orderMapper.tosspaymentDtoToPaySuccess(TOSSPAYMENT_SUCCESS_MESSAGE);
 	}
 
@@ -484,6 +492,7 @@ public class OrderServiceImpl implements OrderService {
 		order.setPayStatus(true);
 		order.getCart().setIsOrdered(true);
 		order.setMessage(TOSSPAYMENT_SUCCESS_MESSAGE);
+		order.getUserInfo().setPoint(order.getUserInfo().getPoint() - order.getPoint());
 		if (order.getCoupon() != null) {
 			order.getCoupon().setUsed(true);
 		}
