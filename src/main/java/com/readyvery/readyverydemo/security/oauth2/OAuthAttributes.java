@@ -5,6 +5,7 @@ import java.util.Map;
 import com.readyvery.readyverydemo.domain.Role;
 import com.readyvery.readyverydemo.domain.SocialType;
 import com.readyvery.readyverydemo.domain.UserInfo;
+import com.readyvery.readyverydemo.security.oauth2.userinfo.GoogleOAuth2UserInfo;
 import com.readyvery.readyverydemo.security.oauth2.userinfo.KakaoOAuth2UserInfo;
 import com.readyvery.readyverydemo.security.oauth2.userinfo.OAuth2UserInfo;
 
@@ -44,6 +45,13 @@ public class OAuthAttributes {
 		return OAuthAttributes.builder()
 			.nameAttributeKey(userNameAttributeName)
 			.oauth2UserInfo(new KakaoOAuth2UserInfo(attributes))
+			.build();
+	}
+
+	public static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+		return OAuthAttributes.builder()
+			.nameAttributeKey(userNameAttributeName)
+			.oauth2UserInfo(new GoogleOAuth2UserInfo(attributes))
 			.build();
 	}
 

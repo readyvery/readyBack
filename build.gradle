@@ -42,6 +42,12 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
 //    //Querydsl 추가
 //    implementation 'com.querydsl:querydsl-core:5.0.0'
 //    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'

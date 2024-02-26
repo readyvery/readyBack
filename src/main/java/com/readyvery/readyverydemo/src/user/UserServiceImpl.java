@@ -1,5 +1,7 @@
 package com.readyvery.readyverydemo.src.user;
 
+import static com.readyvery.readyverydemo.config.JwtConfig.*;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,15 +10,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.readyvery.readyverydemo.config.UserApiConfig;
+import com.readyvery.readyverydemo.domain.SocialType;
 import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
 import com.readyvery.readyverydemo.global.exception.BusinessLogicException;
 import com.readyvery.readyverydemo.global.exception.ExceptionCode;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
+import com.readyvery.readyverydemo.src.refreshtoken.RefreshTokenService;
 import com.readyvery.readyverydemo.src.user.dto.UserAuthRes;
 import com.readyvery.readyverydemo.src.user.dto.UserInfoRes;
 import com.readyvery.readyverydemo.src.user.dto.UserMapper;
@@ -35,16 +39,9 @@ public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
-	@Value("${jwt.refresh.cookie}")
-	private String refreshCookie;
-	@Value("${jwt.access.cookie}")
-	private String accessToken;
-	@Value("${service.app.admin.key}")
-	private String serviceAppAdminKey;
-	@Value("${jwt.access.cookie.domain}")
-	private String accessCookieDomain;
-	@Value("${jwt.refresh.cookie.domain}")
-	private String refreshCookieDomain;
+	private final UserApiConfig userApiConfig;
+	private final RefreshTokenService refreshTokenServiceImpl;
+	private final UserServiceFacade userServiceFacade;
 
 	@Override
 	public UserAuthRes getUserAuthByCustomUserDetails(CustomUserDetails userDetails) {
@@ -61,27 +58,28 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserInfoRes getUserInfoById(Long id) {
-		UserInfo userInfo = getUserInfo(id);
+		UserInfo userInfo = userServiceFacade.getUserInfo(id);
 		return userMapper.userInfoToUserInfoRes(userInfo);
 	}
 
 	@Override
-	public void removeRefreshTokenInDB(Long id, HttpServletResponse response) {
-		UserInfo user = getUserInfo(id);
-		user.updateRefresh(null); // Refresh Token을 null 또는 빈 문자열로 업데이트
-		userRepository.save(user);
+	public void removeRefreshTokenInDB(String email, HttpServletResponse response) {
+		refreshTokenServiceImpl.removeRefreshTokenInRedis(email); // Redis에서 Refresh Token 삭제
 		invalidateRefreshTokenCookie(response); // 쿠키 무효화
 	}
 
 	@Override
 	public UserRemoveRes removeUser(Long id, HttpServletResponse response) throws IOException {
-		UserInfo user = getUserInfo(id);
-		String kakaoRes = requestToServer("https://kapi.kakao.com/v1/user/unlink", "KakaoAK " + serviceAppAdminKey,
-			"target_id_type=user_id&target_id=" + user.getSocialId());
-		user.updateRemoveUserDate();
-		user.updateRefresh(null); // Refresh Token을 null 또는 빈 문자열로 업데이트
+		UserInfo user = userServiceFacade.getUserInfo(id);
+		if (user.getSocialType().equals(SocialType.KAKAO)) {
+			requestToServer(
+				"KakaoAK " + userApiConfig.getServiceAppAdminKey(),
+				"target_id_type=user_id&target_id=" + user.getSocialId());
+		}
+
+		removeRefreshTokenInDB(user.getEmail(), response); // Refresh Token 삭제
+		user.updateRemoveUserDate(); // 회원 탈퇴 날짜 업데이트
 		userRepository.save(user);
-		invalidateRefreshTokenCookie(response); // 쿠키 무효화
 		return UserRemoveRes.builder()
 			.message("회원 탈퇴가 완료되었습니다.")
 			.success(true)
@@ -93,28 +91,16 @@ public class UserServiceImpl implements UserService {
 	 * @param response
 	 */
 	private void invalidateRefreshTokenCookie(HttpServletResponse response) {
-		Cookie refreshTokenCookie = new Cookie(refreshCookie, null); // 쿠키 이름을 동일하게 설정
+		Cookie refreshTokenCookie = new Cookie(userApiConfig.getRefreshCookie(), null); // 쿠키 이름을 동일하게 설정
 		refreshTokenCookie.setHttpOnly(true);
 		refreshTokenCookie.setPath("/api/v1/refresh/token"); // 기존과 동일한 경로 설정
-		refreshTokenCookie.setDomain(refreshCookieDomain);
 		refreshTokenCookie.setMaxAge(0); // 만료 시간을 0으로 설정하여 즉시 만료
 		response.addCookie(refreshTokenCookie);
-		Cookie accessTokenCookie = new Cookie(accessToken, null); // 쿠키 이름을 동일하게 설정
-		accessTokenCookie.setPath("/"); // 기존과 동일한 경로 설정
-		accessTokenCookie.setDomain(accessCookieDomain);
-		accessTokenCookie.setMaxAge(0); // 만료 시간을 0으로 설정하여 즉시 만료
-		response.addCookie(accessTokenCookie);
 
 	}
 
-	private UserInfo getUserInfo(Long id) {
-		return userRepository.findById(id).orElseThrow(
-			() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND)
-		);
-	}
-
-	private String requestToServer(String kakaoApiurl, String headerStr, String postData) throws IOException {
-		URL url = new URL(kakaoApiurl);
+	private String requestToServer(String headerStr, String postData) throws IOException {
+		URL url = new URL("https://kapi.kakao.com/v1/user/unlink");
 		HttpURLConnection connectReq = null;
 
 		try {
@@ -125,7 +111,7 @@ public class UserServiceImpl implements UserService {
 			// Set headers
 			connectReq.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			if (headerStr != null && !headerStr.isEmpty()) {
-				connectReq.setRequestProperty("Authorization", headerStr);
+				connectReq.setRequestProperty(AUTHORIZATION, headerStr);
 			}
 
 			// Write the post data to the request body

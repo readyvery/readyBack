@@ -1,4 +1,4 @@
-package com.readyvery.readyverydemo.security.config;
+package com.readyvery.readyverydemo.config;
 
 import java.util.Arrays;
 
@@ -18,6 +18,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.readyvery.readyverydemo.domain.repository.RefreshTokenRepository;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
 import com.readyvery.readyverydemo.security.exception.CustomAuthenticationEntryPoint;
 import com.readyvery.readyverydemo.security.jwt.filter.JwtAuthenticationProcessingFilter;
@@ -37,6 +38,7 @@ public class SpringSecurityConfig {
 	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 	private final CustomOAuth2UserService customOAuth2UserService;
+	private final RefreshTokenRepository refreshTokenRepository;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -121,7 +123,7 @@ public class SpringSecurityConfig {
 	@Bean
 	public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
 		JwtAuthenticationProcessingFilter jwtAuthenticationFilter = new JwtAuthenticationProcessingFilter(jwtService,
-			userRepository);
+			userRepository, refreshTokenRepository);
 		return jwtAuthenticationFilter;
 	}
 }

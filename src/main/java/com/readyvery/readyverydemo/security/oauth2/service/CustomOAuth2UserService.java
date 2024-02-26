@@ -62,13 +62,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 			Collections.singleton(new SimpleGrantedAuthority(createdUser.getRole().getKey())),
 			attributes,
 			extractAttributes.getNameAttributeKey(),
-			createdUser.getEmail(),
-			createdUser.getRole()
+			createdUser.getEmail()
 		);
 	}
 
 	private SocialType getSocialType(String registrationId) {
-		return SocialType.KAKAO;
+		if (KAKAO.equals(registrationId)) {
+			return SocialType.KAKAO;
+		}
+		return SocialType.GOOGLE;
 	}
 
 	/**
