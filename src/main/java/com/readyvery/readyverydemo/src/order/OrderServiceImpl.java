@@ -29,6 +29,7 @@ import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
 import com.readyvery.readyverydemo.domain.Order;
+import com.readyvery.readyverydemo.domain.Point;
 import com.readyvery.readyverydemo.domain.Progress;
 import com.readyvery.readyverydemo.domain.Receipt;
 import com.readyvery.readyverydemo.domain.Store;
@@ -40,6 +41,7 @@ import com.readyvery.readyverydemo.domain.repository.CouponRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieRepository;
 import com.readyvery.readyverydemo.domain.repository.OrdersRepository;
+import com.readyvery.readyverydemo.domain.repository.PointRepository;
 import com.readyvery.readyverydemo.domain.repository.ReceiptRepository;
 import com.readyvery.readyverydemo.domain.repository.StoreRepository;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
@@ -86,6 +88,7 @@ public class OrderServiceImpl implements OrderService {
 	private final OrdersRepository ordersRepository;
 	private final ReceiptRepository receiptRepository;
 	private final CouponRepository couponRepository;
+	private final PointRepository pointRepository;
 
 	@Override
 	public FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout) {
@@ -219,17 +222,26 @@ public class OrderServiceImpl implements OrderService {
 		Cart cart = getCartId(user, paymentReq.getCartId());
 		Store store = cart.getStore();
 		Coupon coupon = getCoupon(paymentReq.getCouponId());
+		Long point = paymentReq.getPoint() != null ? paymentReq.getPoint() : 0L;
 
 		verifyStoreOpen(store);
 		verifyCoupon(user, coupon);
 		verifyCartSoldOut(cart);
+		verifyPoint(user, point);
 		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
 		Long amount = calculateAmount2(cart);
-		Order order = makeOrder(user, store, amount, cart, coupon);
+		Order order = makeOrder(user, store, amount, cart, coupon, point);
 		cartOrder(cart);
 		ordersRepository.save(order);
 		cartRepository.save(cart);
 		return orderMapper.orderToTosspaymentMakeRes(order);
+	}
+
+	private void verifyPoint(UserInfo user, Long point) {
+		if (user.getPoint() >= point) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.POINT_NOT_ENOUGH);
 	}
 
 	private void verifyCartSoldOut(Cart cart) {
@@ -300,6 +312,11 @@ public class OrderServiceImpl implements OrderService {
 		//TODO: 영수증 처리
 		Receipt receipt = orderMapper.tosspaymentDtoToReceipt(tosspaymentDto, order);
 		receiptRepository.save(receipt);
+		// 포인트 처리
+		if (order.getPoint() > 0) {
+			Point point = orderMapper.orderToPoint(order);
+			pointRepository.save(point);
+		}
 		return orderMapper.tosspaymentDtoToPaySuccess(TOSSPAYMENT_SUCCESS_MESSAGE);
 	}
 
@@ -475,6 +492,7 @@ public class OrderServiceImpl implements OrderService {
 		order.setPayStatus(true);
 		order.getCart().setIsOrdered(true);
 		order.setMessage(TOSSPAYMENT_SUCCESS_MESSAGE);
+		order.getUserInfo().setPoint(order.getUserInfo().getPoint() - order.getPoint());
 		if (order.getCoupon() != null) {
 			order.getCoupon().setUsed(true);
 		}
@@ -536,7 +554,7 @@ public class OrderServiceImpl implements OrderService {
 		return headers;
 	}
 
-	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart, Coupon coupon) {
+	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart, Coupon coupon, Long point) {
 		List<CartItem> cartItems = cart.getCartItems().stream()
 			.filter(cartItem -> !cartItem.getIsDeleted())
 			.toList();
@@ -552,14 +570,19 @@ public class OrderServiceImpl implements OrderService {
 			orderName += " 외 "
 				+ (cartItems.stream().filter(cartItem -> !cartItem.getIsDeleted()).count() - 1) + "개";
 		}
+
+		Long couponAmount = Math.max(0, amount - (coupon != null ? coupon.getCouponDetail().getSalePrice() : 0));
+		Long pointAmount = Math.max(0, couponAmount - point);
+
 		return Order.builder()
 			.userInfo(user)
 			.store(store)
-			.amount(Math.max(0, amount - (coupon != null ? coupon.getCouponDetail().getSalePrice() : 0)))
+			.amount(pointAmount)
 			.orderId(UUID.randomUUID().toString())
 			.cart(cart)
 			.coupon(coupon)
 			.paymentKey(null)
+			.point(couponAmount - pointAmount)
 			.orderName(orderName)
 			.totalAmount(amount)
 			.orderNumber(null)
