@@ -1,12 +1,9 @@
 package com.readyvery.readyverydemo.security.jwt.service.sendmanger;
 
-import java.io.IOException;
-
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.readyvery.readyverydemo.config.JwtConfig;
 import com.readyvery.readyverydemo.domain.Role;
 import com.readyvery.readyverydemo.security.jwt.dto.UserLoginSuccessRes;
@@ -33,7 +30,8 @@ public class TokenSendManager {
 
 	}
 
-	public ResponseEntity<UserLoginSuccessRes> addTokenResponseBody(String accessToken, String refreshToken, Role role) {
+	public ResponseEntity<UserLoginSuccessRes> addTokenResponseBody(String accessToken, String refreshToken,
+		Role role) {
 		UserLoginSuccessRes userLoginSuccessRes = UserLoginSuccessRes.builder()
 			.success(true)
 			.message("로그인 성공")

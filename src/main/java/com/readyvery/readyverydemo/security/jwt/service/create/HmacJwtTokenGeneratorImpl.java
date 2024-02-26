@@ -20,7 +20,7 @@ public class HmacJwtTokenGeneratorImpl implements JwtTokenGenerator {
 	private final JwtConfig jwtConfig;
 
 	@Override
-	public String generateAccessToken(String email, Long Id) {
+	public String generateAccessToken(String email, Long id) {
 		// 토큰 생성 로직
 		Instant now = Instant.now();
 		Instant expirationTime = now.plus(jwtConfig.getAccessTokenExpirationPeriod(), ChronoUnit.SECONDS);
@@ -28,7 +28,7 @@ public class HmacJwtTokenGeneratorImpl implements JwtTokenGenerator {
 			.withSubject(ACCESS_TOKEN_SUBJECT)
 			.withExpiresAt(Date.from(expirationTime))
 			.withClaim(EMAIL_CLAIM, email)
-			.withClaim(USER_NUMBER, Id)
+			.withClaim(USER_NUMBER, id)
 			.sign(jwtConfig.getAlgorithm());
 	}
 
