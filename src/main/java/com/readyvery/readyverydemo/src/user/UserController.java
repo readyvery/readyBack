@@ -66,7 +66,7 @@ public class UserController {
 	@GetMapping("/user/logout")
 	public UserLogoutRes logout(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) {
 
-		userServiceImpl.removeRefreshTokenInDB(userDetails.getId(), response);
+		userServiceImpl.removeRefreshTokenInDB(userDetails.getEmail(), response);
 		return UserLogoutRes.builder()
 			.success(true)
 			.message("로그아웃 성공")

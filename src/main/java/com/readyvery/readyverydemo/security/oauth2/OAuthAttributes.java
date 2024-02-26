@@ -5,6 +5,7 @@ import java.util.Map;
 import com.readyvery.readyverydemo.domain.Role;
 import com.readyvery.readyverydemo.domain.SocialType;
 import com.readyvery.readyverydemo.domain.UserInfo;
+import com.readyvery.readyverydemo.security.oauth2.userinfo.GoogleOAuth2UserInfo;
 import com.readyvery.readyverydemo.security.oauth2.userinfo.KakaoOAuth2UserInfo;
 import com.readyvery.readyverydemo.security.oauth2.userinfo.OAuth2UserInfo;
 
@@ -36,7 +37,10 @@ public class OAuthAttributes {
 	public static OAuthAttributes of(SocialType socialType,
 		String userNameAttributeName, Map<String, Object> attributes) {
 
-		return ofKakao(userNameAttributeName, attributes);
+		if (socialType == SocialType.KAKAO) {
+			return ofKakao(userNameAttributeName, attributes);
+		}
+		return ofGoogle(userNameAttributeName, attributes);
 
 	}
 
@@ -44,6 +48,13 @@ public class OAuthAttributes {
 		return OAuthAttributes.builder()
 			.nameAttributeKey(userNameAttributeName)
 			.oauth2UserInfo(new KakaoOAuth2UserInfo(attributes))
+			.build();
+	}
+
+	public static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+		return OAuthAttributes.builder()
+			.nameAttributeKey(userNameAttributeName)
+			.oauth2UserInfo(new GoogleOAuth2UserInfo(attributes))
 			.build();
 	}
 
@@ -63,7 +74,7 @@ public class OAuthAttributes {
 			.birth(oauth2UserInfo.getBirth())
 			.nickName(oauth2UserInfo.getNickName())
 			.imageUrl(oauth2UserInfo.getImageUrl())
-			.role(Role.USER)
+			.role(Role.GUEST)
 			.build();
 	}
 }

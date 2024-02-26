@@ -14,7 +14,7 @@ public interface UserService {
 
 	UserInfoRes getUserInfoById(Long id);
 
-	void removeRefreshTokenInDB(Long id, HttpServletResponse response);
+	void removeRefreshTokenInDB(String email, HttpServletResponse response);
 
 	UserRemoveRes removeUser(Long id, HttpServletResponse response) throws IOException;
 

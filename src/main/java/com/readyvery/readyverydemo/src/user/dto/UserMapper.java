@@ -12,7 +12,7 @@ public class UserMapper {
 			.id(userDetails.getId())
 			.email(userDetails.getEmail())
 			.auth(userDetails.isEnabled())
-			.admin(false)
+			.role(userDetails.getRole())
 			.build();
 	}
 

@@ -8,6 +8,49 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: test #임시
+      - name: Checkout source code.   # Repo checkout
+        uses: actions/checkout@v3
+
+      - name: Set application.properties from secrets
         run: |
-          echo "test"
+          echo "${{ secrets.MAIN_APPLICATION_PROPERTIES }}" > src/main/resources/application.properties
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: remove plain.jar
+        run: rm -rf build/libs/*plain.jar
+
+      # - name: file copy
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: libs
+      #     path: build/libs
+      - name: file upload
+        uses: appleboy/scp-action@v0.0.1
+        with:
+          username: ${{ secrets.MAIN_USERNAME }}
+          host: ${{ secrets.MAIN_HOST }}
+          key: ${{ secrets.MAIN_SSH_KEY }}
+          source: "build/libs/*.jar"
+          target: "/home/ubuntu/docker/java/test/jar"
+      - name: SSH and deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.MAIN_HOST }}
+          username: ${{ secrets.MAIN_USERNAME }}
+          key: ${{ secrets.MAIN_SSH_KEY }}
+          timeout: 40s  # 30초 기본
+          script: |
+            docker-compose build readyvery
+            docker-compose up -d readyvery
+      
