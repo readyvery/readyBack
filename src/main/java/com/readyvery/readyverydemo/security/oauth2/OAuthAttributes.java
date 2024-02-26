@@ -37,7 +37,10 @@ public class OAuthAttributes {
 	public static OAuthAttributes of(SocialType socialType,
 		String userNameAttributeName, Map<String, Object> attributes) {
 
-		return ofKakao(userNameAttributeName, attributes);
+		if (socialType == SocialType.KAKAO) {
+			return ofKakao(userNameAttributeName, attributes);
+		}
+		return ofGoogle(userNameAttributeName, attributes);
 
 	}
 
@@ -71,7 +74,7 @@ public class OAuthAttributes {
 			.birth(oauth2UserInfo.getBirth())
 			.nickName(oauth2UserInfo.getNickName())
 			.imageUrl(oauth2UserInfo.getImageUrl())
-			.role(Role.USER)
+			.role(Role.GUEST)
 			.build();
 	}
 }
