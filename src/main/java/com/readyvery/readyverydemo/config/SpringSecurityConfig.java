@@ -135,7 +135,9 @@ public class SpringSecurityConfig {
 
 	@Bean
 	public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
-		DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
+
+		DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient =
+			new DefaultAuthorizationCodeTokenResponseClient();
 		accessTokenResponseClient.setRequestEntityConverter(new CustomRequestEntityConverter());
 
 		return accessTokenResponseClient;
