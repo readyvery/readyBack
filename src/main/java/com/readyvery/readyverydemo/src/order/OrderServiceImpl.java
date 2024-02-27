@@ -316,7 +316,7 @@ public class OrderServiceImpl implements OrderService {
 		Receipt receipt = orderMapper.tosspaymentDtoToReceipt(tosspaymentDto, order);
 		receiptRepository.save(receipt);
 		// 포인트 처리
-		if (order.getPoint() > 0) {
+		if (order.getPoint() < 0L) {
 			Point point = orderMapper.orderToPoint(order);
 			pointRepository.save(point);
 		}
