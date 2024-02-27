@@ -12,12 +12,13 @@ import java.util.Map;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequestEntityConverter;
 import org.springframework.util.MultiValueMap;
+
+import com.readyvery.readyverydemo.config.OauthConfig;
 
 import io.jsonwebtoken.Jwts;
 import lombok.Getter;
@@ -27,25 +28,13 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 public class CustomRequestEntityConverter implements Converter<OAuth2AuthorizationCodeGrantRequest, RequestEntity<?>> {
 
-	private OAuth2AuthorizationCodeGrantRequestEntityConverter defaultConverter;
+	private final OAuth2AuthorizationCodeGrantRequestEntityConverter defaultConverter;
+	private final OauthConfig oauthConfig;
 
 	public CustomRequestEntityConverter() {
 		defaultConverter = new OAuth2AuthorizationCodeGrantRequestEntityConverter();
+		oauthConfig = new OauthConfig();
 	}
-
-	@Value("${app.apple.url}")
-	private String appleUrl;
-
-	@Value("${app.apple.private-key}")
-	private String privateKeyString;
-	@Value("${app.apple.client-id}")
-	private String appleClientId;
-
-	@Value("${app.apple.team-id}")
-	private String appleTeamId;
-
-	@Value("${app.apple.key-id}")
-	private String appleKeyId;
 
 	@Override
 	public RequestEntity<?> convert(OAuth2AuthorizationCodeGrantRequest req) {
@@ -64,7 +53,7 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
 	}
 
 	public PrivateKey getPrivateKey() throws IOException {
-		PEMParser pemParser = new PEMParser(new StringReader(privateKeyString));
+		PEMParser pemParser = new PEMParser(new StringReader(oauthConfig.getPrivateKeyString()));
 		PrivateKeyInfo object = (PrivateKeyInfo)pemParser.readObject();
 		JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
 		return converter.getPrivateKey(object);
@@ -73,16 +62,16 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
 	public String createClientSecret() throws IOException {
 		Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
 		Map<String, Object> jwtHeader = new HashMap<>();
-		jwtHeader.put("kid", appleKeyId);
+		jwtHeader.put("kid", oauthConfig.getAppleKeyId());
 		jwtHeader.put("alg", "ES256");
 
 		return Jwts.builder()
 			.setHeaderParams(jwtHeader)
-			.setIssuer(appleTeamId)
+			.setIssuer(oauthConfig.getAppleTeamId())
 			.setIssuedAt(new Date(System.currentTimeMillis())) // 발행 시간 - UNIX 시간
 			.setExpiration(expirationDate) // 만료 시간
-			.setAudience(appleUrl)
-			.setSubject(appleClientId)
+			.setAudience(oauthConfig.getAppleUrl())
+			.setSubject(oauthConfig.getAppleClientId())
 			.signWith(getPrivateKey())
 			.compact();
 	}
