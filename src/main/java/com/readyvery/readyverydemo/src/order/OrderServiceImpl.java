@@ -228,6 +228,9 @@ public class OrderServiceImpl implements OrderService {
 		verifyCoupon(user, coupon);
 		verifyCartSoldOut(cart);
 		verifyPoint(user, point);
+
+		point *= -1; // 포인트 사용은 음수로 처리
+
 		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
 		Long amount = calculateAmount2(cart);
 		Order order = makeOrder(user, store, amount, cart, coupon, point);
@@ -572,7 +575,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 
 		Long couponAmount = Math.max(0, amount - (coupon != null ? coupon.getCouponDetail().getSalePrice() : 0));
-		Long pointAmount = Math.max(0, couponAmount - point);
+		Long pointAmount = Math.max(0, couponAmount + point);
 
 		return Order.builder()
 			.userInfo(user)
@@ -582,7 +585,7 @@ public class OrderServiceImpl implements OrderService {
 			.cart(cart)
 			.coupon(coupon)
 			.paymentKey(null)
-			.point(couponAmount - pointAmount)
+			.point(pointAmount - couponAmount)
 			.orderName(orderName)
 			.totalAmount(amount)
 			.orderNumber(null)
