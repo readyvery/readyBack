@@ -349,6 +349,7 @@ public class OrderMapper {
 			.order(order)
 			.userInfo(order.getUserInfo())
 			.point(order.getPoint())
+			.isDeleted(false)
 			.build();
 	}
 }
