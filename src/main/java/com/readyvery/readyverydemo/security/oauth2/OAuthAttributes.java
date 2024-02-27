@@ -37,11 +37,12 @@ public class OAuthAttributes {
 	 */
 	public static OAuthAttributes of(SocialType socialType,
 		String userNameAttributeName, Map<String, Object> attributes) {
-
+		System.out.println("attributes = " + attributes);
 		if (socialType == SocialType.KAKAO) {
 			return ofKakao(userNameAttributeName, attributes);
 		}
 		if (socialType == SocialType.APPLE) {
+
 			return ofApple(userNameAttributeName, attributes);
 		}
 		return ofGoogle(userNameAttributeName, attributes);
