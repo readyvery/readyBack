@@ -6,26 +6,40 @@ public class AppleOAuth2UserInfo extends OAuth2UserInfo {
 
 	public AppleOAuth2UserInfo(Map<String, Object> attributes) {
 		super(attributes);
+		System.out.println("attributes = " + attributes);
 	}
 
 	@Override
 	public String getId() {
-		return (String)attributes.get("sub");
+		return String.valueOf(attributes.get("id"));
 	}
 
 	@Override
 	public String getNickName() {
-		return (String)attributes.get("name");
-	}
+		Map<String, Object> account = (Map<String, Object>)attributes.get("user");
+		Map<String, Object> profile = (Map<String, Object>)account.get("name");
 
-	@Override
-	public String getEmail() {
-		return (String)attributes.get("email");
+		if (account == null || profile == null) {
+			return null;
+		}
+
+		return (String)profile.get("firstName");
 	}
 
 	@Override
 	public String getImageUrl() {
-		return (String)attributes.get("picture");
+		return "readyvery";
+	}
+
+	@Override
+	public String getEmail() {
+		Map<String, Object> account = (Map<String, Object>)attributes.get("user");
+
+		if (account == null) {
+			return null;
+		}
+
+		return (String)account.get("email");
 	}
 
 	@Override
@@ -40,6 +54,7 @@ public class AppleOAuth2UserInfo extends OAuth2UserInfo {
 
 	@Override
 	public String getAge() {
+
 		return "readyvery";
 	}
 }
