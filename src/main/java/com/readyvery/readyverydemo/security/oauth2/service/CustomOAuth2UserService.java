@@ -2,7 +2,10 @@ package com.readyvery.readyverydemo.security.oauth2.service;
 
 import static com.readyvery.readyverydemo.config.OauthConfig.*;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,9 +13,12 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.readyvery.readyverydemo.domain.SocialType;
 import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
@@ -31,42 +37,58 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		System.out.println("userRequest = " + userRequest);
+		String registrationId = userRequest.getClientRegistration().getRegistrationId();
+		OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
+
+		Map<String, Object> attributes;
 		/**
 		 * DefaultOAuth2UserService 객체를 생성하여, loadUser(userRequest)를 통해 DefaultOAuth2User 객체를 생성 후 반환
 		 * DefaultOAuth2UserService의 loadUser()는 소셜 로그인 API의 사용자 정보 제공 URI로 요청을 보내서
 		 * 사용자 정보를 얻은 후, 이를 통해 DefaultOAuth2User 객체를 생성 후 반환한다.
 		 * 결과적으로, OAuth2User는 OAuth 서비스에서 가져온 유저 정보를 담고 있는 유저
 		 */
-		OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
-		OAuth2User oAuth2User = delegate.loadUser(userRequest);
+		if (registrationId.contains(APPLE_NAME)) {
+			String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
+			attributes = decodeJwtTokenPayload(idToken);
+			attributes.put("id_token", idToken);
+			Map<String, Object> userAttributes = new HashMap<>();
+			userAttributes.put("resultcode", "00");
+			userAttributes.put("message", "success");
+			userAttributes.put("response", attributes);
 
-		/**
-		 * userRequest에서 registrationId 추출 후 registrationId으로 SocialType 저장
-		 * http://localhost:8080/oauth2/authorization/kakao에서 kakao가 registrationId
-		 * userNameAttributeName은 이후에 nameAttributeKey로 설정된다.
-		 */
-		String registrationId = userRequest.getClientRegistration().getRegistrationId();
-		SocialType socialType = getSocialType(registrationId);
+			return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")),
+				userAttributes, "response");
+		} else {
+			OAuth2User oAuth2User = delegate.loadUser(userRequest);
+			attributes = oAuth2User.getAttributes();
 
-		String userNameAttributeName = userRequest.getClientRegistration()
-			.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName(); // OAuth2 로그인 시 키(PK)가 되는 값
-		Map<String, Object> attributes = oAuth2User.getAttributes(); // 소셜 로그인에서 API가 제공하는 userInfo의 Json 값(유저 정보들)
+			/**
+			 * userRequest에서 registrationId 추출 후 registrationId으로 SocialType 저장
+			 * http://localhost:8080/oauth2/authorization/kakao에서 kakao가 registrationId
+			 * userNameAttributeName은 이후에 nameAttributeKey로 설정된다.
+			 */
 
-		// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
+			SocialType socialType = getSocialType(registrationId);
 
-		OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
+			String userNameAttributeName = userRequest.getClientRegistration()
+				.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName(); // OAuth2 로그인 시 키(PK)가 되는값
+			attributes = oAuth2User.getAttributes(); // 소셜 로그인에서 API가 제공하는 userInfo의 Json 값(유저 정보들)
 
-		UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
+			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
 
-		// DefaultOAuth2User를 구현한 CustomOAuth2User 객체를 생성해서 반환
-		return new CustomOAuth2User(
-			Collections.singleton(new SimpleGrantedAuthority(createdUser.getRole().getKey())),
-			attributes,
-			extractAttributes.getNameAttributeKey(),
-			createdUser.getEmail(),
-			createdUser.getRole()
-		);
+			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
+
+			UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
+
+			// DefaultOAuth2User를 구현한 CustomOAuth2User 객체를 생성해서 반환
+			return new CustomOAuth2User(
+				Collections.singleton(new SimpleGrantedAuthority(createdUser.getRole().getKey())),
+				attributes,
+				extractAttributes.getNameAttributeKey(),
+				createdUser.getEmail(),
+				createdUser.getRole()
+			);
+		}
 	}
 
 	private SocialType getSocialType(String registrationId) {
@@ -102,5 +124,24 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	private UserInfo saveUser(OAuthAttributes attributes, SocialType socialType) {
 		UserInfo createdUser = attributes.toEntity(socialType, attributes.getOauth2UserInfo());
 		return userRepository.save(createdUser);
+	}
+
+	private Map<String, Object> decodeJwtTokenPayload(String jwtToken) {
+		Map<String, Object> jwtClaims = new HashMap<>();
+		try {
+			String[] parts = jwtToken.split("\\.");
+			Base64.Decoder decoder = Base64.getUrlDecoder();
+
+			byte[] decodedBytes = decoder.decode(parts[1].getBytes(StandardCharsets.UTF_8));
+			String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
+			ObjectMapper mapper = new ObjectMapper();
+
+			Map<String, Object> map = mapper.readValue(decodedString, Map.class);
+			jwtClaims.putAll(map);
+
+		} catch (JsonProcessingException e) {
+			//        logger.error("decodeJwtToken: {}-{} / jwtToken : {}", e.getMessage(), e.getCause(), jwtToken);
+		}
+		return jwtClaims;
 	}
 }
