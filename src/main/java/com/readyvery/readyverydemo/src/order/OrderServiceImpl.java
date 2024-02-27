@@ -346,6 +346,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
+	@Transactional
 	public CurrentRes getCurrent(String orderId) {
 		Order order = getOrder(orderId);
 		verifyOrderCurrent(order);
