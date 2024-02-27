@@ -1,5 +1,7 @@
 package com.readyvery.readyverydemo.security.oauth2.service;
 
+import static com.readyvery.readyverydemo.config.OauthConfig.*;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -26,8 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
 	private final UserRepository userRepository;
-
-	private static final String KAKAO = "kakao";
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -68,8 +68,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	}
 
 	private SocialType getSocialType(String registrationId) {
-		if (KAKAO.equals(registrationId)) {
+		if (KAKAO_NAME.equals(registrationId)) {
 			return SocialType.KAKAO;
+		} else if (APPLE_NAME.equals(registrationId)) {
+			return SocialType.APPLE;
 		}
 		return SocialType.GOOGLE;
 	}
