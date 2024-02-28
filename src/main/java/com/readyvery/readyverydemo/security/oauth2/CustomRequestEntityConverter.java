@@ -22,19 +22,16 @@ import com.readyvery.readyverydemo.config.OauthConfig;
 
 import io.jsonwebtoken.Jwts;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter
+@RequiredArgsConstructor
 public class CustomRequestEntityConverter implements Converter<OAuth2AuthorizationCodeGrantRequest, RequestEntity<?>> {
 
 	private final OAuth2AuthorizationCodeGrantRequestEntityConverter defaultConverter;
 	private final OauthConfig oauthConfig;
-
-	public CustomRequestEntityConverter() {
-		defaultConverter = new OAuth2AuthorizationCodeGrantRequestEntityConverter();
-		oauthConfig = new OauthConfig();
-	}
 
 	@Override
 	public RequestEntity<?> convert(OAuth2AuthorizationCodeGrantRequest req) {
