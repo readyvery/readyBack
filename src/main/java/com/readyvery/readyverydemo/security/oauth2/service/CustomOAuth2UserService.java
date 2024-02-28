@@ -58,10 +58,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 			System.out.println("userNameAttributeName = " + userNameAttributeName);
 
 			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
-			OAuthAttributes extractAttributes = OAuthAttributes.of(SocialType.APPLE, userNameAttributeName, attributes);
+			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
 
 			System.out.println("extractAttributes = " + extractAttributes);
-			UserInfo createdUser = getUser(extractAttributes, SocialType.APPLE); // getUser() 메소드로 User 객체 생성 후 반환
+			UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
 			System.out.println("createdUser = " + createdUser);
 			// CustomOAuth2User 객체 생성
 			return new CustomOAuth2User(
@@ -82,9 +82,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 			attributes = oAuth2User.getAttributes(); // 소셜 로그인에서 API가 제공하는 userInfo의 Json 값(유저 정보들)
 
-			System.out.println("attributes = " + attributes);
 			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
-			System.out.println("socialType = " + socialType);
 			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
 
 			UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
@@ -115,7 +113,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	 * 만약 찾은 회원이 있다면, 그대로 반환하고 없다면 saveUser()를 호출하여 회원을 저장한다.
 	 */
 	private UserInfo getUser(OAuthAttributes attributes, SocialType socialType) {
-		System.out.println("1111111111111111111111111111111socialType = " + socialType);
+
 		UserInfo findUser = userRepository.findBySocialTypeAndSocialId(socialType,
 			attributes.getOauth2UserInfo().getId()).orElse(null);
 
@@ -133,7 +131,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	 * 생성된 User 객체를 DB에 저장 : socialType, socialId, email, role 값만 있는 상태
 	 */
 	private UserInfo saveUser(OAuthAttributes attributes, SocialType socialType) {
-		System.out.println("22222222222222222222222222222222socialType = " + socialType);
+
 		UserInfo createdUser = attributes.toEntity(socialType, attributes.getOauth2UserInfo());
 		return userRepository.save(createdUser);
 	}

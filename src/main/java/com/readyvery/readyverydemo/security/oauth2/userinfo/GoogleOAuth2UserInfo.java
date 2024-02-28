@@ -1,6 +1,7 @@
 package com.readyvery.readyverydemo.security.oauth2.userinfo;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class GoogleOAuth2UserInfo extends OAuth2UserInfo {
 
@@ -10,22 +11,24 @@ public class GoogleOAuth2UserInfo extends OAuth2UserInfo {
 
 	@Override
 	public String getId() {
-		return (String) attributes.get("sub");
+		return (String)attributes.get("sub");
 	}
 
 	@Override
 	public String getNickName() {
-		return (String) attributes.get("name");
+		return (String)attributes.get("name");
 	}
 
 	@Override
 	public String getEmail() {
-		return (String) attributes.get("email");
+		return Optional.ofNullable((String)attributes.get("email"))
+			.map(email -> email + "_google")
+			.orElse(null); // 여기에서는 null을 반환하지만, 다른 기본값으로 대체할 수도 있습니다.
 	}
 
 	@Override
 	public String getImageUrl() {
-		return (String) attributes.get("picture");
+		return (String)attributes.get("picture");
 	}
 
 	@Override
