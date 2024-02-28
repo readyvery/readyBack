@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequestEntityConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -138,7 +139,9 @@ public class SpringSecurityConfig {
 
 		DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient =
 			new DefaultAuthorizationCodeTokenResponseClient();
-		accessTokenResponseClient.setRequestEntityConverter(new CustomRequestEntityConverter());
+		accessTokenResponseClient.setRequestEntityConverter(
+			new CustomRequestEntityConverter(new OAuth2AuthorizationCodeGrantRequestEntityConverter(),
+				new OauthConfig()));
 
 		return accessTokenResponseClient;
 	}
