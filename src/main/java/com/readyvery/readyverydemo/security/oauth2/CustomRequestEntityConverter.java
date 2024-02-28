@@ -50,6 +50,7 @@ public class CustomRequestEntityConverter implements Converter<OAuth2Authorizati
 	}
 
 	public PrivateKey getPrivateKey() throws IOException {
+		System.out.println("@@@@@@@@@@@@@@@oauthConfig = " + oauthConfig.getPrivateKeyString());
 		PEMParser pemParser = new PEMParser(new StringReader(oauthConfig.getPrivateKeyString()));
 		PrivateKeyInfo object = (PrivateKeyInfo)pemParser.readObject();
 		JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
