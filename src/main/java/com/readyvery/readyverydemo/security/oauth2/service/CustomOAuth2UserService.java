@@ -58,10 +58,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 			System.out.println("userNameAttributeName = " + userNameAttributeName);
 
 			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
-			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
+			OAuthAttributes extractAttributes = OAuthAttributes.of(SocialType.APPLE, userNameAttributeName, attributes);
 
 			System.out.println("extractAttributes = " + extractAttributes);
-			UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
+			UserInfo createdUser = getUser(extractAttributes, SocialType.APPLE); // getUser() 메소드로 User 객체 생성 후 반환
 			System.out.println("createdUser = " + createdUser);
 			// CustomOAuth2User 객체 생성
 			return new CustomOAuth2User(
