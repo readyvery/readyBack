@@ -77,6 +77,7 @@ public class OAuthAttributes {
 	 * role은 USER로 설정
 	 */
 	public UserInfo toEntity(SocialType socialType, OAuth2UserInfo oauth2UserInfo) {
+		System.out.println("333333333333333333333333333333333333333333333333socialType = " + socialType);
 		return UserInfo.builder()
 			.socialType(socialType)
 			.socialId(oauth2UserInfo.getId())
