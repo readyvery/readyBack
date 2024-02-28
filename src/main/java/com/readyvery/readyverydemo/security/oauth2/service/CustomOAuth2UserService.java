@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.readyvery.readyverydemo.domain.Role;
 import com.readyvery.readyverydemo.domain.SocialType;
 import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
@@ -54,13 +53,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 			String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
 			attributes = decodeJwtTokenPayload(idToken);
 			// Apple 로그인에 필요한 추가 속성 처리
-			attributes.put("id_token", idToken);
-			Map<String, Object> userAttributes = new HashMap<>();
-			userAttributes.put("resultcode", "00");
-			userAttributes.put("message", "success");
-			userAttributes.put("response", attributes);
+			// attributes.put("id_token", idToken);
 
-			System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@#########userAttributes = " + userAttributes);
 			System.out.println("userNameAttributeName = " + userNameAttributeName);
 			System.out.println("attributes = " + attributes);
 
@@ -69,20 +63,19 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
 
-			// OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
-			//
-			// UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
+			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
+
+			UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
 			// CustomOAuth2User 객체 생성
 			return new CustomOAuth2User(
-				Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")),
-				userAttributes,
-				"response",
-				"tttttttt",
-				Role.GUEST
+				Collections.singleton(new SimpleGrantedAuthority(createdUser.getRole().getKey())),
+				attributes,
+				extractAttributes.getNameAttributeKey(),
+				createdUser.getEmail(),
+				createdUser.getRole()
 			);
 		} else {
 			OAuth2User oAuth2User = delegate.loadUser(userRequest);
-			attributes = oAuth2User.getAttributes();
 
 			/**
 			 * userRequest에서 registrationId 추출 후 registrationId으로 SocialType 저장
@@ -92,6 +85,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 			attributes = oAuth2User.getAttributes(); // 소셜 로그인에서 API가 제공하는 userInfo의 Json 값(유저 정보들)
 
+			System.out.println("attributes = " + attributes);
 			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
 
 			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);

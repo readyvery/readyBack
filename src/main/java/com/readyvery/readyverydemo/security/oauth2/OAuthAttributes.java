@@ -41,6 +41,9 @@ public class OAuthAttributes {
 		if (socialType == SocialType.KAKAO) {
 			return ofKakao(userNameAttributeName, attributes);
 		}
+		if (socialType == SocialType.APPLE) {
+			return ofApple(userNameAttributeName, attributes);
+		}
 
 		return ofGoogle(userNameAttributeName, attributes);
 
