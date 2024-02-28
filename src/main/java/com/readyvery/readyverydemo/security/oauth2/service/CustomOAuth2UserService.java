@@ -52,18 +52,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 			// Apple 로그인의 경우 JWT 토큰에서 사용자 정보를 디코드
 			String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
 			attributes = decodeJwtTokenPayload(idToken);
-			// Apple 로그인에 필요한 추가 속성 처리
-			// attributes.put("id_token", idToken);
-
-			System.out.println("userNameAttributeName = " + userNameAttributeName);
-			System.out.println("attributes = " + attributes);
-			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!socialType = " + socialType);
-
-			// return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")),
-			// 	userAttributes, "response");
 
 			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
-
 			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
 
 			UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
@@ -88,7 +78,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 			System.out.println("attributes = " + attributes);
 			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
-
+			System.out.println("socialType = " + socialType);
 			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
 
 			UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
@@ -108,6 +98,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		if (KAKAO_NAME.equals(registrationId)) {
 			return SocialType.KAKAO;
 		} else if (APPLE_NAME.equals(registrationId)) {
+
 			return SocialType.APPLE;
 		}
 		return SocialType.GOOGLE;

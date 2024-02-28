@@ -25,5 +25,5 @@ public class OauthConfig {
 	@Value("${app.apple.key-id}")
 	private String appleKeyId;
 	public static final String KAKAO_NAME = "kakao";
-	public static final String APPLE_NAME = "apple";
+	public static final String APPLE_NAME = "APPLE";
 }
