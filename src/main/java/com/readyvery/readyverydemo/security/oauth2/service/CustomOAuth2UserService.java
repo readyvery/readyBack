@@ -13,12 +13,12 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.readyvery.readyverydemo.domain.Role;
 import com.readyvery.readyverydemo.domain.SocialType;
 import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
@@ -48,16 +48,34 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		 * 결과적으로, OAuth2User는 OAuth 서비스에서 가져온 유저 정보를 담고 있는 유저
 		 */
 		if (registrationId.contains(APPLE_NAME)) {
+			// Apple 로그인의 경우 JWT 토큰에서 사용자 정보를 디코드
 			String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
 			attributes = decodeJwtTokenPayload(idToken);
+			// Apple 로그인에 필요한 추가 속성 처리
 			attributes.put("id_token", idToken);
 			Map<String, Object> userAttributes = new HashMap<>();
 			userAttributes.put("resultcode", "00");
 			userAttributes.put("message", "success");
 			userAttributes.put("response", attributes);
 
-			return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")),
-				userAttributes, "response");
+			System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@#########userAttributes = " + userAttributes);
+
+			// return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")),
+			// 	userAttributes, "response");
+
+			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
+
+			// OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
+			//
+			// UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
+			// CustomOAuth2User 객체 생성
+			return new CustomOAuth2User(
+				Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")),
+				userAttributes,
+				"response",
+				"tttttttt",
+				Role.GUEST
+			);
 		} else {
 			OAuth2User oAuth2User = delegate.loadUser(userRequest);
 			attributes = oAuth2User.getAttributes();
