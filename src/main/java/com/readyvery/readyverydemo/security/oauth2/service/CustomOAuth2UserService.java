@@ -39,7 +39,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
-		System.out.println("registrationId = " + registrationId);
+		SocialType socialType = getSocialType(registrationId);
+		String userNameAttributeName = userRequest.getClientRegistration()
+			.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName(); // OAuth2 로그인 시 키(PK)가 되는값
 		Map<String, Object> attributes;
 		/**
 		 * DefaultOAuth2UserService 객체를 생성하여, loadUser(userRequest)를 통해 DefaultOAuth2User 객체를 생성 후 반환
@@ -59,6 +61,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 			userAttributes.put("response", attributes);
 
 			System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@#########userAttributes = " + userAttributes);
+			System.out.println("userNameAttributeName = " + userNameAttributeName);
+			System.out.println("attributes = " + attributes);
 
 			// return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")),
 			// 	userAttributes, "response");
@@ -86,10 +90,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 			 * userNameAttributeName은 이후에 nameAttributeKey로 설정된다.
 			 */
 
-			SocialType socialType = getSocialType(registrationId);
-
-			String userNameAttributeName = userRequest.getClientRegistration()
-				.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName(); // OAuth2 로그인 시 키(PK)가 되는값
 			attributes = oAuth2User.getAttributes(); // 소셜 로그인에서 API가 제공하는 userInfo의 Json 값(유저 정보들)
 
 			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
