@@ -115,6 +115,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	 * 만약 찾은 회원이 있다면, 그대로 반환하고 없다면 saveUser()를 호출하여 회원을 저장한다.
 	 */
 	private UserInfo getUser(OAuthAttributes attributes, SocialType socialType) {
+		System.out.println("1111111111111111111111111111111socialType = " + socialType);
 		UserInfo findUser = userRepository.findBySocialTypeAndSocialId(socialType,
 			attributes.getOauth2UserInfo().getId()).orElse(null);
 
@@ -132,6 +133,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	 * 생성된 User 객체를 DB에 저장 : socialType, socialId, email, role 값만 있는 상태
 	 */
 	private UserInfo saveUser(OAuthAttributes attributes, SocialType socialType) {
+		System.out.println("22222222222222222222222222222222socialType = " + socialType);
 		UserInfo createdUser = attributes.toEntity(socialType, attributes.getOauth2UserInfo());
 		return userRepository.save(createdUser);
 	}
