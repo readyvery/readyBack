@@ -52,7 +52,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 			// Apple 로그인의 경우 JWT 토큰에서 사용자 정보를 디코드
 			String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
 			attributes = decodeJwtTokenPayload(idToken);
-
+			attributes.put("id_token", idToken);
 			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
 			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
 
