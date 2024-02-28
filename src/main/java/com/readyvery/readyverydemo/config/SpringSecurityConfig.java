@@ -44,6 +44,7 @@ public class SpringSecurityConfig {
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final RefreshTokenRepository refreshTokenRepository;
+	private final OauthConfig oauthConfig;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -141,7 +142,7 @@ public class SpringSecurityConfig {
 			new DefaultAuthorizationCodeTokenResponseClient();
 		accessTokenResponseClient.setRequestEntityConverter(
 			new CustomRequestEntityConverter(new OAuth2AuthorizationCodeGrantRequestEntityConverter(),
-				new OauthConfig()));
+				oauthConfig));
 
 		return accessTokenResponseClient;
 	}
