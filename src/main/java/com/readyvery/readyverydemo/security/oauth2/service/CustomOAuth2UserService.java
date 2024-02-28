@@ -57,6 +57,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 			System.out.println("userNameAttributeName = " + userNameAttributeName);
 			System.out.println("attributes = " + attributes);
+			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!socialType = " + socialType);
 
 			// return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")),
 			// 	userAttributes, "response");
