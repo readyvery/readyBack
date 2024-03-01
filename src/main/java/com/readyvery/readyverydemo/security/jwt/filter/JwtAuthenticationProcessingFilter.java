@@ -155,7 +155,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 			.id(myUser.getId())
 			.email(myUser.getEmail())
 			.password("readyvery")
-			.role(myUser.getRole())
 			.accessToken(accessToken)
 			.authorities(Collections.singletonList(new SimpleGrantedAuthority(myUser.getRole().toString())))
 			.build();

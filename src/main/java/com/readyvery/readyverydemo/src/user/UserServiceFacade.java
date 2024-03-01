@@ -26,4 +26,10 @@ public class UserServiceFacade {
 			() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND)
 		);
 	}
+
+	public void updateUserPhone(UserInfo userInfo, String phoneNumber) {
+
+		userInfo.updatePhone(phoneNumber);
+		userRepository.save(userInfo);
+	}
 }
