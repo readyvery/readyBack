@@ -32,7 +32,9 @@ public enum ExceptionCode {
 	CART_SOLD_OUT(400, "Cart is sold out."),
 	CART_INOUT_NOT_MATCH(409, "Cart inout is not match."),
 	ORDER_ALREADY_END(400, "Order is already end."),
-	POINT_NOT_ENOUGH(400, "Point is not enough.");
+	POINT_NOT_ENOUGH(400, "Point is not enough."),
+	INVALID_INPUT(400, "Invalid input."),
+	UNAUTHORIZED(400, "Already User");
 
 	private int status;
 	private String message;

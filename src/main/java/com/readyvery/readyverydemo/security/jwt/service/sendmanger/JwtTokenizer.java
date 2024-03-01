@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.readyvery.readyverydemo.config.JwtConfig;
-import com.readyvery.readyverydemo.domain.Role;
 import com.readyvery.readyverydemo.security.jwt.service.create.JwtTokenGenerator;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,11 +38,11 @@ public class JwtTokenizer {
 			jwtConfig.getRefreshTokenExpirationPeriod().intValue(), true);
 	}
 
-	public void addAccessRefreshTokenResponseBody(String accessToken,
-		String refreshToken, Role role) {
-		tokenSendManager.addTokenResponseBody(accessToken, refreshToken, role);
-
-	}
+	// public void addAccessRefreshTokenResponseBody(String accessToken,
+	// 	String refreshToken, Role role) {
+	// 	tokenSendManager.addTokenResponseBody(accessToken, refreshToken, role);
+	//
+	// }
 
 	public Optional<String> verifyAccessToken(String accessToken) {
 		return Optional.ofNullable(JWT.require(jwtConfig.getAlgorithm())

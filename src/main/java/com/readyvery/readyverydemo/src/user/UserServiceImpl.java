@@ -46,7 +46,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserAuthRes getUserAuthByCustomUserDetails(CustomUserDetails userDetails) {
 		verifyUserDetails(userDetails);
-		return userMapper.userInfoToUserAuthRes(userDetails);
+		UserInfo userInfo = userServiceFacade.getUserInfo(userDetails.getId());
+		return userMapper.userInfoToUserAuthRes(userDetails.isEnabled(), userInfo);
 
 	}
 

@@ -113,11 +113,6 @@ public class UserInfo extends BaseTimeEntity {
 	@Builder.Default
 	private List<Coupon> coupons = new ArrayList<Coupon>();
 
-	// 리프레시토큰 업데이트
-	public void updateRefresh(String updateRefreshToken) {
-		this.refreshToken = updateRefreshToken;
-	}
-
 	public void updateRemoveUserDate() {
 		this.status = true;
 		this.deleteDate = LocalDateTime.now();
@@ -125,5 +120,10 @@ public class UserInfo extends BaseTimeEntity {
 
 	public void updateStatus(boolean status) {
 		this.status = status;
+	}
+
+	public void updatePhone(String phoneNumber) {
+		this.phone = phoneNumber;
+		this.role = Role.USER;
 	}
 }

@@ -1,12 +1,8 @@
 package com.readyvery.readyverydemo.security.jwt.service.sendmanger;
 
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.readyvery.readyverydemo.config.JwtConfig;
-import com.readyvery.readyverydemo.domain.Role;
-import com.readyvery.readyverydemo.security.jwt.dto.UserLoginSuccessRes;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,18 +26,18 @@ public class TokenSendManager {
 
 	}
 
-	public ResponseEntity<UserLoginSuccessRes> addTokenResponseBody(String accessToken, String refreshToken,
-		Role role) {
-		UserLoginSuccessRes userLoginSuccessRes = UserLoginSuccessRes.builder()
-			.success(true)
-			.message("로그인 성공")
-			.accessToken(accessToken)
-			.refreshToken(refreshToken)
-			.role(role)
-			.build();
-
-		return ResponseEntity.ok()
-			.contentType(MediaType.APPLICATION_JSON)
-			.body(userLoginSuccessRes);
-	}
+	// public ResponseEntity<UserLoginSuccessRes> addTokenResponseBody(String accessToken, String refreshToken,
+	// 	Role role) {
+	// 	UserLoginSuccessRes userLoginSuccessRes = UserLoginSuccessRes.builder()
+	// 		.success(true)
+	// 		.message("로그인 성공")
+	// 		.accessToken(accessToken)
+	// 		.refreshToken(refreshToken)
+	// 		.role(role)
+	// 		.build();
+	//
+	// 	return ResponseEntity.ok()
+	// 		.contentType(MediaType.APPLICATION_JSON)
+	// 		.body(userLoginSuccessRes);
+	// }
 }
