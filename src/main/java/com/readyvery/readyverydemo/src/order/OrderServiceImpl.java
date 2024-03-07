@@ -369,6 +369,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
+	@Transactional
 	public HistoryDetailRes getReceipt(CustomUserDetails userDetails, String orderId) {
 		UserInfo user = getUserInfo(userDetails);
 		Order order = getOrder(orderId);
