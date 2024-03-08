@@ -34,7 +34,8 @@ public enum ExceptionCode {
 	ORDER_ALREADY_END(400, "Order is already end."),
 	POINT_NOT_ENOUGH(400, "Point is not enough."),
 	INVALID_INPUT(400, "Invalid input."),
-	UNAUTHORIZED(400, "Already User");
+	UNAUTHORIZED(400, "Already User"),
+	AUTH_ERROR(403, "Auth Error");
 
 	private int status;
 	private String message;
