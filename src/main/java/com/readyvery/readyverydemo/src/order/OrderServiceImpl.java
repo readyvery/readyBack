@@ -272,7 +272,7 @@ public class OrderServiceImpl implements OrderService {
 		if (coupon == null) {
 			return;
 		}
-		if (!coupon.isUsed()) {
+		if (coupon.getIssueCount() - coupon.getUseCount() > 0) {
 			return;
 		}
 		if (coupon.getCouponDetail().getExpire().isAfter(LocalDateTime.now())) {
@@ -423,7 +423,7 @@ public class OrderServiceImpl implements OrderService {
 		order.getReceipt().setStatus(tosspaymentDto.getStatus());
 		order.getUserInfo().setPoint(order.getUserInfo().getPoint() - order.getPoint());
 		if (order.getCoupon() != null) {
-			order.getCoupon().setUsed(false);
+			order.getCoupon().setUseCount(order.getCoupon().getUseCount() - 1);
 		}
 
 	}
@@ -501,7 +501,7 @@ public class OrderServiceImpl implements OrderService {
 		order.setMessage(TOSSPAYMENT_SUCCESS_MESSAGE);
 		order.getUserInfo().setPoint(order.getUserInfo().getPoint() + order.getPoint());
 		if (order.getCoupon() != null) {
-			order.getCoupon().setUsed(true);
+			order.getCoupon().setUseCount(order.getCoupon().getUseCount() + 1);
 		}
 	}
 

@@ -15,7 +15,7 @@ public class CouponMapper {
 		return CouponsRes.builder()
 			//filter로 isUsed가 false인 쿠폰만 가져옴
 			.coupons(coupons.stream()
-				.filter(coupon -> !coupon.isUsed())
+				.filter(coupon -> coupon.getIssueCount() - coupon.getUseCount() > 0)
 				.map(this::toCouponDto)
 				.toList())
 			.build();
