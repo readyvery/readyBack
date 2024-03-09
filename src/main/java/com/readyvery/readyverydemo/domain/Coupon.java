@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Entity
 @Builder
-@Table(name = "COUPON")
+@Table(name = "COUPON", uniqueConstraints = {
+	@UniqueConstraint(columnNames = {"coupon_detail_idx", "user_idx"})
+})
 @AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
@@ -36,9 +39,13 @@ public class Coupon extends BaseTimeEntity {
 	@Column(name = "coupon_idx")
 	private Long id;
 
-	// 사용 여부
-	@Column(name = "used")
-	private boolean isUsed;
+	// 발급 갯수
+	@Column(name = "issue_count")
+	private int issueCount;
+
+	// 사용 갯수
+	@Column(name = "use_count")
+	private Long useCount;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "coupon_detail_idx")
