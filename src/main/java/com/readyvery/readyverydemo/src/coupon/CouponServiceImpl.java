@@ -19,6 +19,7 @@ import com.readyvery.readyverydemo.src.coupon.dto.CouponIssueRes;
 import com.readyvery.readyverydemo.src.coupon.dto.CouponMapper;
 import com.readyvery.readyverydemo.src.coupon.dto.CouponsRes;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -36,7 +37,8 @@ public class CouponServiceImpl implements CouponService {
 	}
 
 	@Override
-	public synchronized CouponIssueRes issueCoupon(CustomUserDetails userDetails, CouponIssueReq couponIssueReq) {
+	@Transactional
+	public CouponIssueRes issueCoupon(CustomUserDetails userDetails, CouponIssueReq couponIssueReq) {
 		CouponDetail couponDetail = getCouponDetail(couponIssueReq);
 		verifyCouponDetail(couponDetail, couponIssueReq);
 
@@ -52,7 +54,9 @@ public class CouponServiceImpl implements CouponService {
 	}
 
 	private Long getIssuedCouponCount(UserInfo userInfo, CouponDetail couponDetail) {
-		return couponRepository.countByCouponDetailIdAndUserInfoId(couponDetail.getId(), userInfo.getId());
+		Coupon coupon = couponRepository.findByUserInfoAndCouponDetail(userInfo, couponDetail)
+			.orElseThrow(() -> new BusinessLogicException(ExceptionCode.COUPON_NOT_FOUND));
+		return coupon.getIssueCount() - coupon.getUseCount();
 	}
 
 	private void verifyCouponDetail(CouponDetail couponDetail, CouponIssueReq couponIssueReq) {
