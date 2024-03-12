@@ -321,10 +321,7 @@ public class OrderMapper {
 			.orderId(order.getOrderId())
 			.storePhone(order.getStore().getPhone())
 			.cart(cartToCartGetRes(order.getCart()))
-			.salePrice(
-				order.getCoupon() != null
-					? order.getCoupon().getCouponDetail().getSalePrice()
-					: 0L)
+			.salePrice(order.getTotalAmount() - order.getAmount())
 			.method(order.getMethod())
 			.build();
 	}
