@@ -53,7 +53,7 @@ jobs:
         if: needs.build.result == 'failure'
         uses: actions/github-script@v6
         with:
-          github-token: ${{ github.token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -73,7 +73,7 @@ jobs:
         if: needs.build.result == 'success'
         uses: actions/github-script@v6
         with:
-          github-token: ${{ github.token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             github.rest.pulls.createReview({
               owner: context.repo.owner,
