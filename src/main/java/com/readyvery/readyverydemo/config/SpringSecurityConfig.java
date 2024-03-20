@@ -1,4 +1,4 @@
-package com.readyvery.readyverydemo.security.config;
+package com.readyvery.readyverydemo.config;
 
 import java.util.Arrays;
 
@@ -11,6 +11,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequestEntityConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -18,10 +22,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.readyvery.readyverydemo.domain.repository.RefreshTokenRepository;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
 import com.readyvery.readyverydemo.security.exception.CustomAuthenticationEntryPoint;
 import com.readyvery.readyverydemo.security.jwt.filter.JwtAuthenticationProcessingFilter;
 import com.readyvery.readyverydemo.security.jwt.service.JwtService;
+import com.readyvery.readyverydemo.security.oauth2.CustomRequestEntityConverter;
 import com.readyvery.readyverydemo.security.oauth2.handler.OAuth2LoginFailureHandler;
 import com.readyvery.readyverydemo.security.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.readyvery.readyverydemo.security.oauth2.service.CustomOAuth2UserService;
@@ -37,6 +43,8 @@ public class SpringSecurityConfig {
 	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 	private final CustomOAuth2UserService customOAuth2UserService;
+	private final RefreshTokenRepository refreshTokenRepository;
+	private final OauthConfig oauthConfig;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -62,14 +70,17 @@ public class SpringSecurityConfig {
 					"/api/v1/order/current",
 					"/api/v1/auth",
 					"/api/v1/event/**"
+
 				).permitAll() // 위를 제외한 나머지는 모두 허용
 				.anyRequest().authenticated() // 해당 요청은 인증이 필요함
 			)
 			// [PART 3]
 			//== 소셜 로그인 설정 ==//
 			.oauth2Login(oauth2 -> oauth2
+				.tokenEndpoint(token -> token.accessTokenResponseClient(accessTokenResponseClient())) // 토큰 엔드포인트 설정
 				.successHandler(oAuth2LoginSuccessHandler) // 동의하고 계속하기를 눌렀을 때 Handler 설정
 				.failureHandler(oAuth2LoginFailureHandler) // 소셜 로그인 실패 시 핸들러 설정
+
 				.userInfoEndpoint(userInfo -> userInfo
 					.userService(customOAuth2UserService)))
 
@@ -121,7 +132,19 @@ public class SpringSecurityConfig {
 	@Bean
 	public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
 		JwtAuthenticationProcessingFilter jwtAuthenticationFilter = new JwtAuthenticationProcessingFilter(jwtService,
-			userRepository);
+			userRepository, refreshTokenRepository);
 		return jwtAuthenticationFilter;
+	}
+
+	@Bean
+	public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
+
+		DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient =
+			new DefaultAuthorizationCodeTokenResponseClient();
+		accessTokenResponseClient.setRequestEntityConverter(
+			new CustomRequestEntityConverter(new OAuth2AuthorizationCodeGrantRequestEntityConverter(),
+				oauthConfig));
+
+		return accessTokenResponseClient;
 	}
 }

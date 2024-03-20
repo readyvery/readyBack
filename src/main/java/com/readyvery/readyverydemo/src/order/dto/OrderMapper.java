@@ -19,6 +19,7 @@ import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
 import com.readyvery.readyverydemo.domain.ImgSize;
 import com.readyvery.readyverydemo.domain.Order;
+import com.readyvery.readyverydemo.domain.Point;
 import com.readyvery.readyverydemo.domain.Receipt;
 import com.readyvery.readyverydemo.src.order.config.TossPaymentConfig;
 
@@ -320,10 +321,7 @@ public class OrderMapper {
 			.orderId(order.getOrderId())
 			.storePhone(order.getStore().getPhone())
 			.cart(cartToCartGetRes(order.getCart()))
-			.salePrice(
-				order.getCoupon() != null
-					? order.getCoupon().getCouponDetail().getSalePrice()
-					: 0L)
+			.salePrice(order.getTotalAmount() - order.getAmount())
 			.method(order.getMethod())
 			.build();
 	}
@@ -340,6 +338,15 @@ public class OrderMapper {
 	public PaySuccess tosspaymentDtoToPaySuccess(String message) {
 		return PaySuccess.builder()
 			.message(message)
+			.build();
+	}
+
+	public Point orderToPoint(Order order) {
+		return Point.builder()
+			.order(order)
+			.userInfo(order.getUserInfo())
+			.point(order.getPoint())
+			.isDeleted(false)
 			.build();
 	}
 }

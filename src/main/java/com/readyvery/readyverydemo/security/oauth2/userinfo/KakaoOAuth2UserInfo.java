@@ -1,6 +1,7 @@
 package com.readyvery.readyverydemo.security.oauth2.userinfo;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class KakaoOAuth2UserInfo extends OAuth2UserInfo {
 
@@ -45,7 +46,10 @@ public class KakaoOAuth2UserInfo extends OAuth2UserInfo {
 			return null;
 		}
 
-		return (String)account.get("email");
+		return Optional.ofNullable((String)account.get("email"))
+			.map(email -> email + "_kakao")
+			.orElse(null); // 여기에서는 null을 반환하지만, 다른 기본값으로 대체할 수도 있습니다.
+
 	}
 
 	@Override

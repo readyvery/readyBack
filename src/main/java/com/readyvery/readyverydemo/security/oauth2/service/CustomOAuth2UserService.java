@@ -1,6 +1,11 @@
 package com.readyvery.readyverydemo.security.oauth2.service;
 
+import static com.readyvery.readyverydemo.config.OauthConfig.*;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,6 +16,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.readyvery.readyverydemo.domain.SocialType;
 import com.readyvery.readyverydemo.domain.UserInfo;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
@@ -27,48 +34,78 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 	private final UserRepository userRepository;
 
-	private static final String KAKAO = "kakao";
-
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-
+		String registrationId = userRequest.getClientRegistration().getRegistrationId();
+		OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
+		SocialType socialType = getSocialType(registrationId);
+		String userNameAttributeName = userRequest.getClientRegistration()
+			.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName(); // OAuth2 로그인 시 키(PK)가 되는값
+		Map<String, Object> attributes;
 		/**
 		 * DefaultOAuth2UserService 객체를 생성하여, loadUser(userRequest)를 통해 DefaultOAuth2User 객체를 생성 후 반환
 		 * DefaultOAuth2UserService의 loadUser()는 소셜 로그인 API의 사용자 정보 제공 URI로 요청을 보내서
 		 * 사용자 정보를 얻은 후, 이를 통해 DefaultOAuth2User 객체를 생성 후 반환한다.
 		 * 결과적으로, OAuth2User는 OAuth 서비스에서 가져온 유저 정보를 담고 있는 유저
 		 */
-		OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
-		OAuth2User oAuth2User = delegate.loadUser(userRequest);
+		if (registrationId.contains(APPLE_NAME)) {
+			// Apple 로그인의 경우 JWT 토큰에서 사용자 정보를 디코드
+			String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
+			attributes = decodeJwtTokenPayload(idToken);
+			attributes.put("id_token", idToken);
 
-		/**
-		 * userRequest에서 registrationId 추출 후 registrationId으로 SocialType 저장
-		 * http://localhost:8080/oauth2/authorization/kakao에서 kakao가 registrationId
-		 * userNameAttributeName은 이후에 nameAttributeKey로 설정된다.
-		 */
-		String registrationId = userRequest.getClientRegistration().getRegistrationId();
-		SocialType socialType = getSocialType(registrationId);
-		String userNameAttributeName = userRequest.getClientRegistration()
-			.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName(); // OAuth2 로그인 시 키(PK)가 되는 값
-		Map<String, Object> attributes = oAuth2User.getAttributes(); // 소셜 로그인에서 API가 제공하는 userInfo의 Json 값(유저 정보들)
+			System.out.println("attributes = " + attributes);
+			System.out.println("userNameAttributeName = " + userNameAttributeName);
 
-		// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
-		OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
+			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
+			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
 
-		UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
+			System.out.println("extractAttributes = " + extractAttributes);
+			UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
+			System.out.println("createdUser = " + createdUser);
+			// CustomOAuth2User 객체 생성
+			return new CustomOAuth2User(
+				Collections.singleton(new SimpleGrantedAuthority(createdUser.getRole().getKey())),
+				attributes,
+				extractAttributes.getNameAttributeKey(),
+				createdUser.getEmail(),
+				createdUser.getRole()
+			);
+		} else {
+			OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-		// DefaultOAuth2User를 구현한 CustomOAuth2User 객체를 생성해서 반환
-		return new CustomOAuth2User(
-			Collections.singleton(new SimpleGrantedAuthority(createdUser.getRole().getKey())),
-			attributes,
-			extractAttributes.getNameAttributeKey(),
-			createdUser.getEmail(),
-			createdUser.getRole()
-		);
+			/**
+			 * userRequest에서 registrationId 추출 후 registrationId으로 SocialType 저장
+			 * http://localhost:8080/oauth2/authorization/kakao에서 kakao가 registrationId
+			 * userNameAttributeName은 이후에 nameAttributeKey로 설정된다.
+			 */
+
+			attributes = oAuth2User.getAttributes(); // 소셜 로그인에서 API가 제공하는 userInfo의 Json 값(유저 정보들)
+
+			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
+			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
+
+			UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
+
+			// DefaultOAuth2User를 구현한 CustomOAuth2User 객체를 생성해서 반환
+			return new CustomOAuth2User(
+				Collections.singleton(new SimpleGrantedAuthority(createdUser.getRole().getKey())),
+				attributes,
+				extractAttributes.getNameAttributeKey(),
+				createdUser.getEmail(),
+				createdUser.getRole()
+			);
+		}
 	}
 
 	private SocialType getSocialType(String registrationId) {
-		return SocialType.KAKAO;
+		if (KAKAO_NAME.equals(registrationId)) {
+			return SocialType.KAKAO;
+		} else if (APPLE_NAME.contains(registrationId)) {
+
+			return SocialType.APPLE;
+		}
+		return SocialType.GOOGLE;
 	}
 
 	/**
@@ -76,6 +113,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	 * 만약 찾은 회원이 있다면, 그대로 반환하고 없다면 saveUser()를 호출하여 회원을 저장한다.
 	 */
 	private UserInfo getUser(OAuthAttributes attributes, SocialType socialType) {
+
 		UserInfo findUser = userRepository.findBySocialTypeAndSocialId(socialType,
 			attributes.getOauth2UserInfo().getId()).orElse(null);
 
@@ -93,7 +131,27 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	 * 생성된 User 객체를 DB에 저장 : socialType, socialId, email, role 값만 있는 상태
 	 */
 	private UserInfo saveUser(OAuthAttributes attributes, SocialType socialType) {
+
 		UserInfo createdUser = attributes.toEntity(socialType, attributes.getOauth2UserInfo());
 		return userRepository.save(createdUser);
+	}
+
+	private Map<String, Object> decodeJwtTokenPayload(String jwtToken) {
+		Map<String, Object> jwtClaims = new HashMap<>();
+		try {
+			String[] parts = jwtToken.split("\\.");
+			Base64.Decoder decoder = Base64.getUrlDecoder();
+
+			byte[] decodedBytes = decoder.decode(parts[1].getBytes(StandardCharsets.UTF_8));
+			String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
+			ObjectMapper mapper = new ObjectMapper();
+
+			Map<String, Object> map = mapper.readValue(decodedString, Map.class);
+			jwtClaims.putAll(map);
+
+		} catch (JsonProcessingException e) {
+			//        logger.error("decodeJwtToken: {}-{} / jwtToken : {}", e.getMessage(), e.getCause(), jwtToken);
+		}
+		return jwtClaims;
 	}
 }

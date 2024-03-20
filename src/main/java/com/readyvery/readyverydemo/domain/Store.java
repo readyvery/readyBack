@@ -3,6 +3,8 @@ package com.readyvery.readyverydemo.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -80,6 +82,11 @@ public class Store extends BaseTimeEntity {
 	@Column
 	@Enumerated(EnumType.STRING)
 	private Grade grade;
+
+	// 삭제 여부
+	@Column
+	@ColumnDefault("false")
+	private boolean isDeleted;
 
 	//가게 사장님 연관관계 매핑
 	@OneToMany(mappedBy = "store")

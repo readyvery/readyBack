@@ -6,4 +6,5 @@ import lombok.Getter;
 public class PaymentReq {
 	private Long couponId;
 	private Long cartId;
+	private Long point;
 }

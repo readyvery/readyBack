@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,9 +21,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Builder
@@ -89,6 +93,11 @@ public class UserInfo extends BaseTimeEntity {
 	@Column
 	private LocalDateTime lastLoginDate;
 
+	//포인트
+	@Column
+	@ColumnDefault("0")
+	private Long point;
+
 	// 유저 장바구니 연관관계 매핑
 	@Builder.Default
 	@OneToMany(mappedBy = "userInfo", cascade = CascadeType.ALL)
@@ -104,11 +113,6 @@ public class UserInfo extends BaseTimeEntity {
 	@Builder.Default
 	private List<Coupon> coupons = new ArrayList<Coupon>();
 
-	// 리프레시토큰 업데이트
-	public void updateRefresh(String updateRefreshToken) {
-		this.refreshToken = updateRefreshToken;
-	}
-
 	public void updateRemoveUserDate() {
 		this.status = true;
 		this.deleteDate = LocalDateTime.now();
@@ -116,5 +120,10 @@ public class UserInfo extends BaseTimeEntity {
 
 	public void updateStatus(boolean status) {
 		this.status = status;
+	}
+
+	public void updatePhone(String phoneNumber) {
+		this.phone = phoneNumber;
+		this.role = Role.USER;
 	}
 }

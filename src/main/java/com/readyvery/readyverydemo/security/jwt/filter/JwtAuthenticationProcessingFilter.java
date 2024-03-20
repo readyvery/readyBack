@@ -11,7 +11,9 @@ import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.readyvery.readyverydemo.domain.RefreshToken;
 import com.readyvery.readyverydemo.domain.UserInfo;
+import com.readyvery.readyverydemo.domain.repository.RefreshTokenRepository;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.security.jwt.service.JwtService;
@@ -31,6 +33,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
 	private final JwtService jwtService;
 	private final UserRepository userRepository;
+	private final RefreshTokenRepository refreshTokenRepository;
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
@@ -46,7 +49,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 		// -> RefreshToken이 없거나 유효하지 않다면(DB에 저장된 RefreshToken과 다르다면) null을 반환
 		// 사용자의 요청 헤더에 RefreshToken이 있는 경우는, AccessToken이 만료되어 요청한 경우밖에 없다.
 		// 따라서, 위의 경우를 제외하면 추출한 refreshToken은 모두 null
-		String refreshToken = jwtService.extractRefreshTokenFromCookies(request)
+		String refreshToken = jwtService.extractRefreshToken(request)
 			.filter(jwtService::isTokenValid)
 			.orElse(null);
 
@@ -75,11 +78,13 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	 *  그 후 JwtService.sendAccessTokenAndRefreshToken()으로 응답 헤더에 보내기
 	 */
 	public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken) {
-		userRepository.findByRefreshToken(refreshToken)
+		refreshTokenRepository.findByRefreshToken(refreshToken)
+			.map(RefreshToken::getId) // RefreshToken 객체에서 ID를 추출합니다.
+			.flatMap(userRepository::findByEmail) // 추출된 ID를 이용하여 user를 조회합니다.
 			.ifPresent(user -> {
 				String reIssuedRefreshToken = reIssueRefreshToken(user);
 				jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getEmail()),
-					reIssuedRefreshToken);
+					reIssuedRefreshToken, user.getRole());
 			});
 	}
 
@@ -90,8 +95,22 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	 */
 	private String reIssueRefreshToken(UserInfo userInfo) {
 		String reIssuedRefreshToken = jwtService.createRefreshToken();
-		userInfo.updateRefresh(reIssuedRefreshToken);
-		userRepository.saveAndFlush(userInfo);
+
+		RefreshToken refreshToken = refreshTokenRepository.findById(userInfo.getEmail())
+			.map(token -> {
+				// 이미 존재하는 토큰이 있으면, 새로 발급받은 리프레시 토큰으로 업데이트
+				token.update(reIssuedRefreshToken);
+				return token;
+			})
+			.orElseGet(() -> {
+				// 새로운 토큰 생성
+				return RefreshToken.builder()
+					.id(userInfo.getEmail())
+					.refreshToken(reIssuedRefreshToken)
+					.build();
+			});
+
+		refreshTokenRepository.save(refreshToken);
 		return reIssuedRefreshToken;
 	}
 
@@ -106,11 +125,11 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 
-		jwtService.extractAccessTokenFromCookies(request)
+		jwtService.extractAccessToken(request)
 			.filter(jwtService::isTokenValid)
 			.ifPresent(accessToken -> jwtService.extractEmail(accessToken)
 				.ifPresent(email -> userRepository.findByEmail(email)
-					.ifPresent(this::saveAuthentication)));
+					.ifPresent(user -> saveAuthentication(user, accessToken))));
 
 		filterChain.doFilter(request, response);
 	}
@@ -130,12 +149,13 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	 * SecurityContextHolder.getContext()로 SecurityContext를 꺼낸 후,
 	 * setAuthentication()을 이용하여 위에서 만든 Authentication 객체에 대한 인증 허가 처리
 	 */
-	public void saveAuthentication(UserInfo myUser) {
+	public void saveAuthentication(UserInfo myUser, String accessToken) {
 
 		CustomUserDetails userDetailsUser = CustomUserDetails.builder()
 			.id(myUser.getId())
 			.email(myUser.getEmail())
 			.password("readyvery")
+			.accessToken(accessToken)
 			.authorities(Collections.singletonList(new SimpleGrantedAuthority(myUser.getRole().toString())))
 			.build();
 

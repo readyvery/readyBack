@@ -5,6 +5,8 @@ import java.util.Map;
 import com.readyvery.readyverydemo.domain.Role;
 import com.readyvery.readyverydemo.domain.SocialType;
 import com.readyvery.readyverydemo.domain.UserInfo;
+import com.readyvery.readyverydemo.security.oauth2.userinfo.AppleOAuth2UserInfo;
+import com.readyvery.readyverydemo.security.oauth2.userinfo.GoogleOAuth2UserInfo;
 import com.readyvery.readyverydemo.security.oauth2.userinfo.KakaoOAuth2UserInfo;
 import com.readyvery.readyverydemo.security.oauth2.userinfo.OAuth2UserInfo;
 
@@ -36,7 +38,14 @@ public class OAuthAttributes {
 	public static OAuthAttributes of(SocialType socialType,
 		String userNameAttributeName, Map<String, Object> attributes) {
 
-		return ofKakao(userNameAttributeName, attributes);
+		if (socialType == SocialType.KAKAO) {
+			return ofKakao(userNameAttributeName, attributes);
+		}
+		if (socialType == SocialType.APPLE) {
+			return ofApple(userNameAttributeName, attributes);
+		}
+
+		return ofGoogle(userNameAttributeName, attributes);
 
 	}
 
@@ -47,6 +56,20 @@ public class OAuthAttributes {
 			.build();
 	}
 
+	public static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+		return OAuthAttributes.builder()
+			.nameAttributeKey(userNameAttributeName)
+			.oauth2UserInfo(new GoogleOAuth2UserInfo(attributes))
+			.build();
+	}
+
+	public static OAuthAttributes ofApple(String userNameAttributeName, Map<String, Object> attributes) {
+		return OAuthAttributes.builder()
+			.nameAttributeKey(userNameAttributeName)
+			.oauth2UserInfo(new AppleOAuth2UserInfo(attributes))
+			.build();
+	}
+
 	/**
 	 * of메소드로 OAuthAttributes 객체가 생성되어, 유저 정보들이 담긴 OAuth2UserInfo가 소셜 타입별로 주입된 상태
 	 * OAuth2UserInfo에서 socialId(식별값), nickname, imageUrl을 가져와서 build
@@ -54,6 +77,7 @@ public class OAuthAttributes {
 	 * role은 USER로 설정
 	 */
 	public UserInfo toEntity(SocialType socialType, OAuth2UserInfo oauth2UserInfo) {
+
 		return UserInfo.builder()
 			.socialType(socialType)
 			.socialId(oauth2UserInfo.getId())
@@ -63,7 +87,7 @@ public class OAuthAttributes {
 			.birth(oauth2UserInfo.getBirth())
 			.nickName(oauth2UserInfo.getNickName())
 			.imageUrl(oauth2UserInfo.getImageUrl())
-			.role(Role.USER)
+			.role(Role.GUEST)
 			.build();
 	}
 }

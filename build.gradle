@@ -42,6 +42,24 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+    // Bouncy Castle Provider
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+
+    // Bouncy Castle PKIX/CMS/EAC/PKCS/OCSP/TSP/OPENSSL
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
+
+    // Apache Commons IO
+    implementation 'commons-io:commons-io:2.11.0'
+
+    //SOLAPI
+    implementation 'net.nurigo:sdk:4.2.7'
+
 //    //Querydsl 추가
 //    implementation 'com.querydsl:querydsl-core:5.0.0'
 //    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'

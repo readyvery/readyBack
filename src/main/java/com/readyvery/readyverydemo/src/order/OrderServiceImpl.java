@@ -29,6 +29,7 @@ import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
 import com.readyvery.readyverydemo.domain.Order;
+import com.readyvery.readyverydemo.domain.Point;
 import com.readyvery.readyverydemo.domain.Progress;
 import com.readyvery.readyverydemo.domain.Receipt;
 import com.readyvery.readyverydemo.domain.Store;
@@ -39,8 +40,8 @@ import com.readyvery.readyverydemo.domain.repository.CartRepository;
 import com.readyvery.readyverydemo.domain.repository.CouponRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieRepository;
-import com.readyvery.readyverydemo.domain.repository.OrderRepository;
 import com.readyvery.readyverydemo.domain.repository.OrdersRepository;
+import com.readyvery.readyverydemo.domain.repository.PointRepository;
 import com.readyvery.readyverydemo.domain.repository.ReceiptRepository;
 import com.readyvery.readyverydemo.domain.repository.StoreRepository;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
@@ -82,12 +83,12 @@ public class OrderServiceImpl implements OrderService {
 	private final FoodieOptionRepository foodieOptionRepository;
 	private final UserRepository userRepository;
 	private final StoreRepository storeRepository;
-	private final OrderRepository orderRepository;
 	private final OrderMapper orderMapper;
 	private final TossPaymentConfig tosspaymentConfig;
 	private final OrdersRepository ordersRepository;
 	private final ReceiptRepository receiptRepository;
 	private final CouponRepository couponRepository;
+	private final PointRepository pointRepository;
 
 	@Override
 	public FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout) {
@@ -221,17 +222,29 @@ public class OrderServiceImpl implements OrderService {
 		Cart cart = getCartId(user, paymentReq.getCartId());
 		Store store = cart.getStore();
 		Coupon coupon = getCoupon(paymentReq.getCouponId());
+		Long point = paymentReq.getPoint() != null ? paymentReq.getPoint() : 0L;
 
 		verifyStoreOpen(store);
 		verifyCoupon(user, coupon);
 		verifyCartSoldOut(cart);
+		verifyPoint(user, point);
+
+		point *= -1; // 포인트 사용은 음수로 처리
+
 		// Long amount = calculateAmount(store, paymentReq.getCarts(), paymentReq.getInout());
 		Long amount = calculateAmount2(cart);
-		Order order = makeOrder(user, store, amount, cart, coupon);
+		Order order = makeOrder(user, store, amount, cart, coupon, point);
 		cartOrder(cart);
-		orderRepository.save(order);
+		ordersRepository.save(order);
 		cartRepository.save(cart);
 		return orderMapper.orderToTosspaymentMakeRes(order);
+	}
+
+	private void verifyPoint(UserInfo user, Long point) {
+		if (user.getPoint() >= point) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.POINT_NOT_ENOUGH);
 	}
 
 	private void verifyCartSoldOut(Cart cart) {
@@ -259,7 +272,7 @@ public class OrderServiceImpl implements OrderService {
 		if (coupon == null) {
 			return;
 		}
-		if (!coupon.isUsed()) {
+		if (coupon.getIssueCount() - coupon.getUseCount() > 0) {
 			return;
 		}
 		if (coupon.getCouponDetail().getExpire().isAfter(LocalDateTime.now())) {
@@ -286,24 +299,42 @@ public class OrderServiceImpl implements OrderService {
 	public PaySuccess tossPaymentSuccess(String paymentKey, String orderId, Long amount) {
 		Order order = getOrder(orderId);
 		verifyOrder(order, amount);
-		TosspaymentDto tosspaymentDto = requestTossPaymentAccept(paymentKey, orderId, amount);
+
+		TosspaymentDto tosspaymentDto;
+		if (amount > 0) {
+			tosspaymentDto = requestTossPaymentAccept(paymentKey, orderId, amount);
+		} else { // 쿠폰 및 포인트 결제로 0원 결제 시
+			tosspaymentDto = makeZeroPaymentDto(paymentKey);
+		}
 
 		applyTosspaymentDto(order, tosspaymentDto);
-		orderRepository.save(order);
+		ordersRepository.save(order);
 		if (!Objects.equals(order.getMessage(), TOSSPAYMENT_SUCCESS_MESSAGE)) {
 			return orderMapper.tosspaymentDtoToPaySuccess(order.getMessage());
 		}
 		//TODO: 영수증 처리
 		Receipt receipt = orderMapper.tosspaymentDtoToReceipt(tosspaymentDto, order);
 		receiptRepository.save(receipt);
+		// 포인트 처리
+		if (order.getPoint() < 0L) {
+			Point point = orderMapper.orderToPoint(order);
+			pointRepository.save(point);
+		}
 		return orderMapper.tosspaymentDtoToPaySuccess(TOSSPAYMENT_SUCCESS_MESSAGE);
+	}
+
+	private TosspaymentDto makeZeroPaymentDto(String paymentKey) {
+		return TosspaymentDto.builder()
+			.paymentKey(paymentKey)
+			.method(MEMBERSHIP_PAYMENT_METHOD)
+			.build();
 	}
 
 	@Override
 	public FailDto tossPaymentFail(String code, String orderId, String message) {
 		Order order = getOrder(orderId);
 		applyOrderFail(order);
-		orderRepository.save(order);
+		ordersRepository.save(order);
 		return orderMapper.makeFailDto(code, message);
 	}
 
@@ -315,6 +346,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
+	@Transactional
 	public CurrentRes getCurrent(String orderId) {
 		Order order = getOrder(orderId);
 		verifyOrderCurrent(order);
@@ -322,6 +354,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
+	@Transactional
 	public Object cancelTossPayment(CustomUserDetails userDetails, TossCancelReq tossCancelReq) {
 		UserInfo user = getUserInfo(userDetails);
 		Order order = getOrder(tossCancelReq.getOrderId());
@@ -331,11 +364,12 @@ public class OrderServiceImpl implements OrderService {
 
 		applyCancelTosspaymentDto(order, tosspaymentDto);
 
-		orderRepository.save(order);
+		ordersRepository.save(order);
 		return orderMapper.tosspaymentDtoToCancelRes();
 	}
 
 	@Override
+	@Transactional
 	public HistoryDetailRes getReceipt(CustomUserDetails userDetails, String orderId) {
 		UserInfo user = getUserInfo(userDetails);
 		Order order = getOrder(orderId);
@@ -387,8 +421,9 @@ public class OrderServiceImpl implements OrderService {
 		order.setPayStatus(false);
 		order.getReceipt().setCancels(tosspaymentDto.getCancels().toString());
 		order.getReceipt().setStatus(tosspaymentDto.getStatus());
+		order.getUserInfo().setPoint(order.getUserInfo().getPoint() - order.getPoint());
 		if (order.getCoupon() != null) {
-			order.getCoupon().setUsed(false);
+			order.getCoupon().setUseCount(order.getCoupon().getUseCount() - 1);
 		}
 
 	}
@@ -464,8 +499,9 @@ public class OrderServiceImpl implements OrderService {
 		order.setPayStatus(true);
 		order.getCart().setIsOrdered(true);
 		order.setMessage(TOSSPAYMENT_SUCCESS_MESSAGE);
+		order.getUserInfo().setPoint(order.getUserInfo().getPoint() + order.getPoint());
 		if (order.getCoupon() != null) {
-			order.getCoupon().setUsed(true);
+			order.getCoupon().setUseCount(order.getCoupon().getUseCount() + 1);
 		}
 	}
 
@@ -525,7 +561,7 @@ public class OrderServiceImpl implements OrderService {
 		return headers;
 	}
 
-	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart, Coupon coupon) {
+	private Order makeOrder(UserInfo user, Store store, Long amount, Cart cart, Coupon coupon, Long point) {
 		List<CartItem> cartItems = cart.getCartItems().stream()
 			.filter(cartItem -> !cartItem.getIsDeleted())
 			.toList();
@@ -541,14 +577,19 @@ public class OrderServiceImpl implements OrderService {
 			orderName += " 외 "
 				+ (cartItems.stream().filter(cartItem -> !cartItem.getIsDeleted()).count() - 1) + "개";
 		}
+
+		Long couponAmount = Math.max(0, amount - (coupon != null ? coupon.getCouponDetail().getSalePrice() : 0));
+		Long pointAmount = Math.max(0, couponAmount + point);
+
 		return Order.builder()
 			.userInfo(user)
 			.store(store)
-			.amount(amount - (coupon != null ? coupon.getCouponDetail().getSalePrice() : 0))
+			.amount(pointAmount)
 			.orderId(UUID.randomUUID().toString())
 			.cart(cart)
 			.coupon(coupon)
 			.paymentKey(null)
+			.point(pointAmount - couponAmount)
 			.orderName(orderName)
 			.totalAmount(amount)
 			.orderNumber(null)
