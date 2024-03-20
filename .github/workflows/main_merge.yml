@@ -42,7 +42,7 @@ jobs:
           host: ${{ secrets.MAIN_HOST }}
           key: ${{ secrets.MAIN_SSH_KEY }}
           source: "build/libs/*.jar"
-          target: "/home/ubuntu/docker/java/test/jar"
+          target: "/home/ready/docker/readyvery/jar"
       - name: SSH and deploy
         uses: appleboy/ssh-action@v1.0.0
         with:
