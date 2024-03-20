@@ -35,22 +35,31 @@ jobs:
       #   with:
       #     name: libs
       #     path: build/libs
-      - name: file upload
-        uses: appleboy/scp-action@v0.0.1
-        with:
-          username: ${{ secrets.MAIN_USERNAME }}
-          host: ${{ secrets.MAIN_HOST }}
-          key: ${{ secrets.MAIN_SSH_KEY }}
-          source: "build/libs/*.jar"
-          target: "/home/ready/docker/readyvery/jar"
+      - name: Upload to Cloudflare
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CF_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          BUCKET_NAME: ${{ secrets.CF_BUCKET_NAME }}
+          ENDPOINT_URL: ${{ secrets.CF_ENDPOINT_URL }}
+        run: |
+          aws s3 sync build/libs/ s3://$BUCKET_NAME/java/main/ready \
+            --endpoint-url $ENDPOINT_URL --delete --exact-timestamps
+
       - name: SSH and deploy
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.MAIN_HOST }}
           username: ${{ secrets.MAIN_USERNAME }}
           key: ${{ secrets.MAIN_SSH_KEY }}
+          port: ${{ secrets.TEST_PORT }}
+          
           timeout: 40s  # 30초 기본
           script: |
+            aws s3 sync s3://readyvery-dev-server/java/main/ready ./docker/readyvery/jar \
+            --endpoint-url https://29c6e4b55b1ddb8d2b6e69df21141caa.r2.cloudflarestorage.com \
+            --delete --exact-timestamps
+
             docker-compose build readyvery
             docker-compose up -d readyvery
       
