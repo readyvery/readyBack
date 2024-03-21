@@ -15,4 +15,5 @@ public class CurrentRes {
 	private String estimatedTime;
 	private String cancels;
 	private Long inout;
+	private Long expectPoint;
 }

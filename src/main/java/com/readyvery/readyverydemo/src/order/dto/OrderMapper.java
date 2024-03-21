@@ -22,6 +22,7 @@ import com.readyvery.readyverydemo.domain.Order;
 import com.readyvery.readyverydemo.domain.Point;
 import com.readyvery.readyverydemo.domain.Receipt;
 import com.readyvery.readyverydemo.src.order.config.TossPaymentConfig;
+import com.readyvery.readyverydemo.src.point.PointPolicy;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderMapper {
 	private final TossPaymentConfig tossPaymentConfig;
+	private final PointPolicy pointPolicy;
 
 	public FoodyDetailRes foodieToFoodyDetailRes(Foodie foodie, Long inout) {
 		Long price = determinePrice(foodie, inout);
@@ -294,6 +296,7 @@ public class OrderMapper {
 	public CurrentRes orderToCurrentRes(Order order) {
 		return CurrentRes.builder()
 			.inout(order.getInOut())
+			.expectPoint(pointPolicy.calculatePoint(order.getAmount()))
 			.cancels(order.getReceipt().getCancels())
 			.name(order.getStore().getName())
 			.orderNum(order.getOrderNumber())
