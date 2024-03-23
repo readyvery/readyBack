@@ -65,16 +65,15 @@ public class SpringSecurityConfig {
 					"/jwt-test",
 					"/oauth2/**",
 					"/login",
-					"/v1/store/**",
-					"/v1/board/**",
-					"/v1/order/current",
-					"/v1/auth",
-					"/v1/event/**"
+					"/api/v1/store/**",
+					"/api/v1/board/**",
+					"/api/v1/order/current",
+					"/api/v1/auth",
+					"/api/v1/event/**"
 
 				).permitAll() // 위를 제외한 나머지는 모두 허용
-				.requestMatchers("/swagger-ui/**", "/v1/api-docs/**", "/v3/api-docs/**",
-					"/swagger-resources/**",
-					"/webjars/**").permitAll()
+				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**"
+				).permitAll()
 				.anyRequest().authenticated() // 해당 요청은 인증이 필요함
 			)
 			// [PART 3]

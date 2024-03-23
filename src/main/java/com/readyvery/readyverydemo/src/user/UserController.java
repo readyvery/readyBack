@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1")
+@RequestMapping("/api/v1")
 public class UserController {
 
 	private final UserService userServiceImpl;
@@ -50,6 +50,10 @@ public class UserController {
 	/**
 	 * 사용자 정보 조회
 	 */
+	@Operation(summary = "사용자 정보 조회 기능", description = "사용자 정보를 조회합니다.", tags = {"유저 정보"})
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "OK")
+	})
 	@GetMapping("/user/info")
 	public UserInfoRes userInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		return userServiceImpl.getUserInfoById(userDetails.getId());
@@ -62,6 +66,10 @@ public class UserController {
 	 * @param userDetails
 	 * @return
 	 */
+	@Operation(summary = "사용자 정보 조회 기능", description = "사용자 정보를 조회합니다.", tags = {"유저 정보"})
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "OK")
+	})
 	@GetMapping("/user/detail/info")
 	public CustomUserDetails userDetail(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		return userDetails;
@@ -70,6 +78,10 @@ public class UserController {
 	/**
 	 * 사용자 로그아웃
 	 */
+	@Operation(summary = "유저 로그아웃 기능", description = "유저를 로그아웃합니다.", tags = {"OAuth2.0"})
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "OK")
+	})
 	@GetMapping("/user/logout")
 	public UserLogoutRes logout(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) {
 
@@ -85,6 +97,10 @@ public class UserController {
 	 *
 	 * @return
 	 */
+	@Operation(summary = "유저 refresh 재갱신 기능", description = "유저의 refresh 재갱신합니다.", tags = {"유저 정보"})
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "OK")
+	})
 	@GetMapping("/refresh/token")
 	public boolean refreshEndpoint() {
 		return true;
@@ -96,6 +112,10 @@ public class UserController {
 	 * @return
 	 * @throws IOException
 	 */
+	@Operation(summary = "회원 탈퇴 기능", description = "회원을 탈퇴합니다.", tags = {"OAuth2.0"})
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "OK"),
+	})
 	@GetMapping("/user/remove")
 	public UserRemoveRes remove(@AuthenticationPrincipal CustomUserDetails userDetails,
 		HttpServletResponse response) throws IOException {

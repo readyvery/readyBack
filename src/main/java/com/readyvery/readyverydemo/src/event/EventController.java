@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/event")
+@RequestMapping("/api/v1/event")
 public class EventController {
 	private final EventService eventService;
 

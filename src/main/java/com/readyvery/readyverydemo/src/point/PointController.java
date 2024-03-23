@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/point")
+@RequestMapping("/api/v1/point")
 public class PointController {
 	private final PointService pointService;
 

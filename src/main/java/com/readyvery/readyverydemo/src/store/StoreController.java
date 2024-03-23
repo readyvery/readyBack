@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/store")
+@RequestMapping("/api/v1/store")
 public class StoreController {
 	private final StoreService storeService;
 
