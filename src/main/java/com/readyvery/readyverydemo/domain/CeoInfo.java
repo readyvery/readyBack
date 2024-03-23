@@ -1,7 +1,10 @@
 package com.readyvery.readyverydemo.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,29 +41,38 @@ public class CeoInfo extends BaseTimeEntity {
 	@Column(nullable = false, length = 45)
 	private String email;
 
+	// 비밀번호
+	@Column(nullable = false, length = 100)
+	private String password;
+
 	// 닉네임
 	@Column(nullable = false)
 	private String nickName;
 
 	// 프로필 이미지
-	@Column(nullable = false, columnDefinition = "TEXT")
+	@Column(nullable = true)
 	private String imageUrl;
 
 	// 전화번호
-	@Column(nullable = false)
+	@Column
 	private String phone;
 
 	// 계좌번호
 	@Column
 	private String accountNumber;
 
+	// 유저 권한
+	@Column(nullable = false, columnDefinition = "VARCHAR(10) default 'USER'")
+	@Enumerated(EnumType.STRING)
+	private Role role;
+
 	// 소셜 로그인 타입
-	@Column(nullable = false)
+	@Column
 	@Enumerated(EnumType.STRING)
 	private SocialType socialType; // KAKAO, NAVER, GOOGLE
 
 	// 소셜 로그인 타입의 식별자 값 (일반 로그인인 경우 null)
-	@Column(nullable = false)
+	@Column
 	private String socialId; // 로그인한 소셜 타입의 식별자 값 (일반 로그인인 경우 null)
 
 	// 유저 상태
@@ -81,6 +94,11 @@ public class CeoInfo extends BaseTimeEntity {
 	// 사장님 가게 연관관계 매핑
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "store_idx")
-	private Store store;
+	private Store store = null;
+
+	// 사장님 입점신청서 연관관계 매핑
+	@Builder.Default
+	@OneToMany(mappedBy = "ceoInfo", cascade = CascadeType.ALL)
+	private List<CeoMetaInfo> ceoMetaInfos = new ArrayList<CeoMetaInfo>();
 
 }
