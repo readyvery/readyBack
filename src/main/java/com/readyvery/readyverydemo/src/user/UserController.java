@@ -13,12 +13,15 @@ import com.readyvery.readyverydemo.src.user.dto.UserInfoRes;
 import com.readyvery.readyverydemo.src.user.dto.UserLogoutRes;
 import com.readyvery.readyverydemo.src.user.dto.UserRemoveRes;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/v1")
 public class UserController {
 
 	private final UserService userServiceImpl;
@@ -35,6 +38,10 @@ public class UserController {
 	 * @param userDetails
 	 * @return
 	 */
+	@Operation(summary = "유저 인증 기능", description = "유저를 인증 합니다.", tags = {"유저 정보"})
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "OK"),
+	})
 	@GetMapping("/auth")
 	public UserAuthRes userAuth(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		return userServiceImpl.getUserAuthByCustomUserDetails(userDetails);

@@ -34,7 +34,7 @@ import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/order")
+@RequestMapping("/v1/order")
 @RequiredArgsConstructor
 public class OrderController {
 	private final OrderService orderService;
