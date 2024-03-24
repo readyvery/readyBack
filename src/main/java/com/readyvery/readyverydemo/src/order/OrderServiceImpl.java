@@ -385,14 +385,25 @@ public class OrderServiceImpl implements OrderService {
 		UserInfo user = userServiceFacade.getUserInfoWithPessimisticLock(userDetails.getId());
 		Order order = getOrder(tossCancelReq.getOrderId());
 		verifyCancel(order, user);
-
-		TosspaymentDto tosspaymentDto = requestTossPaymentCancel(order.getPaymentKey());
+		TosspaymentDto tosspaymentDto = null;
+		if (order.getAmount() > 0L) {
+			tosspaymentDto = requestTossPaymentCancel(order.getPaymentKey());
+		} else {
+			tosspaymentDto = makeZeroPaymentCancelDto();
+		}
 
 		applyCancelTosspaymentDto(order, tosspaymentDto);
 		userServiceFacade.saveUserPoint(user, user.getPoint() - order.getPoint());
 
 		ordersRepository.save(order);
 		return orderMapper.tosspaymentDtoToCancelRes();
+	}
+
+	private TosspaymentDto makeZeroPaymentCancelDto() {
+		return TosspaymentDto.builder()
+			.cancels(",=단순 변심")
+			.status("CANCELED")
+			.build();
 	}
 
 	@Override
