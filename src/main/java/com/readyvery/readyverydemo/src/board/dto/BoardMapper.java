@@ -20,7 +20,7 @@ public class BoardMapper {
 			throw new BusinessLogicException(ExceptionCode.STORE_NOT_FOUND);
 		}
 		return BoardRes.builder()
-			.stores(stores.stream().map(this::toStoreDto).toList())
+			.stores(stores.stream().filter(store -> !store.isDeleted()).map(this::toStoreDto).toList())
 			.build();
 	}
 
