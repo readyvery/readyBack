@@ -67,6 +67,7 @@ import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
 import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentDto;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
+import com.readyvery.readyverydemo.src.point.PointServiceFacade;
 import com.readyvery.readyverydemo.src.user.UserServiceFacade;
 
 import jakarta.transaction.Transactional;
@@ -91,6 +92,7 @@ public class OrderServiceImpl implements OrderService {
 	private final ReceiptRepository receiptRepository;
 	private final CouponRepository couponRepository;
 	private final PointRepository pointRepository;
+	private final PointServiceFacade pointServiceFacade;
 
 	@Override
 	public FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout) {
@@ -384,6 +386,8 @@ public class OrderServiceImpl implements OrderService {
 	public Object cancelTossPayment(CustomUserDetails userDetails, TossCancelReq tossCancelReq) {
 		UserInfo user = userServiceFacade.getUserInfoWithPessimisticLock(userDetails.getId());
 		Order order = getOrder(tossCancelReq.getOrderId());
+		Point point = pointServiceFacade.getPointByOrder(order);
+
 		verifyCancel(order, user);
 		TosspaymentDto tosspaymentDto = null;
 		if (order.getAmount() > 0L) {
@@ -394,6 +398,7 @@ public class OrderServiceImpl implements OrderService {
 
 		applyCancelTosspaymentDto(order, tosspaymentDto);
 		userServiceFacade.saveUserPoint(user, user.getPoint() - order.getPoint());
+		pointServiceFacade.cancelPoint(point);
 
 		ordersRepository.save(order);
 		return orderMapper.tosspaymentDtoToCancelRes();
