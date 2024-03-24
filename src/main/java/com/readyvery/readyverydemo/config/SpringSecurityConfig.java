@@ -72,6 +72,8 @@ public class SpringSecurityConfig {
 					"/api/v1/event/**"
 
 				).permitAll() // 위를 제외한 나머지는 모두 허용
+				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**"
+				).permitAll()
 				.anyRequest().authenticated() // 해당 요청은 인증이 필요함
 			)
 			// [PART 3]
