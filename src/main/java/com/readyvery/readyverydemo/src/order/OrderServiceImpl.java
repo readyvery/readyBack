@@ -536,7 +536,6 @@ public class OrderServiceImpl implements OrderService {
 		order.setPayStatus(true);
 		order.getCart().setIsOrdered(true);
 		order.setMessage(TOSSPAYMENT_SUCCESS_MESSAGE);
-		order.getUserInfo().setPoint(order.getUserInfo().getPoint() + order.getPoint());
 		if (order.getCoupon() != null) {
 			order.getCoupon().setUseCount(order.getCoupon().getUseCount() + 1);
 		}
