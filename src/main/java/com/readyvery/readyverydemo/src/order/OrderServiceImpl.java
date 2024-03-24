@@ -248,7 +248,10 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void verifyCartSoldOut(Cart cart) {
-		if (cart.getCartItems().stream().anyMatch(cartItem -> cartItem.getFoodie().isSoldOut())) {
+		if (cart.getCartItems()
+			.stream()
+			.filter(cartItem -> !cartItem.getIsDeleted())
+			.anyMatch(cartItem -> cartItem.getFoodie().isSoldOut())) {
 			log.error("verifyCartSoldOut CART_SOLD_OUT");
 			log.error("userId = " + cart.getUserInfo().getId());
 			for (CartItem cartItem : cart.getCartItems()) {
