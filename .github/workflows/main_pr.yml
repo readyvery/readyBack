@@ -1,4 +1,4 @@
-ame: Main Server Pull-request
+name: Main Server Pull-request
 
 on:
   pull_request:
