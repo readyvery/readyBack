@@ -20,7 +20,7 @@ public class TokenSendManager {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setHttpOnly(httpOnly);
 		cookie.setPath(path);
-		cookie.setDomain(jwtConfig.getCookieDomain());
+		//cookie.setDomain(jwtConfig.getCookieDomain());
 		cookie.setMaxAge(maxAge);
 		response.addCookie(cookie);
 
