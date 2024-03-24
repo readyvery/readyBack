@@ -237,6 +237,7 @@ public class OrderMapper {
 				orders
 					.stream()
 					.filter(order -> order.getProgress() == PICKUP
+						|| order.getProgress() == COMPLETE
 						|| order.getProgress() == FAIL
 						|| order.getProgress() == CANCEL)
 					.map(this::orderToReceiptHistoryDto)
@@ -265,8 +266,7 @@ public class OrderMapper {
 				orders
 					.stream()
 					.filter(order -> order.getProgress() == ORDER
-						|| order.getProgress() == MAKE
-						|| order.getProgress() == COMPLETE)
+						|| order.getProgress() == MAKE)
 					.map(this::orderToReceiptHistoryDto)
 					.toList())
 			.build();
