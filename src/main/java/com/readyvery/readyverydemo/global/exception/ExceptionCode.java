@@ -35,7 +35,8 @@ public enum ExceptionCode {
 	POINT_NOT_ENOUGH(400, "Point is not enough."),
 	INVALID_INPUT(400, "Invalid input."),
 	UNAUTHORIZED(400, "Already User"),
-	AUTH_ERROR(403, "Auth Error");
+	AUTH_ERROR(403, "Auth Error"),
+	POINT_NOT_FOUND(403, "Point not found");
 
 	private int status;
 	private String message;
