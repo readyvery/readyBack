@@ -382,13 +382,14 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	@Transactional
 	public Object cancelTossPayment(CustomUserDetails userDetails, TossCancelReq tossCancelReq) {
-		UserInfo user = getUserInfo(userDetails);
+		UserInfo user = userServiceFacade.getUserInfoWithPessimisticLock(userDetails.getId());
 		Order order = getOrder(tossCancelReq.getOrderId());
 		verifyCancel(order, user);
 
 		TosspaymentDto tosspaymentDto = requestTossPaymentCancel(order.getPaymentKey());
 
 		applyCancelTosspaymentDto(order, tosspaymentDto);
+		userServiceFacade.saveUserPoint(user, user.getPoint() - order.getPoint());
 
 		ordersRepository.save(order);
 		return orderMapper.tosspaymentDtoToCancelRes();
@@ -447,7 +448,6 @@ public class OrderServiceImpl implements OrderService {
 		order.setPayStatus(false);
 		order.getReceipt().setCancels(tosspaymentDto.getCancels().toString());
 		order.getReceipt().setStatus(tosspaymentDto.getStatus());
-		order.getUserInfo().setPoint(order.getUserInfo().getPoint() - order.getPoint());
 		if (order.getCoupon() != null) {
 			order.getCoupon().setUseCount(order.getCoupon().getUseCount() - 1);
 		}
