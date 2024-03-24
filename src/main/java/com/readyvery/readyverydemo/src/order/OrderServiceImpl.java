@@ -67,6 +67,7 @@ import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
 import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentDto;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
+import com.readyvery.readyverydemo.src.user.UserServiceFacade;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -82,6 +83,7 @@ public class OrderServiceImpl implements OrderService {
 	private final FoodieRepository foodieRepository;
 	private final FoodieOptionRepository foodieOptionRepository;
 	private final UserRepository userRepository;
+	private final UserServiceFacade userServiceFacade;
 	private final StoreRepository storeRepository;
 	private final OrderMapper orderMapper;
 	private final TossPaymentConfig tosspaymentConfig;
@@ -307,7 +309,9 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	public PaySuccess tossPaymentSuccess(String paymentKey, String orderId, Long amount) {
 		Order order = getOrder(orderId);
+		UserInfo user = userServiceFacade.getUserInfoWithPessimisticLock(order.getUserInfo().getId());
 		verifyOrder(order, amount);
+		verifyUsePoint(order, user);
 
 		TosspaymentDto tosspaymentDto;
 		if (amount > 0) {
@@ -328,8 +332,21 @@ public class OrderServiceImpl implements OrderService {
 		if (order.getPoint() < 0L) {
 			Point point = orderMapper.orderToPoint(order);
 			pointRepository.save(point);
+			userServiceFacade.saveUserPoint(user, user.getPoint() + order.getPoint());
 		}
 		return orderMapper.tosspaymentDtoToPaySuccess(TOSSPAYMENT_SUCCESS_MESSAGE);
+	}
+
+	private void verifyUsePoint(Order order, UserInfo user) {
+		// 포인트 사용 X
+		if (order.getPoint() >= 0L) {
+			return;
+		}
+		// 유저 포인트 충분
+		if (user.getPoint() + order.getPoint() >= 0L) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.POINT_NOT_ENOUGH);
 	}
 
 	private TosspaymentDto makeZeroPaymentDto(String paymentKey) {
