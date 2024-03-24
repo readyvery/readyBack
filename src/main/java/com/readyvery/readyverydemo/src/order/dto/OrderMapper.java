@@ -236,6 +236,7 @@ public class OrderMapper {
 			.receipts(
 				orders
 					.stream()
+					.filter(order -> !order.getStore().isDeleted())
 					.filter(order -> order.getProgress() == PICKUP
 						|| order.getProgress() == COMPLETE
 						|| order.getProgress() == FAIL
@@ -250,6 +251,7 @@ public class OrderMapper {
 			.receipts(
 				orders
 					.stream()
+					.filter(order -> !order.getStore().isDeleted())
 					.filter(order -> order.getCart().getCreatedAt()
 						// 데이터 변경 시점 이후의 데이터만 가져옴
 						.isAfter(LocalDateTime.of(2023, 12, 6, 0, 0, 0)))
@@ -265,6 +267,7 @@ public class OrderMapper {
 			.receipts(
 				orders
 					.stream()
+					.filter(order -> !order.getStore().isDeleted())
 					.filter(order -> order.getProgress() == ORDER
 						|| order.getProgress() == MAKE)
 					.map(this::orderToReceiptHistoryDto)
