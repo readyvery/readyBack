@@ -67,6 +67,8 @@ import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
 import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentDto;
 import com.readyvery.readyverydemo.src.order.dto.TosspaymentMakeRes;
+import com.readyvery.readyverydemo.src.point.PointServiceFacade;
+import com.readyvery.readyverydemo.src.user.UserServiceFacade;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -82,6 +84,7 @@ public class OrderServiceImpl implements OrderService {
 	private final FoodieRepository foodieRepository;
 	private final FoodieOptionRepository foodieOptionRepository;
 	private final UserRepository userRepository;
+	private final UserServiceFacade userServiceFacade;
 	private final StoreRepository storeRepository;
 	private final OrderMapper orderMapper;
 	private final TossPaymentConfig tosspaymentConfig;
@@ -89,6 +92,7 @@ public class OrderServiceImpl implements OrderService {
 	private final ReceiptRepository receiptRepository;
 	private final CouponRepository couponRepository;
 	private final PointRepository pointRepository;
+	private final PointServiceFacade pointServiceFacade;
 
 	@Override
 	public FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout) {
@@ -307,7 +311,9 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	public PaySuccess tossPaymentSuccess(String paymentKey, String orderId, Long amount) {
 		Order order = getOrder(orderId);
+		UserInfo user = userServiceFacade.getUserInfoWithPessimisticLock(order.getUserInfo().getId());
 		verifyOrder(order, amount);
+		verifyUsePoint(order, user);
 
 		TosspaymentDto tosspaymentDto;
 		if (amount > 0) {
@@ -328,8 +334,21 @@ public class OrderServiceImpl implements OrderService {
 		if (order.getPoint() < 0L) {
 			Point point = orderMapper.orderToPoint(order);
 			pointRepository.save(point);
+			userServiceFacade.saveUserPoint(user, user.getPoint() + order.getPoint());
 		}
 		return orderMapper.tosspaymentDtoToPaySuccess(TOSSPAYMENT_SUCCESS_MESSAGE);
+	}
+
+	private void verifyUsePoint(Order order, UserInfo user) {
+		// 포인트 사용 X
+		if (order.getPoint() >= 0L) {
+			return;
+		}
+		// 유저 포인트 충분
+		if (user.getPoint() + order.getPoint() >= 0L) {
+			return;
+		}
+		throw new BusinessLogicException(ExceptionCode.POINT_NOT_ENOUGH);
 	}
 
 	private TosspaymentDto makeZeroPaymentDto(String paymentKey) {
@@ -365,16 +384,31 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	@Transactional
 	public Object cancelTossPayment(CustomUserDetails userDetails, TossCancelReq tossCancelReq) {
-		UserInfo user = getUserInfo(userDetails);
+		UserInfo user = userServiceFacade.getUserInfoWithPessimisticLock(userDetails.getId());
 		Order order = getOrder(tossCancelReq.getOrderId());
-		verifyCancel(order, user);
+		Point point = pointServiceFacade.getPointByOrder(order);
 
-		TosspaymentDto tosspaymentDto = requestTossPaymentCancel(order.getPaymentKey());
+		verifyCancel(order, user);
+		TosspaymentDto tosspaymentDto = null;
+		if (order.getAmount() > 0L) {
+			tosspaymentDto = requestTossPaymentCancel(order.getPaymentKey());
+		} else {
+			tosspaymentDto = makeZeroPaymentCancelDto();
+		}
 
 		applyCancelTosspaymentDto(order, tosspaymentDto);
+		userServiceFacade.saveUserPoint(user, user.getPoint() - order.getPoint());
+		pointServiceFacade.cancelPoint(point);
 
 		ordersRepository.save(order);
 		return orderMapper.tosspaymentDtoToCancelRes();
+	}
+
+	private TosspaymentDto makeZeroPaymentCancelDto() {
+		return TosspaymentDto.builder()
+			.cancels(",=단순 변심")
+			.status("CANCELED")
+			.build();
 	}
 
 	@Override
@@ -430,7 +464,6 @@ public class OrderServiceImpl implements OrderService {
 		order.setPayStatus(false);
 		order.getReceipt().setCancels(tosspaymentDto.getCancels().toString());
 		order.getReceipt().setStatus(tosspaymentDto.getStatus());
-		order.getUserInfo().setPoint(order.getUserInfo().getPoint() - order.getPoint());
 		if (order.getCoupon() != null) {
 			order.getCoupon().setUseCount(order.getCoupon().getUseCount() - 1);
 		}
@@ -508,7 +541,6 @@ public class OrderServiceImpl implements OrderService {
 		order.setPayStatus(true);
 		order.getCart().setIsOrdered(true);
 		order.setMessage(TOSSPAYMENT_SUCCESS_MESSAGE);
-		order.getUserInfo().setPoint(order.getUserInfo().getPoint() + order.getPoint());
 		if (order.getCoupon() != null) {
 			order.getCoupon().setUseCount(order.getCoupon().getUseCount() + 1);
 		}

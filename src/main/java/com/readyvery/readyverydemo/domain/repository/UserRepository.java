@@ -3,11 +3,17 @@ package com.readyvery.readyverydemo.domain.repository;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 
 import com.readyvery.readyverydemo.domain.SocialType;
 import com.readyvery.readyverydemo.domain.UserInfo;
 
+import jakarta.persistence.LockModeType;
+
 public interface UserRepository extends JpaRepository<UserInfo, Long> {
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	Optional<UserInfo> findUserInfoById(Long id);
+
 	Optional<UserInfo> findByEmail(String email);
 
 	Optional<UserInfo> findByRefreshToken(String refreshToken);

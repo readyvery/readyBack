@@ -21,6 +21,12 @@ public class UserServiceFacade {
 		);
 	}
 
+	public UserInfo getUserInfoWithPessimisticLock(Long id) {
+		return userRepository.findUserInfoById(id).orElseThrow(
+			() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND)
+		);
+	}
+
 	public UserInfo getUserInfoByEmail(String email) {
 		return userRepository.findByEmail(email).orElseThrow(
 			() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND)
@@ -31,5 +37,10 @@ public class UserServiceFacade {
 
 		userInfo.updatePhone(phoneNumber);
 		userRepository.save(userInfo);
+	}
+
+	public void saveUserPoint(UserInfo user, long point) {
+		user.setPoint(point);
+		userRepository.save(user);
 	}
 }
