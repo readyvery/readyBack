@@ -36,7 +36,8 @@ public enum ExceptionCode {
 	INVALID_INPUT(400, "Invalid input."),
 	UNAUTHORIZED(400, "Already User"),
 	AUTH_ERROR(403, "Auth Error"),
-	POINT_NOT_FOUND(403, "Point not found");
+	POINT_NOT_FOUND(403, "Point not found"),
+	ORDER_NUMBER_NOT_FOUND(403, "Order number not found");
 
 	private int status;
 	private String message;
