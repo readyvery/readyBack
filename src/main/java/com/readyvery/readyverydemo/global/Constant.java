@@ -10,4 +10,5 @@ public class Constant {
 	public static final Integer MAX_FASTORDER_SIZE = 5;
 	public static final String TOSSPAYMENT_SUCCESS_MESSAGE = "결제 성공";
 	public static final String MEMBERSHIP_PAYMENT_METHOD = "membership";
+	public static final String TOSS_RESPONSE_FAIL_CANCELED = "ALREADY_CANCELED_PAYMENT";
 }
