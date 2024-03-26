@@ -21,4 +21,8 @@ public class OrderNumberSequence {
 	@MapsId
 	@JoinColumn(name = "id") // Order 테이블과 조인하는 컬럼 지정
 	private Store store;
+
+	public void increaseOrderNumber() {
+		this.orderNumber++;
+	}
 }

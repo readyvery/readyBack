@@ -30,6 +30,7 @@ import com.readyvery.readyverydemo.domain.Foodie;
 import com.readyvery.readyverydemo.domain.FoodieOption;
 import com.readyvery.readyverydemo.domain.FoodieOptionCategory;
 import com.readyvery.readyverydemo.domain.Order;
+import com.readyvery.readyverydemo.domain.OrderNumberSequence;
 import com.readyvery.readyverydemo.domain.Point;
 import com.readyvery.readyverydemo.domain.Progress;
 import com.readyvery.readyverydemo.domain.Receipt;
@@ -41,6 +42,7 @@ import com.readyvery.readyverydemo.domain.repository.CartRepository;
 import com.readyvery.readyverydemo.domain.repository.CouponRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieOptionRepository;
 import com.readyvery.readyverydemo.domain.repository.FoodieRepository;
+import com.readyvery.readyverydemo.domain.repository.OrderNumberSequenceRepository;
 import com.readyvery.readyverydemo.domain.repository.OrdersRepository;
 import com.readyvery.readyverydemo.domain.repository.PointRepository;
 import com.readyvery.readyverydemo.domain.repository.ReceiptRepository;
@@ -94,6 +96,7 @@ public class OrderServiceImpl implements OrderService {
 	private final CouponRepository couponRepository;
 	private final PointRepository pointRepository;
 	private final PointServiceFacade pointServiceFacade;
+	private final OrderNumberSequenceRepository orderNumberSequenceRepository;
 
 	@Override
 	public FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout) {
@@ -566,14 +569,12 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
-	private synchronized String getOrderNumber(Order order) {
-		long todayOrder = ordersRepository.countByCreatedAtBetweenAndProgressNotAndStore(
-			order.getCreatedAt().toLocalDate().atStartOfDay(),
-			order.getCreatedAt().toLocalDate().atTime(23, 59, 59),
-			Progress.REQUEST,
-			order.getStore()
-		) + 1;
-		return Long.toString(todayOrder);
+	private String getOrderNumber(Order order) {
+		OrderNumberSequence sequence = orderNumberSequenceRepository.findOrderNumberByStoreId(order.getStore().getId())
+			.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ORDER_NUMBER_NOT_FOUND));
+		sequence.increaseOrderNumber();
+		orderNumberSequenceRepository.save(sequence);
+		return Long.toString(sequence.getOrderNumber());
 	}
 
 	private void verifyOrder(Order order, Long amount) {
