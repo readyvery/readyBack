@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -484,6 +485,22 @@ public class OrderServiceImpl implements OrderService {
 			return restTemplate.postForObject(TossPaymentConfig.PAYMENT_URL + paymentKey + "/cancel",
 				new HttpEntity<>(params, headers),
 				TosspaymentDto.class);
+		} catch (HttpClientErrorException e) {
+			/*
+			 * 취소 실패 시, 이미 취소된 거래라면 결제 정보 조회
+			 * 취소된 정보 재적용
+			 */
+			if (e.getResponseBodyAs(FailDto.class).getCode()
+				.equals(TOSS_RESPONSE_FAIL_CANCELED)) {
+				return restTemplate.exchange(
+						TossPaymentConfig.PAYMENT_URL + paymentKey,
+						HttpMethod.GET,
+						new HttpEntity<>(headers),
+						TosspaymentDto.class)
+					.getBody();
+			}
+			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_SUCCESS_FAIL);
+
 		} catch (Exception e) {
 			log.error("e.getMessage() = " + e.getMessage());
 			throw new BusinessLogicException(ExceptionCode.TOSS_PAYMENT_SUCCESS_FAIL);
