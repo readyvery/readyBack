@@ -225,6 +225,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
+	@Transactional
 	public TosspaymentMakeRes requestTossPayment(CustomUserDetails userDetails, PaymentReq paymentReq) {
 		UserInfo user = getUserInfo(userDetails);
 		Cart cart = getCartId(user, paymentReq.getCartId());
