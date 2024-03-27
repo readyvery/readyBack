@@ -364,6 +364,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
+	@Transactional
 	public FailDto tossPaymentFail(String code, String orderId, String message) {
 		Order order = getOrder(orderId);
 		applyOrderFail(order);
