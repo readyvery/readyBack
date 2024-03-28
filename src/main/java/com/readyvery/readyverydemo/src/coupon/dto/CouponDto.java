@@ -13,5 +13,6 @@ public class CouponDto {
 	private String publisher;
 	private String description;
 	private Long salePrice;
+	private Long leftCoupon;
 	private LocalDateTime expirationDate;
 }

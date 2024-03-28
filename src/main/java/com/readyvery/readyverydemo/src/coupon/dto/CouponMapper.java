@@ -27,6 +27,7 @@ public class CouponMapper {
 			.couponName(coupon.getCouponDetail().getName())
 			.description(coupon.getCouponDetail().getDescription())
 			.expirationDate(coupon.getCouponDetail().getExpire())
+			.leftCoupon(coupon.getIssueCount() - coupon.getUseCount())
 			.publisher(coupon.getCouponDetail().getStore() == null
 				? "레디베리" : coupon.getCouponDetail().getStore().getName())
 			.salePrice(coupon.getCouponDetail().getSalePrice())
