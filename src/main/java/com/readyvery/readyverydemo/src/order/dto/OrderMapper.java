@@ -291,7 +291,7 @@ public class OrderMapper {
 				.findFirst()
 				.orElse(null))
 			.orderName(order.getOrderName())
-			.amount(order.getAmount())
+			.amount(order.getTotalAmount())
 			.orderId(order.getOrderId())
 			.build();
 	}
