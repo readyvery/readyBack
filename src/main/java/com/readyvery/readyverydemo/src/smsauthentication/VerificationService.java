@@ -1,6 +1,5 @@
 package com.readyvery.readyverydemo.src.smsauthentication;
 
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,7 +14,10 @@ public class VerificationService {
 	private final RedisTemplate<String, String> redisTemplate;
 
 	public String createVerificationCode(String phoneNumber, boolean someBooleanValue) {
-		String code = UUID.randomUUID().toString().substring(0, 6);
+		//String code = UUID.randomUUID().toString().substring(0, 6);
+		int sixDigitNumber = (int)(Math.random() * 900000) + 100000; // 100000 ~ 999999 사이의 숫자
+		String code = Integer.toString(sixDigitNumber); // 숫자를 문자열로 변환
+
 		redisTemplate.opsForValue().set(phoneNumber + ":code", code, 3, TimeUnit.MINUTES);
 		redisTemplate.opsForValue().set(phoneNumber + ":flag", String.valueOf(someBooleanValue), 3, TimeUnit.MINUTES);
 		return code;
