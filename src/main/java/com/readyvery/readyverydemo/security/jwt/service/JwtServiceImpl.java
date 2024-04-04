@@ -101,7 +101,7 @@ public class JwtServiceImpl implements JwtService {
 	public Optional<String> extractEmail(String accessToken) {
 		try {
 			// 토큰 유효성 검사하는 데에 사용할 알고리즘이 있는 JWT verifier builder 반환
-			log.info("액세스 토큰 유효성 검사");
+
 			return jwtTokenizer.verifyAccessToken(accessToken);
 		} catch (Exception e) {
 			log.error("액세스 토큰이 유효하지 않습니다.");
