@@ -1,5 +1,6 @@
 package com.readyvery.readyverydemo.src.coupon.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ public class CouponMapper {
 			//filter로 isUsed가 false인 쿠폰만 가져옴
 			.coupons(coupons.stream()
 				.filter(coupon -> coupon.getIssueCount() - coupon.getUseCount() > 0)
+				.filter(coupon -> coupon.getCouponDetail().getExpire().isAfter(LocalDateTime.now()))
 				.map(this::toCouponDto)
 				.toList())
 			.build();
@@ -27,7 +29,6 @@ public class CouponMapper {
 			.couponName(coupon.getCouponDetail().getName())
 			.description(coupon.getCouponDetail().getDescription())
 			.expirationDate(coupon.getCouponDetail().getExpire())
-			.leftCoupon(coupon.getIssueCount() - coupon.getUseCount())
 			.publisher(coupon.getCouponDetail().getStore() == null
 				? "레디베리" : coupon.getCouponDetail().getStore().getName())
 			.salePrice(coupon.getCouponDetail().getSalePrice())
