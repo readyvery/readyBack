@@ -12,8 +12,10 @@ public enum Progress {
 	MAKE("MAKE", "음식 제조 중"),
 	COMPLETE("COMPLETE", "제조 완료"),
 	PICKUP("PICKUP", "픽업 완료"),
-	FAIL("FAIL", "주문 실패");
+	FAIL("FAIL", "주문 실패"),
+	INTEGRATION("INTEGRATION", "통합 주문");
 
 	private final String key;
 	private final String value;
 }
+
