@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
 				responseCode == 200 ? connectReq.getInputStream() : connectReq.getErrorStream()))) {
 				String inputLine;
 				StringBuilder response = new StringBuilder();
-				log.info("responseCode: {}", responseCode);
+
 				while ((inputLine = br.readLine()) != null) {
 					response.append(inputLine);
 				}
