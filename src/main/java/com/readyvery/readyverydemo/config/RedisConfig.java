@@ -21,9 +21,7 @@ public class RedisConfig {
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {
 
-		LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(host, port);
-		log.info("RedisConfig.redisConnectionFactory() called" + lettuceConnectionFactory);
-		return lettuceConnectionFactory;
+		return new LettuceConnectionFactory(host, port);
 	}
 
 }
