@@ -65,6 +65,7 @@ public class OrderMapper {
 			.options(
 				category.getFoodieOptions()
 					.stream()
+					.filter(options -> !options.getIsDelete())
 					.map(this::foodyOptionToOptionDto)
 					.toList())
 			.build();
