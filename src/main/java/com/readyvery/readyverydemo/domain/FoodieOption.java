@@ -41,6 +41,10 @@ public class FoodieOption extends BaseTimeEntity {
 	@Column(nullable = false)
 	private Long price;
 
+	//식품 옵션 삭제 여부
+	@Column(nullable = false)
+	private Boolean isDelete;
+
 	//식품 옵션 연관관계 매핑
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "foodie_option_category_idx")
