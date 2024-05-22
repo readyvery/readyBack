@@ -115,7 +115,7 @@ public class JwtServiceImpl implements JwtService {
 			JWT.require(jwtConfig.getAlgorithm()).build().verify(token);
 			return true;
 		} catch (Exception e) {
-
+			log.error("유효하지 않은 토큰입니다. {}", e.getMessage());
 			return false;
 		}
 	}
