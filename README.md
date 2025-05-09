@@ -23,9 +23,9 @@
 ## 예시
 <div align=center>
 	
-<유저>
-
+<유저 ver.1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <유저 ver.2> <br/>
 ![ready](https://github.com/readyvery/readyBack/assets/50243183/80bfa4f3-2cff-4456-94d9-d97f00673143)
+<img src="https://github.com/user-attachments/assets/cdffcb82-8a76-4bea-a985-2541566c9aeb" alt="readyvery" style="width:50%; height:auto;" />
 
 
 <점주>
