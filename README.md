@@ -78,6 +78,8 @@ Start
 java -jar soft-0.0.1-SNAPSHOT.jar
 ```
 
+## 사용 방법
+- [시연 영상](https://www.youtube.com/watch?v=Z2nVQB3tUyw&ab_channel=%EC%9E%84%EB%9D%BC%EB%8F%88)
 
 ## Author
 
