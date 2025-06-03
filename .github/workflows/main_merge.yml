@@ -59,7 +59,7 @@ jobs:
           timeout: 40s  # 30초 기본
           script: |
             docker image pull ghcr.io/readyvery/ready-back:latest
-
-            docker-compose build --no-cache readyvery
+            cd docker
+            docker-compose rm -f readyvery
             docker-compose up -d readyvery
       
