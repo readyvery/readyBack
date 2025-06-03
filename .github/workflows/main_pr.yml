@@ -8,14 +8,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check branch
-        run: |
-          echo "Head branch is: ${{ github.head_ref }}"
-          echo "Base branch is: ${{ github.base_ref }}"
-          if [[ "${{ github.head_ref }}" != "test" ]]; then
-            echo "test 브랜치가 아님"
-            exit 1
-          fi
       - name: Checkout source code.   # Repo checkout
         uses: actions/checkout@v3
 
