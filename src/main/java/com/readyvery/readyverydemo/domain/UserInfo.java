@@ -29,7 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Builder
-@Table(name = "USER")
+@Table(name = "USER", indexes = {
+    @Index(name = "idx_email", columnList = "email"),
+    @Index(name = "idx_refresh_token", columnList = "refresh_token"),
+    @Index(name = "idx_social_type_id", columnList = "social_type, social_id")
+  })
 @AllArgsConstructor
 @Slf4j
 public class UserInfo extends BaseTimeEntity {
