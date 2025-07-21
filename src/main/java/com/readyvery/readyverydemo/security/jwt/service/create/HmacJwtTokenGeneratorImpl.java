@@ -5,6 +5,7 @@ import static com.readyvery.readyverydemo.config.JwtConfig.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
@@ -40,6 +41,7 @@ public class HmacJwtTokenGeneratorImpl implements JwtTokenGenerator {
 		return JWT.create()
 			.withSubject(REFRESH_TOKEN_SUBJECT)
 			.withExpiresAt(Date.from(expirationTime))
+			.withJWTId(UUID.randomUUID().toString()) // 고유값 추가로 중복 방지
 			.sign(jwtConfig.getAlgorithm());
 	}
 }
