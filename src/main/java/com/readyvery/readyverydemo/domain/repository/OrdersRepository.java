@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 import com.readyvery.readyverydemo.domain.Order;
 import com.readyvery.readyverydemo.domain.Progress;
@@ -19,6 +20,9 @@ public interface OrdersRepository extends JpaRepository<Order, Long> {
 	Optional<Order> findByOrderId(String orderId);
 
 	Optional<List<Order>> findAllByUserInfo(UserInfo userInfo);
+
+	@EntityGraph(attributePaths = {"store", "cart", "userInfo", "receipt"})
+	Optional<List<Order>> findAllWithAssociationsByUserInfo(UserInfo userInfo);
 
 	Long countByCreatedAtBetweenAndProgressNotAndStore(LocalDateTime localDateTime, LocalDateTime localDateTime1,
 		Progress progress, Store store);

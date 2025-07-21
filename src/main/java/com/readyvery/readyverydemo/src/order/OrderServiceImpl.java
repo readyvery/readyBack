@@ -555,7 +555,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private List<Order> getOrders(UserInfo user) {
-		return ordersRepository.findAllByUserInfo(user).orElseThrow(
+		return ordersRepository.findAllWithAssociationsByUserInfo(user).orElseThrow(
 			() -> new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND));
 	}
 
