@@ -39,7 +39,17 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
+		
+		String requestURI = request.getRequestURI();
+		log.info("JWT 인증 필터 처리 - URI: {}, Method: {}", requestURI, request.getMethod());
+		
+		// OAuth2 로그인 콜백 URL 확인
+		if (requestURI.contains("/oauth2/") || requestURI.contains("/login/oauth2/")) {
+			log.info("OAuth2 콜백 URL 감지: {}", requestURI);
+		}
+		
 		if (request.getRequestURI().equals(NO_CHECK_URL)) {
+			log.info("로그인 URL - JWT 필터 건너뛰기");
 			filterChain.doFilter(request, response); // "/login" 요청이 들어오면, 다음 필터 호출
 			return; // return으로 이후 현재 필터 진행 막기 (안해주면 아래로 내려가서 계속 필터 진행시킴)
 		}
