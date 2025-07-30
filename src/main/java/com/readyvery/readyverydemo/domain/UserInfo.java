@@ -4,7 +4,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 import org.hibernate.annotations.ColumnDefault;
 
 import lombok.AccessLevel;
@@ -21,9 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 @Entity
 @Builder
 @Table(name = "USER", indexes = {
-    @Index(name = "idx_email", columnList = "email"),
-    @Index(name = "idx_social_type_id", columnList = "social_type, social_id")
-  })
+	@Index(name = "idx_email", columnList = "email"),
+	@Index(name = "idx_social_type_id", columnList = "social_type, social_id")
+})
 @AllArgsConstructor
 @Slf4j
 public class UserInfo extends BaseTimeEntity {
