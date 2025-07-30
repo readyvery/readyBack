@@ -99,23 +99,48 @@ public class JwtServiceImpl implements JwtService {
 	 */
 	@Override
 	public Optional<String> extractEmail(String accessToken) {
+		// 토큰이 null이거나 빈 문자열인 경우 사전 검사
+		if (accessToken == null || accessToken.trim().isEmpty()) {
+			log.debug("AccessToken이 비어있습니다.");
+			return Optional.empty();
+		}
+		
+		// JWT 형식 기본 검사
+		String[] tokenParts = accessToken.split("\\.");
+		if (tokenParts.length != 3) {
+			log.debug("잘못된 AccessToken 형식입니다. 예상 부분: 3, 실제 부분: {}", tokenParts.length);
+			return Optional.empty();
+		}
+		
 		try {
 			// 토큰 유효성 검사하는 데에 사용할 알고리즘이 있는 JWT verifier builder 반환
-
 			return jwtTokenizer.verifyAccessToken(accessToken);
 		} catch (Exception e) {
-
+			log.debug("AccessToken에서 이메일 추출 실패: {}", e.getMessage());
 			return Optional.empty();
 		}
 	}
 
 	@Override
 	public boolean isTokenValid(String token) {
+		// 토큰이 null이거나 빈 문자열인 경우 사전 검사
+		if (token == null || token.trim().isEmpty()) {
+			log.debug("토큰이 비어있습니다.");
+			return false;
+		}
+		
+		// JWT 형식 기본 검사 (3개 부분으로 구성되어야 함)
+		String[] tokenParts = token.split("\\.");
+		if (tokenParts.length != 3) {
+			log.debug("잘못된 JWT 토큰 형식입니다. 예상 부분: 3, 실제 부분: {}", tokenParts.length);
+			return false;
+		}
+		
 		try {
 			JWT.require(jwtConfig.getAlgorithm()).build().verify(token);
 			return true;
 		} catch (Exception e) {
-			log.error("유효하지 않은 토큰입니다. {}", e.getMessage());
+			log.debug("JWT 토큰 검증 실패: {}", e.getMessage());
 			return false;
 		}
 	}

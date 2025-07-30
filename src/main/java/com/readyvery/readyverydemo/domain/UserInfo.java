@@ -4,18 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @Table(name = "USER", indexes = {
     @Index(name = "idx_email", columnList = "email"),
-    @Index(name = "idx_refresh_token", columnList = "refresh_token"),
     @Index(name = "idx_social_type_id", columnList = "social_type, social_id")
   })
 @AllArgsConstructor
@@ -73,21 +63,19 @@ public class UserInfo extends BaseTimeEntity {
 	private Role role;
 
 	// 소셜 로그인 타입
-	@Column(nullable = false)
+	@Column(name = "social_type", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private SocialType socialType; // KAKAO, NAVER, GOOGLE
 
 	// 소셜 로그인 타입의 식별자 값 (일반 로그인인 경우 null)
-	@Column(nullable = false)
+	@Column(name = "social_id", nullable = false)
 	private String socialId; // 로그인한 소셜 타입의 식별자 값 (일반 로그인인 경우 null)
 
 	// 유저 상태
 	@Column(nullable = false, columnDefinition = "BOOLEAN default true")
 	private boolean status;
 
-	// 리프레시 토큰
-	@Column(columnDefinition = "TEXT")
-	private String refreshToken;
+
 
 	// 계정 삭제 요청일
 	@Column

@@ -45,10 +45,28 @@ public class JwtTokenizer {
 	// }
 
 	public Optional<String> verifyAccessToken(String accessToken) {
-		return Optional.ofNullable(JWT.require(jwtConfig.getAlgorithm())
-			.build()
-			.verify(accessToken)
-			.getClaim(EMAIL_CLAIM)
-			.asString());
+		// 토큰이 null이거나 빈 문자열인 경우 사전 검사
+		if (accessToken == null || accessToken.trim().isEmpty()) {
+			log.debug("검증할 AccessToken이 비어있습니다.");
+			return Optional.empty();
+		}
+		
+		// JWT 형식 기본 검사
+		String[] tokenParts = accessToken.split("\\.");
+		if (tokenParts.length != 3) {
+			log.debug("AccessToken 검증 실패 - 잘못된 형식입니다. 예상 부분: 3, 실제 부분: {}", tokenParts.length);
+			return Optional.empty();
+		}
+		
+		try {
+			return Optional.ofNullable(JWT.require(jwtConfig.getAlgorithm())
+				.build()
+				.verify(accessToken)
+				.getClaim(EMAIL_CLAIM)
+				.asString());
+		} catch (Exception e) {
+			log.debug("AccessToken 검증 중 오류 발생: {}", e.getMessage());
+			return Optional.empty();
+		}
 	}
 }
