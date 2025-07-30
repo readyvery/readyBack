@@ -31,23 +31,23 @@ public class RedisConfig implements CachingConfigurer {
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {
 		// Redis Standalone 구성 설정
-		org.springframework.data.redis.connection.RedisStandaloneConfiguration redisConfig = 
+		org.springframework.data.redis.connection.RedisStandaloneConfiguration redisConfig =
 			new org.springframework.data.redis.connection.RedisStandaloneConfiguration();
 		redisConfig.setHostName(host);
 		redisConfig.setPort(port);
-		
+
 		// Redis 연결 실패 시에도 애플리케이션이 계속 동작하도록 타임아웃 설정
 		LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
 			.commandTimeout(Duration.ofSeconds(2))  // 짧은 타임아웃으로 빠른 실패
 			.shutdownTimeout(Duration.ofMillis(100))
 			.build();
-			
+
 		LettuceConnectionFactory factory = new LettuceConnectionFactory(redisConfig, clientConfig);
-		
+
 		// 연결 검증 비활성화로 Redis 다운 시에도 애플리케이션 시작 가능
 		factory.setValidateConnection(false);
 		factory.setShareNativeConnection(false);
-		
+
 		log.info("Redis 연결팩토리 설정 완료: {}:{}", host, port);
 		return factory;
 	}
@@ -56,18 +56,18 @@ public class RedisConfig implements CachingConfigurer {
 	public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
 		RedisTemplate<String, String> template = new RedisTemplate<>();
 		template.setConnectionFactory(connectionFactory);
-		
+
 		// String 직렬화 사용
 		StringRedisSerializer stringSerializer = new StringRedisSerializer();
 		template.setKeySerializer(stringSerializer);
 		template.setValueSerializer(stringSerializer);
 		template.setHashKeySerializer(stringSerializer);
 		template.setHashValueSerializer(stringSerializer);
-		
+
 		// 연결 실패 시 예외를 던지지 않도록 설정
 		template.setEnableDefaultSerializer(false);
 		template.setDefaultSerializer(stringSerializer);
-		
+
 		log.info("RedisTemplate 설정 완료 - Redis 다운 시 DB fallback 사용");
 		return template;
 	}
