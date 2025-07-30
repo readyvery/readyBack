@@ -64,6 +64,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		String refreshToken = jwtService.createRefreshToken();
 
 		jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken, role);
+		// RefreshTokenRepository를 직접 사용하지 말고 반드시 RefreshTokenService를 통해서만 접근하세요. (key-value 방식으로 변경됨)
 		refreshTokenServiceImpl.saveRefreshTokenInRedis(oAuth2User.getEmail(), refreshToken);
 	}
 

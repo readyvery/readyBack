@@ -65,6 +65,7 @@ import com.readyvery.readyverydemo.src.order.dto.FoodyDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryDetailRes;
 import com.readyvery.readyverydemo.src.order.dto.HistoryRes;
 import com.readyvery.readyverydemo.src.order.dto.OrderMapper;
+import com.readyvery.readyverydemo.src.order.dto.OrderUpdateMessage;
 import com.readyvery.readyverydemo.src.order.dto.PaySuccess;
 import com.readyvery.readyverydemo.src.order.dto.PaymentReq;
 import com.readyvery.readyverydemo.src.order.dto.TossCancelReq;
@@ -97,6 +98,7 @@ public class OrderServiceImpl implements OrderService {
 	private final PointRepository pointRepository;
 	private final PointServiceFacade pointServiceFacade;
 	private final OrderNumberSequenceRepository orderNumberSequenceRepository;
+	private final OrderEventProducer orderEventProducer;
 
 	@Override
 	public FoodyDetailRes getFoody(Long storeId, Long foodyId, Long inout) {
@@ -332,6 +334,16 @@ public class OrderServiceImpl implements OrderService {
 		if (!Objects.equals(order.getMessage(), TOSSPAYMENT_SUCCESS_MESSAGE)) {
 			return orderMapper.tosspaymentDtoToPaySuccess(order.getMessage());
 		}
+
+		OrderUpdateMessage message = new OrderUpdateMessage();
+		message.setOrderId(order.getOrderId());
+		message.setStoreId(order.getStore().getId()); // 중요!
+		message.setStatus(order.getProgress().name()); // "ORDER"
+		message.setMessage("주문 상태가 " + order.getProgress().name() + " 로 변경되었습니다.");
+
+		// 4. 메시지 발행
+		orderEventProducer.sendOrderUpdate(message);
+
 		//TODO: 영수증 처리
 		Receipt receipt = orderMapper.tosspaymentDtoToReceipt(tosspaymentDto, order);
 		receiptRepository.save(receipt);
@@ -543,7 +555,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private List<Order> getOrders(UserInfo user) {
-		return ordersRepository.findAllByUserInfo(user).orElseThrow(
+		return ordersRepository.findAllWithAssociationsByUserInfo(user).orElseThrow(
 			() -> new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND));
 	}
 
