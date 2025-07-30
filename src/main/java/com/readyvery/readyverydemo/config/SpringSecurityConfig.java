@@ -22,7 +22,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.readyvery.readyverydemo.domain.repository.RefreshTokenRepository;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
 import com.readyvery.readyverydemo.security.exception.CustomAuthenticationEntryPoint;
 import com.readyvery.readyverydemo.security.jwt.filter.JwtAuthenticationProcessingFilter;
@@ -31,6 +30,7 @@ import com.readyvery.readyverydemo.security.oauth2.CustomRequestEntityConverter;
 import com.readyvery.readyverydemo.security.oauth2.handler.OAuth2LoginFailureHandler;
 import com.readyvery.readyverydemo.security.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.readyvery.readyverydemo.security.oauth2.service.CustomOAuth2UserService;
+import com.readyvery.readyverydemo.src.refreshtoken.RefreshTokenService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,7 +43,7 @@ public class SpringSecurityConfig {
 	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 	private final CustomOAuth2UserService customOAuth2UserService;
-	private final RefreshTokenRepository refreshTokenRepository;
+	private final RefreshTokenService refreshTokenService;
 	private final OauthConfig oauthConfig;
 
 	@Bean
@@ -134,7 +134,7 @@ public class SpringSecurityConfig {
 	@Bean
 	public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
 		JwtAuthenticationProcessingFilter jwtAuthenticationFilter = new JwtAuthenticationProcessingFilter(jwtService,
-			userRepository, refreshTokenRepository);
+			userRepository, refreshTokenService);
 		return jwtAuthenticationFilter;
 	}
 

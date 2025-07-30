@@ -19,7 +19,8 @@ public class ExtractToken {
 			return Arrays.stream(cookies)
 				.filter(cookie -> tokenName.equals(cookie.getName()))
 				.findFirst()
-				.map(Cookie::getValue);
+				.map(Cookie::getValue)
+				.filter(token -> token != null && !token.trim().isEmpty()); // 빈 토큰 필터링 추가
 		}
 		return Optional.empty();
 	}
@@ -27,7 +28,8 @@ public class ExtractToken {
 	public Optional<String> extractTokenHeader(HttpServletRequest request, String tokenName) {
 		return Optional.ofNullable(request.getHeader(tokenName))
 			.filter(verifyToken -> verifyToken.startsWith(BEARER))
-			.map(verifyToken -> verifyToken.replace(BEARER, ""));
+			.map(verifyToken -> verifyToken.replace(BEARER, ""))
+			.filter(token -> token != null && !token.trim().isEmpty()); // 빈 토큰 필터링 추가
 	}
 
 }

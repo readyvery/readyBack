@@ -11,12 +11,11 @@ import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.readyvery.readyverydemo.domain.RefreshToken;
 import com.readyvery.readyverydemo.domain.UserInfo;
-import com.readyvery.readyverydemo.domain.repository.RefreshTokenRepository;
 import com.readyvery.readyverydemo.domain.repository.UserRepository;
 import com.readyvery.readyverydemo.security.jwt.dto.CustomUserDetails;
 import com.readyvery.readyverydemo.security.jwt.service.JwtService;
+import com.readyvery.readyverydemo.src.refreshtoken.RefreshTokenService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,7 +32,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
 	private final JwtService jwtService;
 	private final UserRepository userRepository;
-	private final RefreshTokenRepository refreshTokenRepository;
+	private final RefreshTokenService refreshTokenService;
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
@@ -78,14 +77,16 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	 *  그 후 JwtService.sendAccessTokenAndRefreshToken()으로 응답 헤더에 보내기
 	 */
 	public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken) {
-		refreshTokenRepository.findByRefreshToken(refreshToken)
-			.map(RefreshToken::getId) // RefreshToken 객체에서 ID를 추출합니다.
-			.flatMap(userRepository::findByEmail) // 추출된 ID를 이용하여 user를 조회합니다.
-			.ifPresent(user -> {
-				String reIssuedRefreshToken = reIssueRefreshToken(user);
-				jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getEmail()),
-					reIssuedRefreshToken, user.getRole());
-			});
+		// RefreshToken으로 이메일을 찾고, 해당 이메일로 사용자 조회
+		String email = refreshTokenService.findEmailByRefreshToken(refreshToken);
+		if (email != null) {
+			userRepository.findByEmail(email)
+				.ifPresent(user -> {
+					String reIssuedRefreshToken = reIssueRefreshToken(user);
+					jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getEmail()),
+						reIssuedRefreshToken, user.getRole());
+				});
+		}
 	}
 
 	/**
@@ -95,22 +96,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	 */
 	private String reIssueRefreshToken(UserInfo userInfo) {
 		String reIssuedRefreshToken = jwtService.createRefreshToken();
-
-		RefreshToken refreshToken = refreshTokenRepository.findById(userInfo.getEmail())
-			.map(token -> {
-				// 이미 존재하는 토큰이 있으면, 새로 발급받은 리프레시 토큰으로 업데이트
-				token.update(reIssuedRefreshToken);
-				return token;
-			})
-			.orElseGet(() -> {
-				// 새로운 토큰 생성
-				return RefreshToken.builder()
-					.id(userInfo.getEmail())
-					.refreshToken(reIssuedRefreshToken)
-					.build();
-			});
-
-		refreshTokenRepository.save(refreshToken);
+		refreshTokenService.saveRefreshTokenInRedis(userInfo.getEmail(), reIssuedRefreshToken);
 		return reIssuedRefreshToken;
 	}
 
