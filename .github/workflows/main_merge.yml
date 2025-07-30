@@ -63,4 +63,3 @@ jobs:
             docker-compose stop readyvery || true
             docker-compose rm -f readyvery || true
             docker-compose up -d readyvery
-      
