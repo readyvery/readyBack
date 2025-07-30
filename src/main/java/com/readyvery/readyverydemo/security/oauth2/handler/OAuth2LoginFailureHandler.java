@@ -18,9 +18,27 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException,
 		ServletException {
+		
+		log.error("=== OAuth2 로그인 실패 핸들러 시작 ===");
+		log.error("요청 URI: {}", request.getRequestURI());
+		log.error("요청 파라미터: {}", request.getQueryString());
+		log.error("User-Agent: {}", request.getHeader("User-Agent"));
+		log.error("Referer: {}", request.getHeader("Referer"));
+		
+		log.error("인증 예외 타입: {}", exception.getClass().getSimpleName());
+		log.error("인증 예외 메시지: {}", exception.getMessage());
+		log.error("인증 예외 스택트레이스: ", exception);
+		
+		// 원인별 상세 정보 추가
+		if (exception.getCause() != null) {
+			log.error("인증 예외 원인: {}", exception.getCause().getMessage());
+			log.error("인증 예외 원인 스택트레이스: ", exception.getCause());
+		}
+		
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		response.getWriter().write("소셜 로그인 실패! 서버 로그를 확인해주세요.");
-		log.info("소셜 로그인에 실패했습니다. 에러 메시지 : {}", exception.getMessage());
+		
+		log.error("=== OAuth2 로그인 실패 핸들러 완료 ===");
 	}
 }
 

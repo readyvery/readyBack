@@ -17,12 +17,15 @@ public class TokenSendManager {
 
 	public void addTokenCookie(HttpServletResponse response, String name, String value, String path, int maxAge,
 		boolean httpOnly) {
+		log.info("토큰 쿠키 추가 - 이름: {}, Path: {}, MaxAge: {}, HttpOnly: {}", name, path, maxAge, httpOnly);
+		
 		Cookie cookie = new Cookie(name, value);
 		cookie.setHttpOnly(httpOnly);
 		cookie.setPath(path);
 		cookie.setMaxAge(maxAge);
 		response.addCookie(cookie);
 
+		log.info("토큰 쿠키 응답에 추가 완료");
 	}
 
 	// public ResponseEntity<UserLoginSuccessRes> addTokenResponseBody(String accessToken, String refreshToken,

@@ -82,7 +82,7 @@ public class SpringSecurityConfig {
 				.tokenEndpoint(token -> token.accessTokenResponseClient(accessTokenResponseClient())) // 토큰 엔드포인트 설정
 				.successHandler(oAuth2LoginSuccessHandler) // 동의하고 계속하기를 눌렀을 때 Handler 설정
 				.failureHandler(oAuth2LoginFailureHandler) // 소셜 로그인 실패 시 핸들러 설정
-
+				
 				.userInfoEndpoint(userInfo -> userInfo
 					.userService(customOAuth2UserService)))
 

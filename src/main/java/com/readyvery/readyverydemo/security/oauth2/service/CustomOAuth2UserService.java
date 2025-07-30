@@ -36,11 +36,21 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		log.info("=== CustomOAuth2UserService.loadUser 시작 ===");
+		
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
+		log.info("OAuth2 Provider: {}", registrationId);
+		log.info("Client Registration ID: {}", userRequest.getClientRegistration().getClientId());
+		log.info("Client Registration URI: {}", userRequest.getClientRegistration().getRedirectUri());
+		
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
 		SocialType socialType = getSocialType(registrationId);
+		log.info("변환된 SocialType: {}", socialType);
+		
 		String userNameAttributeName = userRequest.getClientRegistration()
 			.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName(); // OAuth2 로그인 시 키(PK)가 되는값
+		log.info("UserName Attribute Name: {}", userNameAttributeName);
+		
 		Map<String, Object> attributes;
 		/**
 		 * DefaultOAuth2UserService 객체를 생성하여, loadUser(userRequest)를 통해 DefaultOAuth2User 객체를 생성 후 반환
@@ -49,20 +59,24 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		 * 결과적으로, OAuth2User는 OAuth 서비스에서 가져온 유저 정보를 담고 있는 유저
 		 */
 		if (registrationId.contains(APPLE_NAME)) {
+			log.info("Apple 로그인 처리 시작");
 			// Apple 로그인의 경우 JWT 토큰에서 사용자 정보를 디코드
 			String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
+			log.info("Apple ID Token 길이: {}", idToken.length());
+			
 			attributes = decodeJwtTokenPayload(idToken);
 			attributes.put("id_token", idToken);
 
-			System.out.println("attributes = " + attributes);
-			System.out.println("userNameAttributeName = " + userNameAttributeName);
+			log.info("Apple 사용자 정보 디코드 완료 - attributes: {}", attributes);
+			log.info("Apple userNameAttributeName: {}", userNameAttributeName);
 
 			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
 			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
 
-			System.out.println("extractAttributes = " + extractAttributes);
+			log.info("Apple extractAttributes: {}", extractAttributes);
 			UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
-			System.out.println("createdUser = " + createdUser);
+			log.info("Apple 사용자 생성/조회 완료 - ID: {}, 이메일: {}", createdUser.getId(), createdUser.getEmail());
+			
 			// CustomOAuth2User 객체 생성
 			return new CustomOAuth2User(
 				Collections.singleton(new SimpleGrantedAuthority(createdUser.getRole().getKey())),
@@ -72,6 +86,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 				createdUser.getRole()
 			);
 		} else {
+			log.info("Google/Kakao 로그인 처리 시작");
 			OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
 			/**
@@ -81,20 +96,27 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 			 */
 
 			attributes = oAuth2User.getAttributes(); // 소셜 로그인에서 API가 제공하는 userInfo의 Json 값(유저 정보들)
+			log.info("OAuth2 사용자 정보 조회 완료 - attributes: {}", attributes);
 
 			// socialType에 따라 유저 정보를 통해 OAuthAttributes 객체 생성
 			OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
+			log.info("OAuthAttributes 생성 완료: {}", extractAttributes);
 
 			UserInfo createdUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
+			log.info("사용자 생성/조회 완료 - ID: {}, 이메일: {}, 역할: {}", 
+				createdUser.getId(), createdUser.getEmail(), createdUser.getRole());
 
 			// DefaultOAuth2User를 구현한 CustomOAuth2User 객체를 생성해서 반환
-			return new CustomOAuth2User(
+			CustomOAuth2User customUser = new CustomOAuth2User(
 				Collections.singleton(new SimpleGrantedAuthority(createdUser.getRole().getKey())),
 				attributes,
 				extractAttributes.getNameAttributeKey(),
 				createdUser.getEmail(),
 				createdUser.getRole()
 			);
+			
+			log.info("=== CustomOAuth2UserService.loadUser 완료 ===");
+			return customUser;
 		}
 	}
 
@@ -113,15 +135,21 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	 * 만약 찾은 회원이 있다면, 그대로 반환하고 없다면 saveUser()를 호출하여 회원을 저장한다.
 	 */
 	private UserInfo getUser(OAuthAttributes attributes, SocialType socialType) {
+		log.info("사용자 조회/생성 시작 - SocialType: {}, SocialId: {}", 
+			socialType, attributes.getOauth2UserInfo().getId());
 
 		UserInfo findUser = userRepository.findBySocialTypeAndSocialId(socialType,
 			attributes.getOauth2UserInfo().getId()).orElse(null);
 
 		if (findUser == null) {
+			log.info("신규 사용자 - 회원가입 진행");
 			return saveUser(attributes, socialType);
 		} else if (findUser.isStatus()) {
+			log.info("기존 사용자 상태 업데이트 - ID: {}", findUser.getId());
 			findUser.updateStatus(false);
 			userRepository.save(findUser);
+		} else {
+			log.info("기존 사용자 로그인 - ID: {}, 이메일: {}", findUser.getId(), findUser.getEmail());
 		}
 		return findUser;
 	}
@@ -131,9 +159,16 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	 * 생성된 User 객체를 DB에 저장 : socialType, socialId, email, role 값만 있는 상태
 	 */
 	private UserInfo saveUser(OAuthAttributes attributes, SocialType socialType) {
+		log.info("신규 사용자 저장 시작 - 이메일: {}, SocialType: {}", 
+			attributes.getOauth2UserInfo().getEmail(), socialType);
 
 		UserInfo createdUser = attributes.toEntity(socialType, attributes.getOauth2UserInfo());
-		return userRepository.save(createdUser);
+		UserInfo savedUser = userRepository.save(createdUser);
+		
+		log.info("신규 사용자 저장 완료 - ID: {}, 이메일: {}, 역할: {}", 
+			savedUser.getId(), savedUser.getEmail(), savedUser.getRole());
+		
+		return savedUser;
 	}
 
 	private Map<String, Object> decodeJwtTokenPayload(String jwtToken) {
